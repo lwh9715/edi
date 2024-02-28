@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="./res/static/css/index.css?t=25">
+	<link rel="stylesheet" href="./res/static/css/login.css?t=13">
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	
+	<script src="/so/res/layui/layui.js"></script>
+	
+	<script src="./admin/js/ufms.common.js?t=13" ></script>
+	<script src="./res/static/js/index.js?t=13"></script>
+	<script src="./res/layui/sliderVerify/sliderVerify.js?t=2"></script>
+	
+	<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	<script src="./res/static/js/verification.js"></script>
+	<script src="/so/res/layui/layui.js"></script>
+	
+	
+	<style type="text/css">
+
+body {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	line-height: 18px;
+}
+body {
+	color: #686868;
+	background-color: #3c3c3c;
+	/*background-image: url("images/bg_grey.jpg");*/
+	background-repeat: repeat;
+	margin: 0px auto 15px;
+	width: 100%;
+}
+
+#main {
+	width: 100%;
+	height: auto;
+	margin: 150px auto 0;
+	background: white;
+	padding: 25px 0;
+	text-align: center;
+
+	line-height: 35px;
+
+}
+
+#logo {
+	margin: 0 auto 0;
+	width: auto;
+	display: none;
+}
+
+#code input.input_login, #login input.input_login {
+ 	width: 64%;
+}
+
+#code .login_span, #login .login_span {
+	display: inline-block;
+	width: 70px;
+	text-align: left;
+}
+
+
+
+.help {
+	margin: 0 auto 0;
+	width: 300px;
+	text-align: left;
+	background: url("images/logo_ef4_250px.png") top left no-repeat;
+	padding-top: 50px;
+	line-height: 1.5em;
+}
+
+#code, #login {
+	margin: 0 auto 0;
+	width: 300px;
+	text-align: left;
+}
+
+#code input, #login input {
+	/*width: auto;*/
+}
+
+input[type=text], #stylized input, .input_login {
+	font-size: 90%;
+	width: 95%;
+	padding: 7px 1% 7px 1%;
+	color: #686868;
+	background: #fff;
+	border: 2px solid #e8e8e8;
+	vertical-align: middle;
+
+	-webkit-border-radius: 5px;
+	-o-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-ms-border-radius: 5px;
+	border-radius: 5px;
+}
+
+
+
+.bigbutton {
+	cursor: pointer;
+	padding: 0 10px;
+	margin: 0 0 0 75px;
+	font-family: 'Novecentowide-Medium', Helvetica, Arial, sans-serif;
+	text-align: center;
+	display: inline-block;
+	/*width: 120px;*/
+	height: 30px;
+
+	color: #033a4e;
+	text-transform: uppercase;
+	font-weight: normal;
+	text-shadow: 1px 1px 0px #ffffff;
+
+	border: 1px solid #d9d9d9;
+
+	-moz-border-radius: 3px;
+	-o-border-radius: 3px;
+	-ms-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+
+	background: #ffffff; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffffff 0%, #e3e3e3 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #e3e3e3)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffffff 0%, #e3e3e3 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffffff 0%, #e3e3e3 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #ffffff 0%, #e3e3e3 100%); /* IE10+ */
+	background: linear-gradient(to bottom, #ffffff 0%, #e3e3e3 100%); /* W3C */
+ 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e3e3e3', GradientType=0 ); /* IE6-9 */
+}
+.bigbutton:hover {
+	color: #033a4e;
+	background: #e3e3e3; /* Old browsers */
+	background: -moz-linear-gradient(top, #e3e3e3 0%, #ffffff 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #e3e3e3), color-stop(100%, #ffffff)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #e3e3e3 0%, #ffffff 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #e3e3e3 0%, #ffffff 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #e3e3e3 0%, #ffffff 100%); /* IE10+ */
+	background: linear-gradient(to bottom, #e3e3e3 0%, #ffffff 100%); /* W3C */
+ 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e3e3e3', endColorstr='#ffffff', GradientType=0 ); /* IE6-9 */
+}
+
+.bigbutton:disabled {
+    color: #a0a0a0;
+}
+
+input.bigbutton {
+		outline: 0;
+
+}
+
+
+
+
+div.big_button {
+	display: block;
+	margin: 0 0 13px 0;
+	/*width: 120px;*/
+	padding: 0 0 0 0;
+	text-transform: uppercase;
+	font-weight: normal;
+	/*font-size: 15px;*/
+	text-align: center;
+	z-index: 1;
+	/*width: 120px;*/
+	max-width: 320px;
+}
+
+
+
+
+
+
+
+div.bouton_code {
+	margin-left: 0 !important;
+	padding: 0 10px 0 10px;
+	vertical-align: top;
+	width: auto;
+}
+
+div.bouton_code input {
+	padding: 6px 0 6px !important;
+}
+
+#main #code {
+	line-height: 1.5em ;
+	display: block;
+} 
+
+#main #code .bouton_code .bigbutton {
+	width: 120px;
+	margin: 10px 0 0 -18px;
+}
+
+
+
+/* desabo */
+
+table {
+	font-size: 13px;
+}
+
+
+
+.desabo {
+	margin: 0 auto 0;
+	width: 500px;
+	text-align: left;
+/*	background: url("images/logo_ef4_250px.png") top left no-repeat;
+*/	padding-top: 50px;
+	line-height: 1.5em;
+}
+
+.desabo table tr td, .desabo table tr th {
+	border-top: 1px solid #ccc;
+	padding: 10px 5px;
+	line-height: 25px;
+}
+
+.desabo table tr th.title {
+	font-size: 18px;
+}
+
+
+.desabo table tr:first-child td, .desabo table tr:first-child th {
+	border-top: none;
+}
+
+.desabo a {
+	color: #999;
+	text-decoration: underline;
+}
+</style>
+
+</head>
+<body>
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  
+  <!-- main部分 -->
+  <div class="main-about">
+    <div class="layui-container">
+      		<p>
+	<title>Unsubscribe</title> <meta content="text/html; charset=utf-8" http-equiv="Content-Type" /></p>
+<p>
+	</p>
+<div id="main">
+	<div class="desabo">
+		<form method="post" class="layui-form" id="form">
+			<input name="lang" type="hidden" value="en" />
+			<table cellpadding="0" cellspacing="0" id="">
+				<tbody>
+					<tr>
+						<th class="title" colspan="2">
+							世倡集团 - GLOBE SUCCESS GROUP</th>
+					</tr>
+					<tr>
+					<div class="layui-form-item">
+						<th nowrap="nowrap">
+							Address :</th>
+						<div class="layui-input-block">
+						<td>
+						    <input lay-filter="email" type="text" name="email" class="layui-input">
+						</td>
+						</div>
+					</div>
+					</tr>
+					<tr>
+						<th nowrap="nowrap">
+						<div class="layui-form-item" pane="">
+							<label class="layui-form-label">Reasons :</label></th>
+						</div>
+						<div class="layui-input-block">
+							<td nowrap="nowrap">						
+								Please tell us why you unsubscribe<br />									    							    	
+							      		<input id="r1" name="reason" type="radio" value="r1" title="I am not interested anymore" /><br />
+							      		<input id="r2" name="reason" type="radio" value="r2" title="I receive too many messages"/><br />
+							      		<input id="r3" name="reason" type="radio" value="r3" title="I can&#39;t read the messages"/><br />
+										<input id="r4" name="reason" type="radio" value="r4" title="I never asked to subscribe"/><br />
+										<input id="rZ" name="reason" type="radio" value="rZ" title="Other"/>						   
+							</td>
+						</div>	
+					</tr>
+					<tr>
+						<th class="bottom" colspan="2" style="text-align: center;">
+							<div class="big_button">
+								<button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="unsubscribe" style="width:100%;" type="submit">unsubscribe</button>	
+							</div>
+						</th>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
+      		
+        
+    </div>
+  </div>
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+  <script src="/so/res/layui/layui.js"></script>
+<script>
+  layui.config({
+    base: './res/static/js/' 
+  }).use('firm'); 
+
+  $("#nav").load("./nav.html");
+  $("#footer").load("./footer.html");
+</script>
+<script type="text/javascript">
+layui.use(['form','jquery'],function(data){
+	var form = layui.form;
+	var jquery = layui.jquery;
+	form.render(); 
+	form.on('submit(unsubscribe)', function(data){
+	  	var postJson = JSON.stringify(data.field);
+         $.ajax({
+			  type: 'POST',
+			  url: getContextPath()+"/unsubscribe?method=addUnsubscribe",
+			  contentType:'application/json',
+			  data: postJson,
+			  dataType:"json",
+			  success: function(res){
+             	console.dir(res);
+			    if(res.success){
+			    	layer.msg(res.message,{icon: 7});
+				}else{
+					layer.msg(res.message,{icon: 7});
+				}
+			  }
+		});
+	});
+});
+</script>
+</body>
+</html>

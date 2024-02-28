@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>工作单</title>
+    <!--vue 框架-->
+    <script src="vue/vue.js"></script>
+    <script src="vue/vue-router.js"></script>
+    <script src="vue/vue-resource.min.js"></script>
+    <script src="vue/http-vue-loader.js"></script>
+    <!--element ui-->
+    <link rel="stylesheet" href="element/index.css"/>
+    <script src="element/index.js"></script>
+    <script src="admin/js/config.js"></script>
+
+</head>
+<body style="display: block;margin: 0px;">
+<!-- nav部分 -->
+<div id="container">
+    <template>
+        <el-row>
+            <el-col :span="6" style="text-align: center;padding:10px;">
+                <el-input type="textarea" :autosize="{ minRows: 12, maxRows: 14}"
+                          placeholder="每行输入一个单号，最多只允许提交20个单号。"
+                          v-model="nos">
+                </el-input>
+                <el-col style="width: 100%;padding-top: 10px;">
+                    <el-button type="primary" @click="queryTrackList">轨迹查询</el-button>
+                </el-col>
+            </el-col>
+            <el-col :span="18" style="padding:10px;height: 100vh;">
+                <el-col style="">
+                    <el-collapse v-model="active">
+                        <el-collapse-item :name="index" v-for="(item,index) in trackList">
+                            <template slot="title">
+                                <el-col :span="4" style="font-weight: 800;">&nbsp;<i class="el-icon-collection-tag"></i>&nbsp;{{item.Jobnum}}
+                                </el-col>
+                                <el-col :span="4">{{item.Delivercode}} 一 {{item.Destcountrycode}}</el-col>
+                                <el-col :span="16">{{ item.Data.length > 0 ? item.Data[0].trackDisplayDate : '轨迹状态暂未更新'}} &nbsp;
+                                    {{item.Data.length > 0 ? item.Data[0].trackDescriptionCn : ''}}
+                                </el-col>
+                            </template>
+                            <el-timeline>
+                                <el-timeline-item v-for="(t, i) in item.Data" :key="i" :timestamp="t.trackDisplayDate"
+                                                  :color="i == 0 ? '#409eff' :''">
+                                    {{t.trackDescriptionCn}}
+                                </el-timeline-item>
+                            </el-timeline>
+                        </el-collapse-item>
+                    </el-collapse>
+                </el-col>
+            </el-col>
+        </el-row>
+    </template>
+</div>
+</body>
+
+<script>
+    //vue
+    Vue.use(httpVueLoader);
+    new Vue({
+        el: '#container',
+        components: {},
+        data() {
+            return {
+                nos: '',
+                active: [0],
+                textarea2: '',
+                trackList: [],
+            }
+        },
+        methods: {
+            queryTrackList() {
+
+                if (this.nos == '') {
+                    this.$message.warning('请输入正确的单号。');
+                    return;
+                }
+
+                this.$http.post(this.url + "/so/tracking?method=queryTrackList", {
+                    "nos": this.nos.replace(/^\s+|\s+$/g, ""),
+                }).then(function (res) {
+                    if (res.body.data != '{}') {
+                        this.trackList = eval('(' + res.body.data + ')');
+                    } else {
+                        this.$message.warning('你的单号我们暂时无法识别。')
+                    }
+                });
+            },
+        },
+        created() {
+            this.url = getPortUrl();
+        }
+    });
+</script>
+<style scoped>
+
+    html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    html {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0;
+        overflow: auto;
+    }
+
+    body {
+        overflow: auto;
+    }
+
+    .el-button--primary {
+        width: 100%;
+    }
+
+    .el-timeline {
+        padding: 10px 20px;
+    }
+
+
+</style>
+</html>

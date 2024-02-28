@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	<link rel="stylesheet" href="../res/static/css/index.css?t=13">
+	<link rel="stylesheet" href="../res/static/css/login.css?t=13">
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<link rel="stylesheet" href="../res/layui/layui-formSelects/formSelects-v4.css">
+	<script src="/so/res/layui/layui.js"></script>
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="../res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="../admin/js/ufms.common.js?t=10" ></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	<style type="text/css">
+		.layui-table-cell{
+		    height:20px;
+		    line-height: 20px;
+		}
+
+	</style>
+</head>
+<body>
+
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  
+  <!-- nav二级部分 -->
+  <div class="nav_level2" id="nav_level2">
+  </div>
+  
+  <!-- main -->
+  <form class="layui-form" lay-filter="formFilter">
+   <div class="">
+   		<!--<h3>开票申请</h3>
+   			--><div class="layui-inline">
+			      <label class="layui-form-label">单号</label>
+			      <div class="layui-input-inline">
+			        <input type="text" name="nos" placeholder="Nos" autocomplete="off" class="layui-input">
+			      </div>
+			      <div class="layui-input-inline">
+				      <select id="pol" name="pol" lay-search="" xm-select="checkbox_currency" xm-select-search="" xm-select-skin="normal">
+				         <option value=""><span class="translate">选择币制</span></option>
+				      </select>
+			      </div>
+			</div>
+			<div class="layui-inline">
+			      <div class="layui-input-inline">
+			        <button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="query"><i class="layui-icon layui-icon-search"></i><span class="translate">查询</span></button>
+			      </div>
+			</div>
+		
+   </div>
+   <div style="">
+  		<div class="layui-inline">
+			<table class="layui-table" id="datetable" lay-size="sm" lay-filter="datetable"></table>
+			<table class="layui-table" id="arapdatetable" lay-size="sm" lay-filter="arapdataReload"></table>
+		</div>
+		<div class="layui-form-item">
+		    <div class="layui-inline">
+		      <div class="layui-input-inline">
+		        <lable id="curencysum" style="font-size: 18px;color: #d2691e;"></lable>
+		      </div>
+		    </div>
+			<div class="layui-inline">
+		      <div class="layui-input-inline">
+		        <button type="button" class="layui-btn layui-btn-lg layui-btn-normal" lay-submit="" lay-filter="invoicesubmit"> <span class="translate">提交</span><i class="fa fa-check-circle"></i></button>
+		      </div>
+		    </div>
+		</div>
+	</div>
+	
+	
+  </form>
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+  
+
+<script type="text/html" id="showAttachment">
+    	<button type="button" value="{{d.id}}" class="layui-btn layui-btn-primary layui-btn-xs" lay-submit lay-filter="showAttachment"><i class="layui-icon layui-icon-survey"></i> {{ $.i18n.prop('附件')}} </button>
+</script>
+
+<script>
+$("#nav").load(getContextPath()+"/nav.html");
+$("#nav_level2").load(getContextPath()+"/managernav.html");
+$("#footer").load(getContextPath()+"/footer.html");
+actionGet('index','checkLogin','',function(res){
+	 var data = JSON.parse(res);
+	 if(data.success){//如果登录了就把导航宽度拓展到100%
+		 $('#nav-logo').css({width: "1350px"});
+	 }
+})
+
+layui.use(['jquery','layer','form','formSelects','laydate','table','element','i18np'], function() {
+	$ = layui.jquery;
+	var form = layui.form,formSelects = layui.formSelects,laydate = layui.laydate,table = layui.table,element = layui.element,i18np=layui.i18np; //只有执行了这一步，部分表单元素才会自动修饰成功
+	randerfromselect('/combobox','fscurrency','checkbox_currency',formSelects,false);
+	form.render();
+	i18np.translateOnForm(getLanguage());
+  	table.render({
+	    elem: '#datetable'
+	    ,url:getContextPath()+"/invoice?method=businvoicelist"+getSid()
+	    ,height: 300
+	    ,limit:15
+	    ,cols: [[
+		   {type:'checkbox'}
+	      ,{field:'booknos',  title: '单号',align:"left", width:150}
+	      ,{field:'customerabbr',  title: '委托人',align:"left", width:180}
+	      ,{field:'pold',  title: '起运港/目的港',align:"left", width:160}
+	      ,{field:'carrierabbr',  title: '船公司',align:"left", width:140}
+	      ,{field:'cnts',  title: '箱型箱量',align:"left", width:110}
+	      ,{field:'etd',  title: '开船/下单时间',align:"left", width:135}
+	      ,{field:'',  title: '附件',align:"center", width:90, templet: '#showAttachment'}
+	    ]]
+	    ,id: 'dataReload'
+	    ,title:'我的订单'
+	    ,page: {theme: '#1e9fff'}
+	    ,done: function (res, curr, count) {
+		    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+		    i18np.translateOnTanle(getLanguage());
+	    }
+	  });
+  	form.on('submit(query)', function(data){
+  	  	var datajson = JSON.parse(JSON.stringify(data.field));
+  		table.reload('dataReload', {
+	        page: {
+	          curr: 1 //重新从第 1 页开始
+	        }
+	        ,where: {
+		  			nos: datajson.nos
+	        }
+	    });
+  		table.reload('arapdataReload', {
+  	        page: {
+  	          curr: 1 //重新从第 1 页开始
+  	        }
+  	        ,where: {
+  	        	jobids: null
+  	        	,currency : null
+  	        }
+  	    });
+    });
+  	table.on('checkbox(datetable)', function(obj){
+  	  var checkStatus = table.checkStatus("dataReload");
+  	  var checkdata = checkStatus.data //选中行的相关数据
+  	  var ids = "";
+  	  console.log(formSelects.value('checkbox_currency', 'valStr'));
+  	  for(var i = 0;i<checkdata.length;i++){
+  		ids = ids + checkdata[i].id+",";
+  	  }
+  	  table.reload('arapdataReload', {
+        page: {
+          curr: 1 //重新从第 1 页开始
+        }
+        ,where: {
+        	jobids: ids
+        	,currency : formSelects.value('checkbox_currency', 'valStr')
+        }
+      });
+  	});
+  	table.on('checkbox(arapdataReload)', function(obj){
+    	  var checkStatus = table.checkStatus("arapdataReload");
+    	  var checkdata = checkStatus.data //选中行的相关数据
+    	  var currencyvsum = '';
+    	  var returnv='';
+    	  for(var i = 0;i<checkdata.length;i++){
+    		currencyvsum += checkdata[i].currency+",";
+    	  }
+    	  currencyvsum = currencyvsum.substr(0,currencyvsum.length-1);
+    	  var currencyvsumsplit = Array.from(new Set(currencyvsum.split(',')));
+    	  for(var j = 0;j<currencyvsumsplit.length;j++){
+	      		var currency = currencyvsumsplit[j];
+	      		var amountcusum =0;
+	      		for(var i = 0;i<checkdata.length;i++){
+	  	    		var amountv = checkdata[i].amount;
+	  	    		if(checkdata[i].currency==currency){
+	  	    			amountcusum+=parseFloat(checkdata[i].amount);
+	  	    		}
+	  	    	}
+	  	    	returnv = returnv + currency + " : " + amountcusum + "<br>";
+	  	    	//$("[id$=displaytotals]").text(returnv==""?"":("分币制合计："+returnv));
+	  	  }
+    	  $('#curencysum').html(returnv);;
+    });
+  	table.render({
+	    elem: '#arapdatetable'
+	    ,url:getContextPath()+"/invoice?method=businvoicearap"+getSid()
+	    ,height: 260
+	    ,limit:15
+	    ,cols: [[
+	       {type:'checkbox'}
+		  ,{field:'id',  title: 'ID',align:"left", width:80,hide:true}
+		  ,{field:'araptype',  title: '类别',align:"left", width:80}
+	      ,{field:'jobnos',  title: '工作单号',align:"left", width:150}
+	      ,{field:'customeabbr',  title: '结算公司',align:"left", width:100}
+	      ,{field:'ppcc',  title: 'PP/CC',align:"left", width:80}
+	      ,{field:'feeitemnamec',  title: '费用名称',align:"left", width:160}
+	      ,{field:'currency',  title: '币制',align:"left", width:80}
+	      ,{field:'piece',  title: '数量',align:"right", width:80}
+	      ,{field:'price',  title: '单价',align:"right", width:80}
+	      ,{field:'amount',  title: '金额',align:"right", width:80}
+	    ]]
+	    ,id: 'arapdataReload'
+	    ,title:'费用'
+	    ,page: {theme: '#1e9fff'}
+	    ,done: function (res, curr, count) {
+		    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+	    }
+	});
+    //监听提交
+	form.on('submit(invoicesubmit)', function(data){
+		var checkStatus = table.checkStatus("arapdataReload");
+	  	var checkdata = checkStatus.data //选中行的相关数据
+	  	var ids = "";
+	  	var customerids = "";
+	  	if(checkdata.length == 0){
+			layer.msg("请选择费用",{icon:7});
+			return ;
+		}
+	  	for(var i = 0;i<checkdata.length;i++){
+	  		ids = ids + checkdata[i].id+",";
+	  	}
+	  	ids = ids.substring(0,ids.length-1);
+	  	ids = Array.from(new Set(ids.split(','))).join(',');
+	  	for(var i = 0;i<checkdata.length;i++){
+	  		customerids = customerids + checkdata[i].customerid+",";
+	  	}
+	  	customerids = customerids.substring(0,customerids.length-1);
+	  	var arrids = Array.from(new Set(customerids.split(',')));//去重
+	  	if(arrids.length > 1){
+	  		layer.msg("请选择同一个结算公司的费用",{icon:7});
+			return ;
+		}
+	  	var checkStatusjob = table.checkStatus("dataReload");
+  	    var checkdatajob = checkStatusjob.data //选中行的相关数据
+  	    var jobids = "";
+  	    for(var i = 0;i<checkdatajob.length;i++){
+  		  jobids = jobids + checkdatajob[i].id+",";
+  	    }
+	  	jobids = jobids.substring(0,jobids.length-1);
+	  	actionGet('/invoice','createbusinvoic','jobids='+jobids+'&arapids='+ids,function(res){
+		    var data = JSON.parse(res);
+		    if(data.success == true){
+				layer.msg("OK",{icon:1});
+				table.reload('arapdataReload', {
+			    });
+			}else{
+				layer.msg("erro",{icon:7});
+			}
+	    });
+	});
+	form.on('submit(showAttachment)', function(data){
+  	  	var arraval = ['800px', '600px'];
+  		if(isMove() == true){
+  			arraval = ['100%', '100%'];
+  	  	}
+        layer.open({
+    		  title:'附件',
+    		  type:1,
+    		  area: arraval, //宽高
+    		  content: '<iframe src="./attachment.html?id='+this.value+'" id = "attachmentiframe" style="width: 100%;height: 100%;frameborder:no;border:0;marginwidth:0;marginheight:0;scrolling:no"></iframe>'
+    	});
+    });
+});
+
+</script>
+
+</body>
+</html>

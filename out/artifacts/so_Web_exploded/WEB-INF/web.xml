@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>uplat</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  
+   <session-config>
+		<session-timeout>120</session-timeout>
+   </session-config>
+  
+   <context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath*:applicationContext.xml</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	</listener>
+	
+	<listener>
+		<listener-class>com.ufms.web.base.WebInitListener</listener-class>
+	</listener>
+	
+	
+	<!-- 存放到session中的键 -->
+    <context-param>
+      <param-name>sessionKey</param-name>
+      <param-value>SESSIONKEY</param-value>
+    </context-param>
+
+    <!-- 重定向的页面 -->
+    <context-param>
+      <param-name>redirectPage</param-name>
+      <param-value>/login.html</param-value>
+    </context-param>
+
+    <!-- 不需要拦截的列表 -->
+    <context-param>
+      <param-name>unCheckedUrls</param-name>
+      <param-value>
+      	/analyse/*.html,/app/*.html,/sobooking/*.html,/login*.html,/index*.html,/register*.html,/queryfcl.html,/querysd.html,/news*.html,/about*.html,/nav.html,/footer.html,/tracking*.html,/gps.html,/esi.html,/weixin*.html,/querysd.html,/esi*.html
+      </param-value>
+    </context-param>
+
+    <filter>
+       <filter-name>loginFilter</filter-name>
+       <filter-class>com.ufms.base.web.filter.LoginFilter</filter-class>
+    </filter>
+
+    <!-- Filter过滤器 拦截的列表 -->
+    <filter-mapping>
+       <filter-name>loginFilter</filter-name>
+       <url-pattern>*.html</url-pattern>
+    </filter-mapping>
+    
+    <error-page>
+		<error-code>404</error-code>
+		<location>/message404.html</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/message500.jsp</location>
+	</error-page>
+    
+</web-app>

@@ -1,0 +1,43 @@
+
+  <!-- footer部分 -->
+    <div class="layui-container">
+      <!--<p class="footer-web">
+        <img src="./res/static/img/sales/susan.jpg" style="width: 100px;">
+        <img src="./res/static/img/sales/lyw.jpg" style="width: 100px;padding-left: 100px;">
+        <img src="./res/static/img/sales/lily.jpg" style="width: 100px;padding-left: 100px;">
+      </p>
+      -->
+      <br/><br/>
+      
+      <div class="layui-row footer-contact">
+        <!--<div class="layui-col-sm2 layui-col-lg1"><img src="./res/static/img/erweima.jpg"></div>
+        --><div class="layui-col-sm12 layui-col-lg11">
+          <div class="layui-row" id="webconfigset">
+            <div class="layui-col-sm6 layui-col-md8 layui-col-lg9">
+              <p class="contact-bottom"><i class="layui-icon layui-icon-home"></i>&nbsp;Address: </span></p>
+              <p class="contact-bottom"><i class="layui-icon layui-icon-user"></i>&nbsp;QQ : </p>
+              <p class="contact-bottom"><i class="layui-icon layui-icon-cellphone"></i>&nbsp;Tel:  Fax: </p>
+              <p class="contact-bottom"><i class="layui-icon layui-icon-tips"></i>&nbsp;Email :<a href="javascript:;"></a></p>
+            </div>
+            <div class="layui-col-sm6 layui-col-md4 layui-col-lg3">
+              <p class="contact-top"><span class="right"> Copyright&nbsp;©&nbsp; <a href="http://www.sz-patent.com/" target="_blank"></a></span></p>
+              <p class="contact-bottom"><span class="right"><a href="http://www.miitbeian.gov.cn/" target="_blank" style="color: white;">&nbsp;&nbsp;备案号：</a></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <br/>
+      <hr/>
+      <p class="contact-bottom"><span ><a href="http://www.ufms.cn/" target="_blank" style="color: white;">&nbsp;&nbsp;技术支持：UFMS航迅科技</a></span></p>
+    </div>
+<script>
+    $(function($) {
+		actionPost('/index','getwebconfig',"",function(res){
+			 var data = JSON.parse(res);
+			 if(data.success == true){
+				$('#webconfigset').html(data.webPageTail);
+			 }
+		});
+	})
+</script>

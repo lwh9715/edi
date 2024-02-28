@@ -1,0 +1,36 @@
+<!-- main -->
+<div class="main-news">
+    <div class="nav-list">
+        <ul class="layui-nav" style="background-color: #5ea2eb;font-size: 17px;">
+            <li class="layui-nav-item">
+                <a href="javascript:;" style="font-size: 16px;font-weight: bold;">
+                    <span class="translate">我的运单</span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href='/so/mgr/order/fcl.html'>FCL</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:;" style="font-size: 16px;font-weight: bold;"><span class="translate">结算管理</span></a>
+                <dl class="layui-nav-child">
+                    <dd><a href='/so/mgr/businvoice.html'><span class="translate">开票申请</span></a></dd>
+                    <dd><a href='/so/mgr/businvoicelist.html'><span class="translate">开票记录</span></a></dd>
+                    <dd><a href='/so/mgr/sys/syscorpinv.html'><span class="translate">开票资料</span></a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a href='/so/mgr/userinfo.html' style="font-size: 16px;font-weight: bold;">
+                    <span class="translate">个人资料</span>
+                </a>
+            </li>
+        </ul>
+        <br/>
+    </div>
+</div>
+
+<script>
+    layui.use(['i18np'], function () {
+        var i18np = layui.i18np;
+        i18np.translateOnNav(getLanguage());
+    })
+</script>

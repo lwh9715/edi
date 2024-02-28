@@ -1,0 +1,11 @@
+<script src="./admin/js/ufms.common.js?t=11" ></script>
+<script src="/so/res/static/js/jquery.min.js"></script>
+<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	
+<script>
+if($.cookie('issysuser') == 'true'){
+	  location.href=getContextPath()+'/mgr/staff/qryfcl.html';
+}else{
+	  location.href=getContextPath()+'/mgr/order/fcl.html';
+}
+</script>

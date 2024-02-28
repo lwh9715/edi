@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layui</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="/ufms/lib/layui254/css/layui.css"  media="all">
+  
+  
+  <script src="/ufms/lib/jquery-2.0.0.min.js" charset="utf-8"></script>  
+  <script src="/ufms/lib/layui254/layui.js" charset="utf-8"></script>
+  <script src="jquery.formHelp.js?t=2" ></script>
+  <script src="ufms.gridform.js?t=4" ></script>
+	    
+
+</head>
+<body>
+  
+<div class="weadmin-body">
+	<div class="layui-row">
+		<form class="layui-form layui-col-md12 we-search" id="gridQry">
+			<div class="layui-inline">
+				<input class="layui-input" placeholder="代码"  name="code"/>
+			</div>
+			<div class="layui-inline">
+				<input class="layui-input" placeholder="中文名" name="name"/>
+			</div>
+			<div class="layui-inline">
+				<input class="layui-input" placeholder="英文名" name="name_e" />
+			</div>
+			<button class="layui-btn" onclick="search();return false;">搜索</button>
+		</form>
+	</div>
+	
+	<div id="grid"> 
+		<table class="layui-hide" id="grid" lay-filter="grid"></table>
+	</div>     
+
+
+	<div id="editWindow" class="weadmin-body">
+		<form id="editForm" class="layui-form">
+			<div class="layui-form-item">
+				<label for="L_username" class="layui-form-label">
+	                <span class="we-red">*</span>代码
+	            </label>
+				<div class="layui-input-inline">
+					<input type="text" id="L_username" name="code" lay-verify="required" autocomplete="off" class="layui-input">
+				</div>
+			</div>
+			
+			<div class="layui-form-item">
+				<label for="L_email" class="layui-form-label">
+	                <span class="we-red">*</span>中文名
+	            </label>
+				<div class="layui-input-inline">
+					<input type="text" id="L_phone" name="name" lay-verify="required" autocomplete="" class="layui-input">
+				</div>
+			</div>
+			
+			<div class="layui-form-item">
+				<label for="L_email" class="layui-form-label">
+	                <span class="we-red">*</span>英文名
+	            </label>
+				<div class="layui-input-inline">
+					<input type="text" id="L_phone" name="name_e" lay-verify="" autocomplete="" class="layui-input">
+				</div>
+			</div>
+			
+			
+			<div class="layui-form-item">
+			    <label for="L_sex" class="layui-form-label">业务使用</label>
+			    <div class="layui-input-block" id="userbus">
+			      <input type="radio" name="isuserbus" value="true" title="是" checked>
+			      <input type="radio" name="isuserbus" value="false" title="否">
+			    </div>
+			</div>
+			
+			<div class="layui-form-item">
+			    <label for="L_sex" class="layui-form-label">财务使用</label>
+			    <div class="layui-input-block" id="useract">
+			      <input type="radio" name="isuseract" value="true" title="是" checked>
+			      <input type="radio" name="isuseract" value="false" title="否">
+			    </div>
+			</div>
+			
+			<div class="layui-form-item">
+			    <label for="" class="layui-form-label">pkid</label>
+			    <div class="layui-input-inline" id="">
+			      <input type="text" name="id" class="layui-input">
+			    </div>
+			</div>
+			
+	
+				<button class="layui-btn" lay-filter="save" lay-submit="">保存</button>
+				<input type="hidden" name="dataId" id="dataId" value="" />
+			</div>
+		</form>
+	</div>
+</div>  
+
+
+<style type="text/css">
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+ </style>   
+ 
+ <script type="text/html" id="toolbarGrid">
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm" lay-event="refresh" onclick="tableIns.reload();">刷新</button>
+    <button class="layui-btn layui-btn-sm" lay-event="add" onclick="add();">新增</button>
+    <button class="layui-btn layui-btn-sm" lay-event="update">修改</button>
+	<button class="layui-btn layui-btn-sm" lay-event="del">删除</button>
+  </div>
+</script>
+              
+
+ 
+<script>
+
+
+<!--
+
+var window_height = '500px';
+var window_width = '700px';
+
+var action = '/port';
+
+var gridDefine =
+		[[
+            {field:'id', width:80, title: 'ID'}
+           ,{field:'code', width:80, title: '代码'}
+           ,{field:'namec', width:120, title: '中文名', sort: true}
+           ,{field:'namee', width:120, title: '英文名', sort: true}
+           ,{field:'inputer', width:120, title: '录入人', sort: true}
+           ,{field:'inputtime', width:120, title: '录入时间', sort: true}
+           ,{field:'updater', width:120, title: '修改人', sort: true}
+           ,{field:'updatetime', width:120, title: '修改时间', sort: true}
+         ]];
+
+var index;
+var tableIns;
+
+layui.extend({
+	admin: getContextPath()+'/static/js/admin'
+});
+layui.use(['form', 'jquery', 'admin','layer'], function() {
+	var form = layui.form,
+	$ = layui.jquery,
+	admin = layui.admin,
+	layer = layui.layer;
+
+	gridInit();
+
+	//自定义验证规则
+	form.verify({
+		nikename: function(value) {
+			if(value.length < 5) {
+				return '昵称至少得5个字符啊';
+			}
+		}
+	});
+
+	//监听提交
+	form.on('submit(save)', function(data) {
+		console.log(data);
+		var jsonData = JSON.stringify(data.field);
+		console.log(jsonData);
+		$.ajax({
+			  type: 'POST',
+			  url: "/ufms/currency?method=saveObject",
+			  contentType:'application/json',
+			  data: jsonData,
+			  success: function(res){
+					layer.close(index);
+					tableIns.reload();
+			  }
+		});
+		return false;
+	});
+});
+
+--></script>
+
+<script type="text/html" id="switchTpl">
+<!-- 这里的 checked 的状态只是演示 -->
+<input type="checkbox" name="sex" value="{{d.id}}" lay-skin="switch" lay-text="是|否" lay-filter="sexDemo" {{ d.id == 10003 ? 'checked' : '' }}>
+</script>
+
+</body>
+</html>

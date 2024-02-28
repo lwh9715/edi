@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/layui/layui.js"></script>
+	<link rel="stylesheet" href="./res/layui/layui-formSelects/formSelects-v4.css">
+	<link rel="stylesheet" href="./res/static/css/index.css?t=25">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="./admin/js/ufms.common.js?t=13" ></script>
+	<script src="/so/res/static/js/echarts.min.js"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	<style type="text/css">
+		td .layui-table-cell{
+		    height:auto;
+		    font-family: Microsoft Yahei;
+    		font-size: 12px;
+    		line-height: 1.3;
+    		padding: 0 10px;
+		}
+		.hfont{
+		    color:#008cff;
+		}
+		.a-text{
+			text-decoration: none;
+			color:#1E9FFF;
+			height:35px;
+			margin:8px;
+		}
+		.a-text:hover {text-decoration:underline;}
+		
+		/*超小屏幕*/
+		@media only screen and (max-width: 479px) {
+			.portList{
+			   display: none;
+			}
+		}
+		#portList .layui-form-item{
+			margin:0px
+		}
+	</style>	
+</head>
+<body>
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  <!-- main -->
+  <div class="main-news">
+    <div class="layui-container">
+    	<form class="layui-form" style="padding-top: 2%;" lay-filter="formFilter">
+	    	<div class="layui-row  layui-col-space1">
+			    <div class="layui-col-md4" style="width: 33%;">
+			      <div class="layui-form-item" style="border: #666666 1px solid;">
+					    <label class="layui-form-label">起运港</label>
+					    <div class="layui-input-block">
+					       <select id="pol" name="pol" lay-search="" xm-select="checkbox_pol" xm-select-search="" xm-select-radio="" xm-select-skin="normal" xm-select-height="36px">
+						        <option value="">选择起运港</option>
+						   </select>
+					    </div>
+				    </div>
+			    </div>
+			    <div class="layui-col-md4" style="width: 33%;">
+			      <div class="layui-form-item" style="border: #666666 1px solid;">
+				        <label class="layui-form-label">目的港</label>
+				        <div class="layui-input-block">
+					      <select id="pod" name="pod" lay-search="" xm-select="checkbox_pod" xm-select-search="" xm-select-radio="" xm-select-skin="normal" xm-select-height="36px">
+					         <option value="">选择目的港</option>
+					      </select>
+					    </div>
+				    </div>
+			    </div>
+			    <div class="layui-col-md2" style="width: 15%;">
+			      <div class="layui-form-item" style="border: #666666 1px solid;">
+				        <!-- <label class="layui-form-label">船公司</label>
+				        <div class="layui-input-block"> -->
+					       <select id="crrier" name="crrier" lay-search="" xm-select="checkbox_carrier" xm-select-search="" xm-select-radio="" xm-select-skin="normal" xm-select-height="36px">
+					         <option value="">选择船公司</option>
+					      </select>
+					   <!-- </div>-->
+				    </div>
+			    </div>
+			    <div class="layui-col-md2" style="width: 10%;">
+			        <div class="layui-form-item" style="border: #666666 1px solid;">
+			            <input type="text" class="layui-input" name="etddate" id="etddate" placeholder="yyyy-MM-dd HH:mm:ss">
+				    </div>
+			    </div>
+			    <div class="layui-col-md1">
+			        <div class="layui-form-item">
+				         <button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="query"><i class="layui-icon layui-icon-search"></i>查询</button>
+				    </div>
+			    </div>
+			</div>
+			<div class="layui-row layui-col-space1 portList" id="portList">
+			    <div class="layui-col-12">
+			    	   <div class="layui-form-item" pane="">
+						    <label class="layui-form-label" style="padding-top: 3px;">起运港：</label>
+						    <div class="layui-input-block" id="polqueryv">
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" id="polother" lay-filter="polother">更多<i class="layui-icon layui-icon-down"></i></button>
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" lay-filter="polup">收起<i class="layui-icon layui-icon-up"></i></button>
+						    </div>
+					  </div>
+			    </div>
+			    <div class="layui-col-12">
+			    	   <div class="layui-form-item" pane="">
+					    <label class="layui-form-label" style="padding-top: 3px;">目的港：</label>
+					    <div class="layui-input-block" id="podqueryv">
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" id="podother" lay-filter="podother">更多<i class="layui-icon layui-icon-down"></i></button>
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" lay-filter="podup">收起<i class="layui-icon layui-icon-up"></i></button>
+					    </div>
+					  </div>
+			    </div>
+			    <div class="layui-col-12">
+			    	   <div class="layui-form-item" pane="">
+					    <label class="layui-form-label" style="padding-top: 3px;">船公司：</label>
+					    <div class="layui-input-block" id="curriequeryv">
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" id="crrierother" lay-filter="crrierother">更多<i class="layui-icon layui-icon-down"></i></button>
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" lay-filter="crrierup">收起<i class="layui-icon layui-icon-up"></i></button>
+					    </div>
+					  </div>
+			    </div>
+			</div>
+			<table class="layui-table" id="datetable" lay-filter="datetable"></table>
+			<table class="layui-table" id="datetable" lay-filter="showCarrier">
+				<div style="width:25%;float:left;margin-top: 5px;">
+					<ul>
+					   <li style="font-size: 20px;color: #005ca9;font-weight: bold;">ABCDE</li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.apl.com/">美国总统邮轮（APL）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="http://www.cma-cgm.com/">法国达飞（CMA CGM）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.cnc-ebusiness.com/">正利航业（CNC）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://lines.coscoshipping.com/home/">中远海运输（COSCO）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.emiratesline.com/">阿联酋航运（EMIRATES）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.evergreen-marine.com/">长荣（EVERGREEN）</a></li>
+					</ul>
+				</div>
+				<div style="width:25%;float:left;">
+					<ul style="">
+					   <li style="font-size: 20px;color: #005ca9;font-weight: bold;">FGHIJK</li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.fesco.ru/ru/">远东海洋轮船（FESCO)</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.hamburgsud-line.com/liner/en/liner_services/index.html">汉堡南美（HAMBURG SUD）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.hapag-lloyd.com/en/home.html">赫伯罗特（HAPPAG-LLOYD）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="http://www.heung-a.com/">兴亚（HEUNG-A）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="http://www.hmm21.com/cms/company/engn/index.jsp">现代商船（HMM）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="http://www.irisl.net/">伊朗国航（IRISL）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="http://www.kmtc.co.kr/">高丽海运（KMTC）</a></li>
+					</ul>
+				</div>
+				<div style="width:25%;float:left;">
+					<ul>
+					   <li style="font-size: 20px;color: #005ca9;font-weight: bold;">LMNOPQR</li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.maersk.com.cn/">马士基（MAERSK）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.matson.com/">美森航运（MATSON）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.msc.com/">地中海航运（MSC）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="http://www.namsung.co.kr/frt/main.do">南星海运（NSS）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.one-line.com/en">海洋网联船务（ONE）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.oocl.com/schi/Pages/default.aspx">东方海外（OOCL）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.pilship.com/">太平船务（PIL）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.rclgroup.com/">宏海航运（RCL）</a></li>
+					</ul>
+				</div>
+				<div style="width:25%;float:left;">
+					<ul>
+					   <li style="font-size: 20px;color: #005ca9;font-weight: bold;">STUVWXYZ</li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.maersk.com.cn/safmarine/?safrd=true">比利时南航(南非航运)(SAFMR)</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.sealandmaersk.com.cn/">Sealand-马士基</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="http://www.sinokor.co.kr/en/index.html">长锦商船（SINOKOR）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.sinolines.com/">中外运（SINOTRANS）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="http://www.sitcline.com/">新海丰（SITC）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.tslines.com/cn">德翔（T.S.LINE）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="http://www.wanhai.com/">万海（WHL）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.yangming.com/">阳明（YML）</a></li>
+					   <li style="padding: 5px 0px;"><a target="_blank" href="https://www.zimchina.com/">以星（ZIM）</a></li>
+					</ul>
+				</div>
+			</table>
+		</form>
+      </div>
+  </div>
+  
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<form class="layui-form" id="businfosform" style="display:none" lay-filter="priceInfoForm">
+ 	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">起运港</label>
+			<div class="layui-input-inline">
+				<input type="text" name="pol_show" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">目的港</label>
+			<div class="layui-input-inline">
+				<input type="text" name="pod" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">船公司</label>
+			<div class="layui-input-inline">
+				<input type="text" name="shipping" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">服务号</label>
+			<div class="layui-input-inline">
+				<input type="text" name="line" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">船名</label>
+			<div class="layui-input-inline">
+				<input type="text" name="schedule" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">航次</label>
+			<div class="layui-input-inline">
+				<input type="text" name="ttvia" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">20GP</label>
+			<div class="layui-input-inline">
+				<input type="text" name="cost20sum" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">40GP</label>
+			<div class="layui-input-inline">
+				<input type="text" name="cost40gpsum" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">40HQ</label>
+			<div class="layui-input-inline">
+				<input type="text" name="cost40hqsum" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">有效期</label>
+			<div class="layui-input-inline">
+				<input type="text" name="datefromto" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">订舱备注</label>
+			<div class="layui-input-block">
+				<input type="text" name="remark_out" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">附加费</label>
+			<div class="layui-input-block">
+				<textarea style="height:300px" type="text" name="pricfee" autocomplete="off" class="layui-textarea" readonly="readonly"></textarea>
+			</div>
+		</div>
+	</div>
+ </form>
+<script type="text/html" id="goboking">
+  
+</script>
+<script type="text/html" id="showFeeAdd">
+	<div class="layui-row" >
+		<div class="layui-col-xs4">
+      		<a type="button" class="layui-btn layui-btn-warm layui-btn-sm" lay-submit lay-filter="goqueryfcl" href = "./queryfcl.html?pol={{ formSelects.value('checkbox_pol', 'valStr')}}&pod={{ formSelects.value('checkbox_pod', 'valStr')}}&crrier={{ formSelects.value('checkbox_carrier', 'valStr')}}" target = "_blank"><i class="layui-icon layui-icon-template-1"></i>运价查询</a> 
+    	</div>
+  	</div>
+</script>
+<script>
+var formSelects;
+
+layui.use(['jquery','layer','form', 'laydate','table','tablePlug','xmSelect'], function() {
+	$ = layui.jquery;
+	laydate = layui.laydate;
+	
+  	laydate.render({
+    	elem: '#etddate',
+    	type: 'datetime'
+  	});
+});
+layui.use(['jquery','layer','form','formSelects','table'], function() {
+	$ = layui.jquery;
+	var form = layui.form,table = layui.table; //只有执行了这一步，部分表单元素才会自动修饰成功
+	formSelects = layui.formSelects;
+	form.render();
+	randerfromselect('/combobox','fspol','checkbox_pol',formSelects,false);
+  	randerfromselect('/combobox','fspod','checkbox_pod',formSelects,false);
+  	randerfromselect('/combobox','fscarrier','checkbox_carrier',formSelects,false);
+  	table.render({
+	     elem: '#datetable'
+	    ,url:getContextPath()+"/price?method=sdlist"+getSid()
+	    ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+	    //,height: 380
+	    ,skin: 'nob'
+	    ,even:true
+	    ,limit:15
+	    ,cols: [[
+			{field:'carrierName', width:100, title: '船公司', align:"left"}
+			,{field:'serviceName', width:120, title: '服务号', align:"left"}
+			,{field:'vesselName', width: 140, title: '船名', align:"left"}
+			,{field:'voyageNumber', width: 130, title: '航次', align:"left"}
+			,{field:'originDepartureDate', width:180, title: 'ETD',align:"center"}
+			,{field:'destinationArrivalDate', width:180, title: 'ETA', align:"center"}
+			,{field:'totalDuration', width:90, title: '航程(天)',align:"center"}
+			,{field:'imoNumber', width:130, title: 'IMO编号', align:"center"}
+			,{field:'', width:210, title: '',align:"center", templet: '#showFeeAdd', align:"left"}
+	    ]]
+	    ,id: 'dataReload'
+	    ,title:'运价列表'
+	    ,page: {theme: '#1e9fff'}
+    	,text: {
+        	none: '请点击运价查询搜索数据'
+      	}
+		,done: function (res, curr, count) {
+		    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+		    $("#datetable").parent().find('table').eq(2).find('tr').find("td:eq(2) div").css('line-height','20px')//把第一列起运港/目的港的文字行高搞成20PX
+		    $('tr').click(function(){$('tr').css('background-color','');$(this).css('background-color','#fdf5e3')});
+	    }
+    });
+  	//监听提交
+  	form.on('submit(query)', function(data){
+  		var etddate = $("input[name='etddate']").val();
+  		if(formSelects.value('checkbox_pol', 'nameStr') == ''||formSelects.value('checkbox_pod', 'nameStr') == ''){
+  			layer.alert("起运港和目的港必填！", {icon: 7});
+  			return;
+  	  	}
+  	  	if(etddate == ''){
+			layer.alert("ETD必填！", {icon: 7});
+			return;
+	  	}
+  		var datajson = JSON.parse(JSON.stringify(data.field));
+  		querysd();
+  	}); 
+  	let languagev = $.cookie('language');
+  	if(languagev==null){
+  		languagev = "ch";
+  	}
+	var tip_index = 0;
+	function getTipsHtml(data){
+  		let html = '';
+		for(var i=0;i<data.length;i++){
+			html +='<a class="a-text" href="javascript:;" value="'+data[i].value+'" title=""><div style="display:inline-block;color:#fff">'
+			+(data[i].name.indexOf('/')>-1?(languagev=='ch'?data[i].name.split('/')[1]:data[i].name.split('/')[0]):data[i].name)+'</div></a>';
+  		}
+  		return html;
+  	}
+  	
+  	form.on('submit(polother)',function(data){
+        actionGet('/combobox','fspol','limit=20',function(res){
+  			var data = JSON.parse(res);
+  			$('#polotherTips').empty(html);
+  			var html = getTipsHtml(data);
+  	  		tip_index = layer.tips('<div id="polotherTips">'+html+'</div>', '#polother', {time: 0,shade: 0,tips: [3, '#1E9FFF'],closeBtn :1,area: ['300px', 'auto']});
+  		})
+  	});
+  	form.on('submit(polup)',function(data){
+  		getpolquery();
+  	});
+  	getpolquery();
+  	function getpolquery(){
+  		actionGet('/combobox','fspol','limit=12',function(res){
+  			var data = JSON.parse(res);
+  			addHtml("polqueryv",data);
+  			$('button[lay-filter="polup"]').addClass('layui-hide');
+  			$('button[lay-filter="polother"]').removeClass('layui-hide');
+  		})
+  	}
+
+  	form.on('submit(podother)',function(data){
+        actionGet('/combobox','fspod','limit=20',function(res){
+  			var data = JSON.parse(res);
+  			$('#podotherTips').empty(html);
+  			var html = getTipsHtml(data);
+  			tip_index = layer.tips('<div id="podotherTips">'+html+'</div>', '#podother', {time: 0,shade: 0,tips: [3, '#1E9FFF'],closeBtn :1,area: ['300px', 'auto']});
+  		})
+  	});
+  	form.on('submit(podup)',function(data){
+  		getpodquery();
+  	});
+  	getpodquery();
+  	function getpodquery(){
+  		actionGet('/combobox','fspod','limit=12',function(res){
+  			var data = JSON.parse(res);
+  			addHtml("podqueryv",data);
+  			$('button[lay-filter="podup"]').addClass('layui-hide');
+  			$('button[lay-filter="podother"]').removeClass('layui-hide');
+  		})
+  	}
+
+  	form.on('submit(crrierother)',function(data){
+        actionGet('/combobox','fscarrier','limit=20',function(res){
+  			var data = JSON.parse(res);
+  			$('#crrierotherTips').empty(html);
+  			var html = getTipsHtml(data);
+  			tip_index = layer.tips('<div id="crrierotherTips">'+html+'</div>', '#crrierother', {time: 0,shade: 0,tips: [3, '#1E9FFF'],closeBtn :1,area: ['300px', 'auto']});
+  		})
+  	});
+  	form.on('submit(crrierup)',function(data){
+  		getcarrierquery();
+  	});
+  	getcarrierquery();
+  	function getcarrierquery(){
+  		actionGet('/combobox','fscarrier','limit=12',function(res){
+  			var data = JSON.parse(res);
+  			addHtml("curriequeryv",data);
+  			$('button[lay-filter="crrierup"]').addClass('layui-hide');
+  			$('button[lay-filter="crrierother"]').removeClass('layui-hide');
+  		})
+  	}
+
+  	//动态添加HTML
+  	function addHtml(id,data){
+  		$('#'+id+' a').remove();
+  		let html = getHtml(data);
+		$('#'+id).prepend(html);
+  	}
+
+  	function getHtml(data){
+  		let html = '';
+		for(var i=0;i<data.length;i++){
+			html +='<a class="a-text" href="javascript:;" value="'+data[i].value+'" title=""><div style="display:inline-block">'
+				 +(data[i].name.indexOf('/')>-1?(languagev=='ch'?data[i].name.split('/')[1]:data[i].name.split('/')[0]):data[i].name)+'</div></a>';
+  		}
+  		return html;
+  	}
+  	
+  	$(document).on('click','#polqueryv a,#polotherTips a' , function(){
+  		var pols = [];pols.push($(this).attr('value'));
+  		formSelects.value('checkbox_pol',pols);
+  		querysd();
+  	})
+  	$(document).on('click','#podqueryv a,#podotherTips a' , function(){
+		var pods = [];pods.push($(this).attr('value'));
+		formSelects.value('checkbox_pod',pods);
+		querysd();
+  	})
+  	$(document).on('click','#curriequeryv a,#crrierotherTips a' , function(){
+		var carriers = [];carriers.push($(this).attr('value'));
+		formSelects.value('checkbox_carrier',carriers);
+		querysd();
+  	})
+  	
+  	function querysd(){
+  		if(formSelects.value('checkbox_pol', 'nameStr') == ''||formSelects.value('checkbox_pod', 'nameStr') == ''){
+  			//layer.alert("起运港和目的港必填！", {icon: 7});
+  			return;
+  	  	}
+  		var etddate = $("input[name='etddate']").val();
+  	  	if(etddate == ''){
+			layer.alert("ETD必填！", {icon: 7});
+			return;
+	  	}
+  	  	var etdstr = etddate.split(" ")[0];
+  	  	//console.dir(formSelects.value('checkbox_pol', 'valStr'));
+  		table.reload('dataReload', {
+	        page: {
+	          curr: 1 //重新从第 1 页开始
+	        }
+	  		,text: {
+	        	none: ''
+	      	}
+	        ,where: {
+	  		     pol: formSelects.value('checkbox_pol', 'valStr')
+	  	  		,pod: formSelects.value('checkbox_pod', 'valStr')
+	  	  		,crrier :formSelects.value('checkbox_carrier', 'valStr')
+	  	  		,etddate : etdstr
+	        }
+	     });
+  	}
+  	//form.on('submit(gobokinging)', function(data){
+  	//  	location.href='booking.html?id='+this.value;
+  	//});
+  	form.on('submit(showFeeAddFun)', function(data){
+  		var html = '<table class="layui-table" lay-size="sm">'
+		   	+'  <thead>'
+		   	+'   <tr>'
+		   	+'     <th>费用名</th>'
+		   	+'     <th>PPCC</th>'
+		   	+'     <th>币制</th>'
+		   	+'     <th>单位</th>'
+		   	+"     <th>20'GP</th>"
+		   	+"     <th>40'GP</th>"
+		   	+"     <th>40'HQ</th>"
+		   	+"	   <th>票/箱量</th>"
+		   	+'   </tr> '
+		   	+' </thead>'
+		   	+'  <tbody>';
+	   	$.ajax({
+	  	  type: 'POST',
+	  	  url: getContextPath()+"/price?method=getfeeadd",
+	  	  data: "id="+this.value,
+	  	  async:false,
+          success:function(res){
+		   		var jsonData = JSON.parse(res);
+		   		for(var i=0;i<jsonData.length;i++){
+			 	    html += "<tr>";
+					html += "	<td>"+jsonData[i].feeitemname+"</td>";
+					html += "	<td>"+jsonData[i].ppcc+"</td>";
+					html += "	<td>"+jsonData[i].currency+"</td>";
+					html += "	<td>"+jsonData[i].unit+"</td>";
+					html += "	<td>"+jsonData[i].amt20+"</td>";
+					html += "	<td>"+jsonData[i].amt40gp+"</td>";
+					html += "	<td>"+jsonData[i].amt40hq+"</td>";
+					html += "	<td>"+jsonData[i].amt+"</td>";
+					html += "</tr>";
+		 	   }
+          }
+	    });
+	   	html +='  </tbody>'
+	    html +='</table>';
+		if(isMove() == true){
+			layer.open({
+				  title:'附加费',
+		   		  type:1,
+		   		  move: false,
+		   		  fixed: false,
+		   		  area: ['100%','700px'], //宽高
+		   		  content: html
+		   		});
+		}else{
+				layer.tips(html, this,{
+				 	  tips: [3, '#5FB878']
+				 	  ,area: ['700px']
+				    ,time: 0
+				    ,closeBtn: 2
+				 });
+		}
+   	});
+   	var args = getRequest();
+	var pol = args.pol;
+	var pod = args.pod;
+	setTimeout(function(){
+		var carrier = args.carrier;
+		if((pol!=''&&pol!=null)||(pod!=''&&pod!=null)||(carrier!=''&&carrier!=null)){
+			var pols = [];pols.push(pol);
+			var pods = [];pods.push(pod);
+			var carriers = [];carriers.push(carrier);
+			formSelects.value('checkbox_pol',pols);
+			formSelects.value('checkbox_pod',pods);
+			formSelects.value('checkbox_carrier',carriers);
+			querysd();
+		}
+
+	},500);
+
+	window.showRoutevInfo = function(uuid){
+		var para = new Object;
+	    para.uuid = uuid;
+	    para.pol = formSelects.value('checkbox_pol', 'valStr');
+	  	para.pod = formSelects.value('checkbox_pod', 'valStr');
+	    actionPost('/price','priceInfo',JSON.stringify(para),function(res){
+	    	var resjson = JSON.parse(res);
+	    	if(resjson.success == false){
+	    		layer.msg(resjson.message,{icon: 7});
+			}else{
+	    		layer.open({
+	    			title:'<button type="button" lay-filter="closelayer" lay-submit class="layui-btn layui-btn-sm supersmall">返回</button>',
+	    	   		type:1,
+	    	   	 	move: false,
+	    	   	 	fixed: false,
+	    	   	 	shade: false,
+	    	   		area: ['100%', '100%'], //宽高
+	    	    	content: $("#businfosform"),
+	     		});
+	    		form.val("priceInfoForm",resjson);
+	    		var pricfees = JSON.parse(resjson.pricfee);
+	    		var pricfeestr = "";
+	    		for(var i=0;i<pricfees.length;i++){
+	    			pricfeestr = pricfeestr + pricfees[i].feeadd_filter.feeitemname+":"+pricfees[i].feeadd_filter.ppcc+"|"+pricfees[i].feeadd_filter.currency+"|";
+	    			pricfeestr = pricfeestr + pricfees[i].feeadd_filter.unit+'|'+pricfees[i].feeadd_filter.amt20+"-"+pricfees[i].feeadd_filter.amt40gp+"-"+pricfees[i].feeadd_filter.amt40hq+"-";
+	    			pricfeestr = pricfeestr + pricfees[i].feeadd_filter.amt45hq+"-"+pricfees[i].feeadd_filter.amtother+"\n";
+		    	}
+	    		form.val("priceInfoForm",
+						 {"pricfee":pricfeestr});
+			}
+	    });  
+	}
+	
+	window.showRoutevInfoPC = function(uuid){
+		var para = new Object;
+	    para.uuid = uuid;
+	    para.pol = formSelects.value('checkbox_pol', 'valStr');
+	  	para.pod = formSelects.value('checkbox_pod', 'valStr');
+	    actionPost('/price','priceInfo',JSON.stringify(para),function(res){
+	    	var resjson = JSON.parse(res);
+	    	if(resjson.success == false){
+	    		layer.msg(resjson.message,{icon: 7});
+			}else{
+	    		layer.open({
+	    	   		  title:'详情',
+	    	   		  type:1,
+	    	   		  //offset: '100px',
+	    	   		  area: ['800px', '530px'], //宽高
+	    	    	  content: $("#businfosform"),
+	     		});
+	    		form.val("priceInfoForm",resjson);
+	    		var pricfees = JSON.parse(resjson.pricfee);
+	    		var pricfeestr = "";
+	    		for(var i=0;i<pricfees.length;i++){
+	    			pricfeestr = pricfeestr + pricfees[i].feeadd_filter.feeitemname+":"+pricfees[i].feeadd_filter.ppcc+"|"+pricfees[i].feeadd_filter.currency+"|";
+	    			pricfeestr = pricfeestr + pricfees[i].feeadd_filter.unit+'|'+pricfees[i].feeadd_filter.amt20+"-"+pricfees[i].feeadd_filter.amt40gp+"-"+pricfees[i].feeadd_filter.amt40hq+"-";
+	    			pricfeestr = pricfeestr + pricfees[i].feeadd_filter.amt45hq+"-"+pricfees[i].feeadd_filter.amtother+"\n";
+		    	}
+	    		form.val("priceInfoForm",
+						 {"pricfee":pricfeestr});
+			}
+	    });  
+	}
+	form.on('submit(closelayer)',function(data){
+		closelayer();
+	});
+	
+	form.on('select(qryFilter)',function(data){
+		var value = data.value;
+		if(value == 'air'){
+			location.href='qryair.html';
+		}else if(value == 'mgr'){
+			location.href='qrytrain.html';
+		}
+	})
+});
+
+var requestpara = getRequest();
+if(requestpara.type == 'staff'){
+	$('#nav').remove();
+	$('#footer').remove();
+	$('.main-news').css({'padding-top':'0px'});
+}else{
+	$("#nav").load("./nav.html");
+	$("#footer").load("./footer.html");
+}
+$("select[name='pol']").val("SHEKOU");
+$("select[name='pod']").val("DUBAI");
+
+//消除onmouseover和onmouseout重复执行，这是关键代码
+function isMouseLeaveOrEnter(e, handler) {    
+      if (e.type != 'mouseout' && e.type != 'mouseover') return false;    
+       var reltg = e.relatedTarget ? e.relatedTarget : e.type == 'mouseout' ? e.toElement : e.fromElement;    
+       while (reltg && reltg != handler)    
+          reltg = reltg.parentNode;    
+       return (reltg != handler);    
+}
+
+</script>
+
+
+</body>
+</html>

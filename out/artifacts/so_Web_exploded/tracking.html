@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+    <meta name="description"
+          content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+    <meta name="author" content="Neo">
+    <meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+
+
+    <link rel="shortcut icon" href="favicon.ico"/>
+    <link rel="icon" type="image/gif" href="favicon.ico"/>
+    <title>SO.UFMS </title>
+
+    <link rel="stylesheet" href="/so/res/layui/css/layui.css">
+
+    <link rel="stylesheet" type="text/css" href="./res/static/css/jquery.step.index.css">
+    <link rel="stylesheet" type="text/css" href="./res/static/css/jquery.step.css">
+
+    <script src="/so/res/layui/layui.js"></script>
+    <script src="/so/res/static/js/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="./res/static/css/index.css?t=25">
+    <script src="./res/static/js/jquery.cookie.js?t=1"></script>
+    <script type="text/javascript" src="./admin/js/ufms.common.js?t=10"></script>
+    <script type="text/javascript" src="./res/static/js/jquery.toTop.min.js"></script>
+    <script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+
+</head>
+<body>
+<!-- nav部分 -->
+<div class="nav" id="nav"></div>
+<!--<div style='background: url("http://track.fba.jp/themes/default/query_order/img/bg.jpg") top center;-->
+<!--opacity: 0.5;opacity: 0.5;width: 100%;height: 100%;position: fixed;'></div>-->
+
+<!-- main -->
+<div class="main-news" style="padding: 120px 0 0 0;">
+    <div class="layui-container" style="width: 80% !important;">
+        <iframe style="width:100%;height:81vh;" frameborder="0" src="trackingData.html"></iframe>
+    </div>
+</div>
+
+<!-- main -->
+<!--<div class="main-news" style="padding: 120px 0 0 0;">-->
+<!--    <div class="layui-container" id="mainInfo">-->
+<!--        <form class="layui-form" style="padding-top:3%;" lay-filter="formFilter">-->
+<!--            <div class="layui-form-item layui-row layui-col-space1">-->
+<!--                <div class="layui-col-md1">-->
+<!--                    <select name="qrytype" lay-search lay-verify="" lay-filter="qryFilter">-->
+<!--                        <option value="JNO" selected>Job No.</option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--                <div class="layui-col-xs12 layui-col-sm12 layui-col-md3">-->
+<!--                    <input type="text" name="qrynos" id="qrynos" class="layui-input">-->
+<!--                </div>-->
+<!--                <div class="layui-col-md1">-->
+<!--                    <button type="button" class="layui-btn layui-btn-normal" lay-submit=""-->
+<!--                            style="background-color:#1a70c9;" lay-filter="query" id="query">-->
+<!--                        Tracking-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </form>-->
+
+<!--        <a class="to-top" style="cursor: pointer; display: none; position: fixed; right: 15px; bottom: 30px;">Top</a>-->
+
+
+<!--        <div class="nav-list" style="margin-bottom: -20px;">-->
+<!--            <ul class="layui-nav layui-bg-blue" style="background-color: #1a70c9!important;">-->
+<!--                <li class="layui-nav-item">轨迹动态</li>-->
+<!--            </ul>-->
+
+<!--            <br/>-->
+<!--            <div class="layui-row" id="gpsDiv" style="display: none">-->
+<!--                <div class="layui-col-xs12">-->
+<!--                    <iframe id="mainiframe" style="width: 100%;height: 100%;min-height: 920px;-->
+<!--                            frameborder:no;border:0;marginwidth:0;marginheight:0;scrolling:no"></iframe>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+
+<!--        <div class="layui-row" id="trackDiv"-->
+<!--             style="padding: 20px 20px;border: 1px solid #1a70c9;height: 580px;overflow-y: auto;background-color: #ffffff;">-->
+<!--            <div id="oxInfo" style="font-size: 24px;"></div>-->
+<!--            <div id="dates" style="margin-top: 20px;background-color: #00a8e1;"></div>-->
+<!--        </div>-->
+
+
+<!--    </div>-->
+<!--</div>-->
+
+
+<!-- footer部分 -->
+<!--<div class="footer" id="footer">-->
+</div>
+<!--[if lt IE 9]>
+<script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+<script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script>
+
+    $("#nav").load("./nav.html");
+</script>
+</body>
+</html>

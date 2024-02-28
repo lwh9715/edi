@@ -1,0 +1,252 @@
+  	<style type="text/css">
+  		/* 第三级导航开始 */
+			.layui-nav .layui-nav-child dd:hover ul{
+				display:block;
+				position:absolute;
+				top:0px;
+				left:131px;
+				background:#ffffff;
+				box-shadow:0 2px 4px rgba(0,0,0,.12);
+				border:1px solid #d2d2d2;
+				border-radius:2px
+			}
+			.layui-nav .layui-nav-child dd ul{display:none;z-index:99999;width: 130px;}
+			.layui-nav .layui-nav-child dd *{font-size:14px;text-align:center}
+			.layui-nav .layui-nav-child dd{border-bottom:1px;border-bottom-style:inset}
+			.layui-nav .layui-nav-child dd ul a:hover{background:#f2f2f2}
+			.layui-nav .layui-nav-item dl{width: 130px}
+			.nav .layui-container{transition: no;}/*2886 SO部分调整  防止每次页面打开，上面部分向两边运动*/
+		/* 第三级导航结束 */
+		.layui-nav .layui-nav-more {border-style:none}/*去掉导航中箭头 */
+		
+		.right_navigation{
+			display: flex;
+			flex-direction: column ;
+			justify-content:center;
+			width:50px;
+			height:170px;
+		}
+		.right_navigation .layui-btn{
+			margin:1px 0 !important;
+			padding:0 !important;
+			background-color:rgb(102, 102, 102) !important;
+			width: 100%;
+		}
+		.right_navigation .layui-btn:hover{
+			background-color : #1E9FFF !important;
+		}
+		.right_navigation .layui-icon{
+			font-size:31px
+		}
+		.right_navigation_layer{
+			background-color: transparent;/*背景透明*/
+        	box-shadow: 0 0 0 rgba(0,0,0,1);/*前景无阴影*/
+		}
+		
+		.right_navigation .right_navigation_content{
+			position: absolute; 
+			top : -40px;
+			left: -120px;
+			width: 120px;
+    		height: 120px;
+    		background: #2b86e3;
+    		color: #FFF;
+    		display: flex;
+    		flex-direction: column ;
+		}
+		.right_navigation_content > div{
+			margin:4px;
+			padding:4px;
+		}
+		.right_navigation_content i{
+			margin:10px;
+		}
+		.right_navigation .right_navigation_div{
+			position:fixed;
+		}
+		
+	</style>
+	
+	<link rel="stylesheet" href="ufms.common.css?t=1">
+	
+  	<!-- nav部分 -->
+  	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+  	<div class="nav-top">
+  		<div class="layui-container" id="top1">
+	  		<a onclick="login()" href="javascript:;"><span class="navtranslate">登录</span></a>
+			<a onclick="register()" href="javascript:;"><span class="navtranslate">注册</span></a>
+			<a href="javascript:;" onclick="window.location.reload();"><span class="navtranslate">刷新</span></a>
+		</div>
+		<div class="layui-container" id="top2">
+			<a id="logout" href="#" onclick="logout()"><span class="navtranslate">退出</span></a>
+			<a id="wlcome" href="javascript:" onclick="gomanager()"><span class="navtranslate">欢迎使用</span>：<span id="loginname"></span><span class="userinfo" id="userinfo"></span></a>
+			<!-- <a id="gomang" href="javascript:" onclick="gomanager()"><span class="navtranslate">我的运单</span></a> -->
+		</div>
+		<!--<div class="layui-container">
+			<a href="javascript:" onclick="setLangue('en')" style="margin-left:5px">ENGLISH<img src="/so/res/static/img/en.png"></img></a>
+			<a href="javascript:" onclick="setLangue('ch')">中文<img src="/so/res/static/img/cn.png"></img></a>
+		</div>
+  	--></div>
+  	
+    <div class="layui-container" id="nav-logo">
+      <!-- 公司logo -->
+      <div class="nav-logo">
+        <a href="index.html">
+          <img id="weblogo" src="sobooking.png" alt="UFMS" title="UFMS">
+        </a>
+      </div>
+      <div class="nav-list">
+        <button>
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="layui-nav" lay-filter="" id="navlist">
+          <li class="layui-nav-item"><a href="/so/sobooking/index.html">首页</a></li>
+          <li class="layui-nav-item"><a href="#" onclick="return islogin('sobooking')">发布现舱</a></li>
+          <li class="layui-nav-item"><a href="#" onclick="return islogin('cargopallet')">发布货盘</a></li>
+          <!--<li class="layui-nav-item"><a href="javascript:void(0);" onclick="islogin('mang')">我的货盘</a></li>
+          <li class="layui-nav-item"><a href="/so/tracking.html">货物跟踪</a></li>
+          
+          <li class="layui-nav-item"><a href="/so/news.html">新闻</a></li>
+        -->  
+          <li class="layui-nav-item"><a href="/so/sobooking/about.html">关于UFMS</a></li>
+        
+	      
+        </ul>
+      </div>
+      <div style="position: absolute;top: 5px;right: 0;">
+		    
+      </div>
+       
+	      
+    </div>
+ <script src="/so/res/static/js/jquery.cookie.js?t=1"></script>
+ <script>
+
+  $('#nav #top2').hide();
+  $(function(){
+	  checkLogin()
+  });
+	
+  function checkLogin(){
+	  $.ajax({
+		  type: 'GET',
+		  url: getContextPath()+"/index?method=checkLogin",
+		  contentType:'application/json',
+		  success: function(res){
+		    var data = JSON.parse(res);
+		    if(data.success){
+		    	$('#nav #top1').hide();
+		  	  	$('#nav #top2').show();
+		  	  	$('#nav #top2 #loginname').text(data.username);
+		  	  	$('#nav #top2 #userinfo').text(data.userinfo);
+			}else{
+				//login();
+			}
+		  }
+	  });
+  }
+
+  function islogin(type){
+	  if($.cookie('sid')==null){
+		  login();
+		  return false;
+	  }else if(type == 'sobooking'){
+		  location.href=getContextPath()+'/sobooking/somgr.html';
+		  return true;
+	  }else if(type == 'cargopallet'){
+		  location.href=getContextPath()+'/sobooking/cargopalletmgr.html';
+		  return true;
+	  }
+  }
+
+  function logout(){
+	  $.removeCookie('userid',{path:'/so'});
+	  $.removeCookie('sid',{path:'/so'});
+	  $.removeCookie('token',{path:'/so'});
+	  $.removeCookie('namec',{path:'/so'});
+	  $.removeCookie('opneid',{path:'/so'});
+	  var paradata = new Object;
+	  paradata.url = "";
+	  paradata.type= "logout";
+	  logsubmit(paradata);
+	  $.ajax({
+		  type: 'POST',
+		  url: getContextPath()+"/index?method=logout",
+		  contentType:'application/json',
+		  data:'{"username":"'+$('#nav #top2 #loginname').text()+'"}',
+		  dataType:"json",
+		  success: function(res){
+		    if(res.success){
+		    	location.href=getContextPath()+'/sobooking/index.html'
+			}else{
+				layer.msg(res.msg,{icon: 7});
+			}
+		  }
+	  });
+  }
+
+	var index_register , index_login;
+	function register(){
+		//页面层
+	    index_register = layer.open({
+	        type: 2,
+	        title:'注册',
+	        skin: 'layui-layer-rim', //加上边框
+	        area: ['700px', '695px'], //宽高
+	        content: ["./register.html", 'no']
+	    });
+	} 
+	function login(){
+		//页面层
+	    index_login = layer.open({
+	        type: 2,
+	        title:'登录',
+	        skin: 'layui-layer-rim', //加上边框
+	        area: ['700px', '680px'], //宽高
+	        content: ["./login.html", 'no']
+	    });
+	} 
+
+	function loginSucess(){
+		layer.closeAll();
+		checkLogin();
+	}
+
+  layui.use('layer', function(){
+	  var layer = layui.layer;
+	  layer.ready(function(){
+		  actionPost('/index','getwebconfig',"",function(res){
+				 var data = JSON.parse(res);
+				 let righthtml = data.webbannerright
+				 if(righthtml == null){
+					 righthtml = '<div class="right_navigation">'
+				  	  +'<div><button type="button" class="layui-btn layui-btn-normal"><i class="layui-icon layui-icon-login-wechat"></i></button><div class="right_navigation_div layui-hide"><img class="right_navigation_content" src="http://127.0.0.1:8888/scp/attachment/_weixinImg_qrcode_for_gh_b1df662de203_258.jpg"></div></div>'
+				  	  +'<div><button type="button" class="layui-btn layui-btn-normal"><i class="layui-icon layui-icon-service"></i></button><div class="right_navigation_div layui-hide"><div class="right_navigation_content" style="height:200px;width:200px;left: -200px;"><div><i class="layui-icon layui-icon-friends"></i><span>林小姐</span></div><div><i class="layui-icon layui-icon-login-qq"></i><span>3023141969</span></div><div><i class="layui-icon layui-icon-cellphone"></i><span>0755-22969686</span></div><div><i class="layui-icon layui-icon-email"></i><span>susan@ufms.cn</span></div></div></div></div>'
+				  	  +'<div><button type="button" class="layui-btn layui-btn-normal"><i class="layui-icon layui-icon-login-qq"></i></button><div class="right_navigation_div layui-hide"><div class="right_navigation_content" style="height:30px"><a style="background-color:#fff !important" class="layui-btn layui-btn-primary" href="tencent://message/?uin=3023141969&Site=Sambow&Menu=yes">QQ在线咨询</a></div></div></div>'
+				  	  +'<div><a onclick="window.scrollTo({top: 0,behavior: \'smooth\'})" class="layui-btn layui-btn-normal"><i class="layui-icon layui-icon-top"></i></a></div>'
+				  	  +'</div>'
+				 }
+				 layer.open({
+					  type: 1,
+					  offset: 'r',
+					  shade: 0,
+					  title: false,
+					  shadeClose: true,
+					  closeBtn: 0,
+					  skin:'right_navigation_layer',
+					  content: righthtml
+				  });
+			});
+	  })
+	  
+	  $(document).on('mouseleave',".right_navigation div" , function(){
+		  $(this).find(".right_navigation_div").addClass("layui-hide")
+	  })
+
+	  $(document).on('mouseenter',".right_navigation div" , function(){
+		  $(this).find(".right_navigation_div").removeClass("layui-hide")
+	  })
+	  
+	  
+  })
+ </script>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/layui/layui.js"></script>
+	<link rel="stylesheet" href="./res/layui/layui-formSelects/formSelects-v4.css">
+	<link rel="stylesheet" href="./res/static/css/index.css?t=25">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="./admin/js/ufms.common.js?t=13" ></script>
+	<script src="/so/res/static/js/echarts.min.js"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	<style type="text/css">
+		.hfont{
+		    color:#008cff;
+		}
+		.a-text{
+			text-decoration: none;
+			color:#1E9FFF;
+			height:35px;
+			margin:8px;
+		}
+		.a-text:hover {text-decoration:underline;}
+		
+		/*超小屏幕*/
+		@media only screen and (max-width: 479px) {
+			.portList{
+			   display: none;
+			}
+		}
+	</style>	
+</head>
+<body>
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  <!-- main -->
+  <div class="main-news">
+    <div class="layui-container">
+    	<form class="layui-form" style="padding-top: 2%;" lay-filter="formFilter">
+	    	<div class="layui-row  layui-col-space1">
+	    		<div class="layui-col-md1">
+			      	<div class="layui-form-item" style="border: #666666 1px solid;">
+				       <select name="qryType" lay-search lay-verify="" lay-filter="qryFilter">
+				       		<option value="fcl">整柜</option>
+					        <option value="air">空运</option>
+					        <option value="mgr" selected>铁运</option>
+					   </select>
+				    </div>
+			    </div>
+			    <div class="layui-col-md4">
+			      <div class="layui-form-item" style="border: #666666 1px solid;">
+					    <label class="layui-form-label">起运港</label>
+					    <div class="layui-input-block">
+					       <select id="pol" name="pol" lay-search="" xm-select="checkbox_pol" xm-select-search="" xm-select-radio="" xm-select-skin="normal">
+						        <option value="">选择起运港</option>
+						   </select>
+					    </div>
+				    </div>
+			    </div>
+			    <div class="layui-col-md4">
+			      <div class="layui-form-item" style="border: #666666 1px solid;">
+				        <label class="layui-form-label">目的港</label>
+				        <div class="layui-input-block">
+					      <select id="pod" name="pod" lay-search="" xm-select="checkbox_pod" xm-select-search="" xm-select-radio="" xm-select-skin="normal">
+					         <option value="">选择目的港</option>
+					      </select>
+					    </div>
+				    </div>
+			    </div>
+			    <div class="layui-col-md3">
+			      <div class="layui-form-item" style="border: #666666 1px solid;">
+				        <label class="layui-form-label">航线</label>
+				        <div class="layui-input-block">
+					       <select id="crrier" name="crrier" lay-search="" xm-select="checkbox_carrier" xm-select-search="" xm-select-radio="" xm-select-skin="normal">
+					         <option value="">选择航线</option>
+					      </select>
+					    </div>
+				    </div>
+			    </div>
+			    <div class="layui-col-md1">
+			        <div class="layui-form-item">
+				         <button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="query"><i class="layui-icon layui-icon-search"></i>查询</button>
+				    </div>
+			    </div>
+			</div>
+			<div class="layui-row layui-col-space1 portList" id="portList">
+			    <div class="layui-col-12">
+			    	   <div class="layui-form-item" pane="">
+						    <label class="layui-form-label">起运港：</label>
+						    <div class="layui-input-block" id="polqueryv">
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" lay-filter="polother">更多<i class="layui-icon layui-icon-down"></i></button>
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" lay-filter="polup">收起<i class="layui-icon layui-icon-up"></i></button>
+						    </div>
+					  </div>
+			    </div>
+			    <div class="layui-col-12">
+			    	   <div class="layui-form-item" pane="">
+					    <label class="layui-form-label">目的港：</label>
+					    <div class="layui-input-block" id="podqueryv">
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" lay-filter="podother">更多<i class="layui-icon layui-icon-down"></i></button>
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" lay-filter="podup">收起<i class="layui-icon layui-icon-up"></i></button>
+					    </div>
+					  </div>
+			    </div>
+			    <div class="layui-col-12">
+			    	   <div class="layui-form-item" pane="">
+					    <label class="layui-form-label">航线：</label>
+					    <div class="layui-input-block" id="curriequeryv">
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" lay-filter="crrierother">更多<i class="layui-icon layui-icon-down"></i></button>
+						    	<button type="button" class="layui-btn layui-btn-sm layui-btn-normal" lay-submit="" lay-filter="crrierup">收起<i class="layui-icon layui-icon-up"></i></button>
+					    </div>
+					  </div>
+			    </div>
+			</div>
+			<table class="layui-table" id="datetable" lay-filter="datetable"></table>
+		</form>
+      </div>
+  </div>
+  
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<form class="layui-form" id="businfosform" style="display:none" lay-filter="priceInfoForm">
+ 	<div class="layui-form-item">
+		<div class="layui-inline">
+			<label class="layui-form-label">起运港</label>
+			<div class="layui-input-inline">
+				<input type="text" name="pol" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">目的港</label>
+			<div class="layui-input-inline">
+				<input type="text" name="pod" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">船公司</label>
+			<div class="layui-input-inline">
+				<input type="text" name="shipping" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">航线</label>
+			<div class="layui-input-inline">
+				<input type="text" name="line" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">截关</label>
+			<div class="layui-input-inline">
+				<input type="text" name="schedule" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">航程(天)/中转</label>
+			<div class="layui-input-inline">
+				<input type="text" name="ttvia" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">20GP</label>
+			<div class="layui-input-inline">
+				<input type="text" name="cost20sum" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">40GP</label>
+			<div class="layui-input-inline">
+				<input type="text" name="cost40gpsum" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">40HQ</label>
+			<div class="layui-input-inline">
+				<input type="text" name="cost40hqsum" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">有效期</label>
+			<div class="layui-input-inline">
+				<input type="text" name="datefromto" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">订舱备注</label>
+			<div class="layui-input-block">
+				<input type="text" name="remark_out" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">附加费</label>
+			<div class="layui-input-block">
+				<textarea style="height:300px" type="text" name="pricfee" autocomplete="off" class="layui-textarea" readonly="readonly"></textarea>
+			</div>
+		</div>
+	</div>
+ </form>
+<script type="text/html" id="goboking">
+  
+</script>
+
+<script>
+layui.use(['jquery','layer','form','formSelects','table'], function() {
+	$ = layui.jquery;
+	var requestpara = getRequest();
+	var form = layui.form,formSelects = layui.formSelects,table = layui.table; //只有执行了这一步，部分表单元素才会自动修饰成功
+	form.render();
+	randerfromselect('/combobox','datpol?type=air&limit=20','checkbox_pol',formSelects,true);
+  	randerfromselect('/combobox','datpod?type=air&limit=20','checkbox_pod',formSelects,true);
+  	randerfromselect('/combobox','lineair?limit=20','checkbox_carrier',formSelects,true);
+  	table.render({
+	     elem: '#datetable'
+	    ,url:getContextPath()+"/pricetain?method=tainlist"+getSid()
+	    ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+	    //,height: 380
+	    ,even:true
+	    ,limit:15
+	    ,cols: [[
+			//{type: 'checkbox', fixed: 'left'},
+			{field:'id',width:100,title:'ID',hide:true}
+			,{field:'line',width:80,title:'航线'	}
+			,{field:'poa', width:80, title: '出发城市',align:"left"}
+			,{field:'pol', width:100, title: '起运港', align:"left"}
+			,{field:'pod', width:100, title: '目的港', align:"left"}
+			,{field:'costprice', width:100, title: '价格',align:"right"}
+			,{field:'currency', width:100, title: '币值',align:"right"}
+			,{field:'tt', width:100, title: '时效',align:"right"}
+			,{field:'llt', width:120, title: '最晚装柜时间',align:"right"}
+			,{field:'datefm', width:110, title: '有效日期起',align:"right"}
+			,{field:'dateto', width:110, title: '有效日期起止',align:"right"}
+			,{field:'daterrelease', width:80, title: '发布时间',align:"right"}
+			,{field:'inputername', width:80, title: '录入人',align:"right"}
+			,{field:'inputtime', width:110, title: '录入时间',align:"right"}
+			,{field:'updatername', width:80, title: '修改人',align:"right"}
+			,{field:'updatetime', width:110, title: '修改时间',align:"right"}
+	    ]]
+	    ,id: 'dataReload'
+	    ,title:'AIR报价'
+	    ,page: {theme: '#1e9fff'}
+    	,text: {
+        	none: '请点击运价查询搜索数据'
+      	}
+		,done: function (res, curr, count) {
+		    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+		    $("#datetable").parent().find('table').eq(2).find('tr').find("td:eq(2) div").css('line-height','20px')//把第一列起运港/目的港的文字行高搞成20PX
+	    }
+    });
+  	queryfcl();
+  	//监听提交
+  	form.on('submit(query)', function(data){
+  		var datajson = JSON.parse(JSON.stringify(data.field));
+  		queryfcl();
+  	}); 
+
+  	form.on('submit(polother)',function(data){
+  		actionGet('/combobox','datpol','type=air&limit=20',function(res){
+  			var data = JSON.parse(res);
+  			addHtml("polqueryv",data);
+  			$('button[lay-filter="polother"]').addClass('layui-hide');
+  			$('button[lay-filter="polup"]').removeClass('layui-hide');
+  		})
+  	});
+  	form.on('submit(polup)',function(data){
+  		getpolquery();
+  	});
+  	getpolquery();
+  	function getpolquery(){
+  		actionGet('/combobox','datpol','type=air&limit=6',function(res){
+  			var data = JSON.parse(res);
+  			addHtml("polqueryv",data);
+  			$('button[lay-filter="polup"]').addClass('layui-hide');
+  			$('button[lay-filter="polother"]').removeClass('layui-hide');
+  		})
+  	}
+
+  	form.on('submit(podother)',function(data){
+  		actionGet('/combobox','datpod','type=air&limit=20',function(res){
+  			var data = JSON.parse(res);
+  			addHtml("podqueryv",data);
+  			$('button[lay-filter="podother"]').addClass('layui-hide');
+  			$('button[lay-filter="podup"]').removeClass('layui-hide');
+  		})
+  	});
+  	form.on('submit(podup)',function(data){
+  		getpodquery();
+  	});
+  	getpodquery();
+  	function getpodquery(){
+  		actionGet('/combobox','datpod','type=air&limit=6',function(res){
+  			var data = JSON.parse(res);
+  			addHtml("podqueryv",data);
+  			$('button[lay-filter="podup"]').addClass('layui-hide');
+  			$('button[lay-filter="podother"]').removeClass('layui-hide');
+  		})
+  	}
+
+  	form.on('submit(crrierother)',function(data){
+  		actionGet('/combobox','lineair','limit=20',function(res){
+  			var data = JSON.parse(res);
+  			addHtml("curriequeryv",data);
+  			$('button[lay-filter="crrierother"]').addClass('layui-hide');
+  			$('button[lay-filter="crrierup"]').removeClass('layui-hide');
+  		})
+  	});
+  	form.on('submit(crrierup)',function(data){
+  		getcarrierquery();
+  	});
+  	getcarrierquery();
+  	function getcarrierquery(){
+  		actionGet('/combobox','lineair','limit=6',function(res){
+  			var data = JSON.parse(res);
+  			addHtml("curriequeryv",data);
+  			$('button[lay-filter="crrierup"]').addClass('layui-hide');
+  			$('button[lay-filter="crrierother"]').removeClass('layui-hide');
+  		})
+  	}
+
+  	//动态添加HTML
+  	function addHtml(id,data){
+  		var html = '';
+  		$('#'+id+' a').remove();
+		for(var i=0;i<data.length;i++){
+			html +='<a class="a-text" href="javascript:;" value="'+data[i].value+'" title=""><div style="display:inline-block">'+(data[i].name.indexOf('/')>-1?(data[i].name.split('/')[1]+'<br>'+data[i].name.split('/')[0]):data[i].name)+'</div></a>';
+  		}
+		$('#'+id).prepend(html);
+  	}
+  	
+  	$(document).on('click','#polqueryv a' , function(){
+  		var pols = [];pols.push($(this).attr('value'));
+  		formSelects.value('checkbox_pol',pols);
+  		queryfcl();
+  	})
+  	$(document).on('click','#podqueryv a' , function(){
+		var pods = [];pods.push($(this).attr('value'));
+		formSelects.value('checkbox_pod',pods);
+		queryfcl();
+  	})
+  	$(document).on('click','#curriequeryv a' , function(){
+		var carriers = [];carriers.push($(this).attr('value'));
+		formSelects.value('checkbox_carrier',carriers);
+		queryfcl();
+  	})
+  	
+  	function queryfcl(){
+  		table.reload('dataReload', {
+	        page: {
+	          curr: 1 //重新从第 1 页开始
+	        }
+	  		,text: {
+	        	none: ''
+	      	}
+	        ,where: {
+	  		     pol: formSelects.value('checkbox_pol', 'nameStr').split("/")[0]
+	  	  		,pod: formSelects.value('checkbox_pod', 'nameStr').split("/")[0]
+	  	  		,crrier :formSelects.value('checkbox_carrier', 'valStr')
+	        }
+	     });
+  	}
+  	
+   	var args = getRequest();
+	var pol = args.pol;
+	var pod = args.pod;
+	setTimeout(function(){
+		var carrier = args.carrier;
+		if((pol!=''&&pol!=null)||(pod!=''&&pod!=null)||(carrier!=''&&carrier!=null)){
+			var pols = [];pols.push(pol);
+			var pods = [];pods.push(pod);
+			var carriers = [];carriers.push(carrier);
+			formSelects.value('checkbox_pol',pols);
+			formSelects.value('checkbox_pod',pods);
+			formSelects.value('checkbox_carrier',carriers);
+			queryfcl();
+		}
+
+	},500);
+	form.on('select(qryFilter)',function(data){
+		var value = data.value;
+		if(requestpara.type == 'staff'){
+			if(value == 'fcl'){
+				$('#mainiframe',window.parent.document).attr('src','./mgr/staff/qryfcl.html?type=staff');
+			}else if(value == 'air'){
+				$('#mainiframe',window.parent.document).attr('src','qryair.html?type=staff');
+			}
+		}else{
+			if(value == 'fcl'){
+				location.href='queryfcl.html';
+			}else if(value == 'air'){
+				location.href='qryair.html';
+			}
+		}
+	})
+});
+
+var requestpara = getRequest();
+if(requestpara.type == 'staff'){
+	$('#nav').remove();
+	$('#footer').remove();
+	$('.main-news').css({'padding-top':'0px'});
+}else{
+	$("#nav").load("./nav.html");
+	$("#footer").load("./footer.html");
+}
+$("select[name='pol']").val("SHEKOU");
+$("select[name='pod']").val("DUBAI");
+
+</script>
+
+
+</body>
+</html>

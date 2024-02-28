@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap>
+    <!--查询工作单-->
+    <select id="base.commerce.fina_jobs" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) as jobs
+        FROM (
+                 SELECT fj.*, (SELECT depter FROM sys_user WHERE id = fj.saleid) AS depter
+                 FROM fina_jobs fj,
+                      bus_commerce bc
+                 WHERE fj.id = bc.jobid
+                   AND fj.isdelete = FALSE
+                   AND fj.id = $id$
+             ) json;
+    </select>
+    <!--查询委托单-->
+    <select id="base.commerce.bus_commerce" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) as commerce
+        FROM (
+                 SELECT bc.*,
+                        (SELECT t.code FROM dat_port t where t.code = bc.porcode)        as porname,
+                        (SELECT t.code FROM dat_port t where t.code = bc.polcode)        as polname,
+                        (SELECT t.code FROM dat_port t where t.code = bc.podcode)        as podname,
+                        (SELECT t.code FROM dat_port t where t.code = bc.destcode)       as destname,
+                        (SELECT t.code FROM dat_port t where t.code = bc.deliverytocode) as deliveryto
+                 FROM fina_jobs fj,
+                      bus_commerce bc
+                 WHERE fj.id = bc.jobid
+                   AND fj.isdelete = FALSE
+                   AND fj.id = $id$
+             ) json;
+    </select>
+    <!--查询装箱单-->
+    <select id="base.commerce.bus_packlist" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) as buspacklist
+        FROM (
+                 SELECT bp.*
+                      , (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT
+                         from (select filename as name, url from sys_attachment where linkid = bp.id) json) as filelist
+                      , (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT
+                         FROM (select bccm.*
+                                    , (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT
+                                       from (select filename as name, url from sys_attachment sa where sa.linkid = bccm.id) json) as filelist
+                               from bus_commerce_cargo_mixed bccm
+                               where bccm.ctnsid = bp.id) json
+                 )                                                                                          as buscommercecargomixedlist
+                 FROM bus_packlist bp,
+                      fina_jobs fj
+                 WHERE fj.id = bp.linkid
+                   AND fj.isdelete = FALSE
+                   AND bp.isregister = TRUE
+                   AND fj.id = $id$
+                 order by bp.id
+             ) json;
+    </select>
+    <!--新 so批量查询轨迹-->
+    <select id="base.commerce.tracklist" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT AS tracklist
+        FROM (SELECT COALESCE((CASE WHEN fj.jobtype = 'S' THEN
+                                        (SELECT array_to_json(ARRAY_AGG(row_to_json(json)))
+                                         FROM (SELECT 'SZ' as "areaDescription",
+                                                      (SELECT bc.pol FROM bus_shipping bc WHERE bc.jobid = fj.id AND isdelete = false LIMIT 1) as "destinationCountry",
+                                              nos                                                                                      as "shipperCode",
+                                              COALESCE(bsct.statuse, '')                                                               as "trackDescription",
+                                              bsct.statuse                                                                             as "trackDescriptionCn",
+                                              to_char(bsct.dealdate, 'yyyy-MM-dd hh24:MI')                                             as "trackDisplayDate",
+                                        '境内揽收'                                                                                   as "trackStatusCnname"
+                     FROM bus_ship_booking bsb
+                     LEFT JOIN bus_ship_book_cnt bsbc ON bsb.ID = bsbc.linkid
+                     LEFT JOIN bus_ship_container_track bsct ON bsbc.ID = bsct.linkid AND bsct.statuse IS NOT NULL
+                     inner join bus_ship_container bsc on bsc.isdelete = false and bsc.parentid is null
+                     and coalesce(bsc.cntno, '') != '' and bsc.jobid = fj.id and bsb.sono = bsc.sono and bsbc.cntno = bsc.cntno
+                     WHERE 1 = 1 and bsct.ID IS NOT NULL ORDER BY bsct.dealdate desc) json)
+                     ELSE
+                     (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) FROM (SELECT 'SZ' as "areaDescription",
+                     (SELECT destcountrycode FROM bus_commerce bc WHERE bc.jobid = fkid AND isdelete = false LIMIT 1) as "destinationCountry",
+                     (SELECT nos FROM bus_commerce bc WHERE bc.jobid = fkid AND isdelete = false LIMIT 1) as "shipperCode",
+                     COALESCE(statuse, '') as "trackDescription",
+                     statusc as "trackDescriptionCn",
+                     to_char(inputtime, 'yyyy-MM-dd hh24:MI') as "trackDisplayDate",
+                     '境内揽收' as "trackStatusCnname"
+                     FROM bus_goodstrack
+                     where fkid = fj.id AND iscs = true
+                     ORDER BY inputtime desc) json) END), '[]')                                                               as "Data",
+                     nos                                                                                                               as "Jobnum",
+                     COALESCE((CASE WHEN fj.jobtype = 'D' THEN (SELECT mblnum FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END), '') as "Mblnum",
+                     (CASE WHEN fj.jobtype = 'D' THEN (SELECT pkgnum FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END) as "Packages",
+             COALESCE((CASE WHEN fj.jobtype = 'D' THEN (SELECT deliverystatus FROM bus_commerce WHERE jobid = fj.id LIMIT 1)
+                      END), 'InTransit') as "Status",
+            'CN' AS "Delivercode",
+            COALESCE ((CASE WHEN fj.jobtype = 'D' THEN (SELECT destcountrycode FROM bus_commerce WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'S' THEN (SELECT pod FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END), '') as "Destcountrycode",
+            true as "IsSuccess",
+            '' as "ErrorException",
+            '' as "Message"
+        FROM fina_jobs fj
+        WHERE fj.isdelete = FALSE $nos$) json;
+    </select>
+    <!--查询电商装箱单轨迹-->
+    <select id="base.commerce.track" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) :: TEXT AS tracklist
+        FROM (SELECT COALESCE((SELECT array_to_json(ARRAY_AGG(row_to_json(json)))
+                               FROM (SELECT 'SZ' as                                                                                 "areaDescription",
+                                            (SELECT destcountrycode FROM bus_commerce bc WHERE bc.jobid = fkid AND isdelete = false LIMIT 1) as "destinationCountry",
+                                    (SELECT nos FROM bus_commerce bc WHERE bc.jobid = fkid AND isdelete = false LIMIT 1) as "shipperCode",
+                                    COALESCE(statuse, '') as "trackDescription",
+                                    statusc as "trackDescriptionCn",
+                                    to_char(inputtime, 'yyyy-MM-dd hh24:MI') as "trackDisplayDate",
+                              '境内揽收' as "trackStatusCnname"
+                              FROM bus_goodstrack
+                              where fkid = fj.id
+                                  AND iscs = true
+                              ORDER BY inputtime desc) json), '[]')                                                                    as "Data",
+                     nos                                                                                                               as "Jobnum",
+                     COALESCE((CASE WHEN fj.jobtype = 'D' THEN (SELECT mblnum FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END), '') as "Mblnum",
+                     (CASE WHEN fj.jobtype = 'D' THEN (SELECT pkgnum FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END) as "Packages",
+             COALESCE((CASE WHEN fj.jobtype = 'D' THEN (SELECT deliverystatus FROM bus_commerce WHERE jobid = fj.id LIMIT 1)
+                      END), 'InTransit') as "Status",
+            'CN' AS "Delivercode",
+            COALESCE ((CASE WHEN fj.jobtype = 'D' THEN (SELECT destcountrycode FROM bus_commerce WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'S' THEN (SELECT pod FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END), '') as "Destcountrycode",
+            true as "IsSuccess",
+            '' as "ErrorException",
+            '' as "Message"
+        FROM fina_jobs fj
+        WHERE fj.nos = $nos$ AND fj.isdelete = FALSE) json;
+    </select>
+    <!--查询电商装箱单轨迹-->
+    <select id="base.commerce.track_ship" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) :: TEXT AS tracklist
+        FROM (SELECT COALESCE((SELECT array_to_json(ARRAY_AGG(row_to_json(json)))
+                               FROM (SELECT 'SZ'                                                                                     as "areaDescription",
+                                            (SELECT bc.pol FROM bus_shipping bc WHERE bc.jobid = fj.id AND isdelete = false LIMIT 1) as "destinationCountry",
+                                    nos                                                                                      as "shipperCode",
+                                    COALESCE(bsct.statuse, '')                                                               as "trackDescription",
+                                    bsct.statuse                                                                             as "trackDescriptionCn",
+                                    to_char(bsct.dealdate, 'yyyy-MM-dd hh24:MI')                                             as "trackDisplayDate",
+                              '境内揽收'                                                                                   as "trackStatusCnname"
+                              FROM bus_ship_booking bsb
+                              LEFT JOIN bus_ship_book_cnt bsbc ON bsb.ID = bsbc.linkid
+                              LEFT JOIN bus_ship_container_track bsct ON bsbc.ID = bsct.linkid AND bsct.statuse IS NOT NULL
+                              inner join bus_ship_container bsc on bsc.isdelete = false and bsc.parentid is null
+                                  and coalesce(bsc.cntno, '') != '' and bsc.jobid = fj.id and bsb.sono = bsc.sono and bsbc.cntno = bsc.cntno
+                       WHERE 1 = 1
+                         and bsct.ID IS NOT NULL
+                       ORDER BY bsct.dealdate desc) json), '[]')                                                        as "Data",
+                     nos                                                                                                              as "Jobnum",
+                     COALESCE((CASE WHEN fj.jobtype = 'S' THEN (SELECT mblno FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END), '') as "Mblnum",
+                     (CASE WHEN fj.jobtype = 'S' THEN (SELECT piece FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END)               as "Packages",
+            'InTransit'                                                                                                      as "Status",
+            'CN'                                                                                                             AS "Delivercode",
+            COALESCE((CASE
+            WHEN fj.jobtype = 'S' THEN (SELECT pol FROM bus_shipping WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'S' THEN (SELECT pod FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END), '')    as "Destcountrycode",
+            true                                                                                                             as "IsSuccess",
+            ''                                                                                                               as "ErrorException",
+            ''                                                                                                               as "Message"
+        FROM fina_jobs fj
+        WHERE fj.nos = $nos$ AND fj.isdelete = FALSE) json;
+    </select>
+    <!--查询装箱单轨迹 拼接欧轩-->
+    <select id="base.commerce.oxtrack" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) :: TEXT AS oxtrack
+        FROM (SELECT ponum                                    as "Jobnum",
+                     COALESCE(mblnum,'')                      as "Mblnum",
+                     pkgnum                                   as "Packages",
+                     COALESCE(deliverystatus,'InTransit')     as "Status",
+                     'CN'                                     AS "Delivercode",
+                     COALESCE(destcountrycode,'')             as "Destcountrycode"
+              FROM bus_commerce
+              WHERE ponum = $ponum$
+                AND isdelete = FALSE) json;
+    </select>
+
+    <!--查询委托单轨迹-->
+    <select id="base.commerce.tracking" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT AS tracking
+        FROM (select fj.id,
+                     fj.nos,
+                     fj.jobdate,
+                     'CN'                                                                    as pol,
+                     (select bc.destcountrycode from bus_commerce bc where fj.id = bc.jobid) as pod,
+                     (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT
+                      FROM (
+                               SELECT statusc                                  as title,
+                                      to_char(inputtime, 'yyyy-MM-dd hh24:MI') as desc
+                               FROM bus_goodstrack
+                               WHERE fkid = fj.id
+                                 AND iscs = true
+                               ORDER BY inputtime desc) json)                                as tracklist
+              from fina_jobs fj
+              where fj.isdelete = false
+                and fj.nos = $nos$
+              order by fj.jobdate desc) json;
+    </select>
+
+    <!--查询装箱单轨迹-->
+    <select id="base.commerce.applist" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT AS applist
+        FROM (SELECT fj.id,
+                     (CASE WHEN position('TAE' IN fj.nos) = 0 THEN fj.nos ELSE (SELECT ponum FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END) as nos,
+             fj.jobdate,
+             (CASE
+                 WHEN fj.jobtype = 'D' THEN (SELECT etd FROM bus_commerce WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'S' THEN (SELECT etd FROM bus_shipping WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'A' THEN (SELECT singtime FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END)                        as etd,
+             (CASE
+                 WHEN fj.jobtype = 'D' THEN (SELECT eta FROM bus_commerce WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'S' THEN (SELECT eta FROM bus_shipping WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'A' THEN (SELECT eta FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END)                             as eta,
+             (CASE WHEN fj.jobtype = 'D' THEN (SELECT productname FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END)                    as productname,
+             (CASE WHEN fj.jobtype = 'D' THEN (SELECT deliverynamec FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END)                  as deliverynamec,
+             (CASE WHEN fj.jobtype = 'D' THEN (SELECT destcountrycode FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END)                as destcountrycode,
+             (CASE WHEN fj.jobtype = 'D' THEN (SELECT postcode FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END)                       as postcode
+            FROM fina_jobs fj
+        WHERE fj.isdelete = false
+          AND fj.customerid = $customerid$ ORDER BY fj.jobdate DESC LIMIT 50) json;
+    </select>
+
+    <!--查询装箱单轨迹-->
+    <select id="base.commerce.commercelist" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT AS commercelist
+        FROM (select fj.id,
+                     (CASE WHEN position('TAE' IN fj.nos) = 0 THEN fj.nos ELSE bc.ponum END) as nos,
+                     fj.jobdate,
+                     (select destcountrycode from bus_commerce where fj.id = jobid limit 1) as destcountry,
+             (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT
+              FROM (SELECT statusc                                  as title,
+                           to_char(inputtime, 'yyyy-MM-dd hh24:MI') as desc
+                    FROM bus_goodstrack
+                    where fkid = fj.id
+                      AND iscs = true
+                    ORDER BY inputtime desc) json) as tracklist
+            from fina_jobs fj,bus_commerce bc
+        where fj.id = bc.jobid
+          and fj.isdelete = false
+          and fj.jobtype = 'D'
+          and fj.customerid = $customerid$
+        order by fj.jobdate desc LIMIT 50) json;
+    </select>
+
+    <!--查询业务统计报表-->
+    <select id="base.commerce.business" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT AS businesslist
+        FROM (SELECT *,$newfield$ FROM (
+        SELECT fj.id           as id,
+            fj.nos          as nos,
+            fj.jobtype      as jobtype,
+            fj.parentid     as parentid,
+            fj.customerid   as customerid,
+            fj.customerabbr as customerabbr,
+            (SELECT refno FROM fina_jobs WHERE id = fj.parentid AND isdelete = FALSE LIMIT 1) as refno2,
+            (select nos from fina_jobs where id = fj.parentid and isdelete = false LIMIT 1)  as pnos,
+            fj.jobdate as jobdate,
+            TO_CHAR(fj.submitime, 'yyyy-MM-dd') as submitime,
+            to_char(bc.etd, 'YYYY"年"IW"周"') AS year_week,
+            to_char(bc.etd, 'YYYY"年"MM"月"') AS year_month,
+            '' as dotype,
+            '' as cntnum,
+            bc.polnamec as tcpol,
+            bc.podnamec as tcpod,
+            bc.jobid as jobid,
+            TO_CHAR(bc.etd, 'yyyy-MM-dd') as etd,
+            TO_CHAR(bc.eta, 'yyyy-MM-dd') as eta,
+            bc.productname as tcproductname,
+            bc.ponum as ponum,
+            bc.sonum as sonum,
+            fj.inputer AS inputer,
+            TO_CHAR(fj.inputtime, 'yyyy-MM-dd hh24:mi') as inputtime,
+            fj.updater AS updater,
+            TO_CHAR(fj.updatetime, 'yyyy-MM-dd hh24:mi') as updatetime,
+            TO_CHAR(bc.wmsindate, 'yyyy-MM-dd hh24:mi') as wmsintime,
+            '' as pickcnttime,
+            '' as returncnttime,
+            fj.remarks as remarks,
+            bc.remark as remark,
+            bc.pkgnum as tcpieces,
+            bc.gw as tcgrswgts,
+            bc.chargeweight as tcchargeweight,
+            bc.vol as tccbms,
+            (CASE WHEN fj.tradeway = 'F' THEN 'FOB' WHEN fj.tradeway = 'C' THEN 'CIF' WHEN fj.tradeway = 'D' THEN 'DDP' WHEN fj.tradeway = 'G' THEN 'DDU' WHEN fj.tradeway = 'E' THEN 'EXW' WHEN fj.tradeway = 'A' THEN 'FCA' END) AS tradeway,
+            (SELECT abbr FROM sys_corporation WHERE id = fj.corpid AND iscustomer = FALSE LIMIT 1)  as corpidname,
+            (SELECT abbr FROM sys_corporation WHERE id = fj.corpidop AND iscustomer = FALSE LIMIT 1)  as corpidopname,
+            fj.sales AS sales,
+            (CASE WHEN bc.saleidop is null THEN '' ELSE (SELECT namec from sys_user where id = bc.saleidop limit 1) END) AS opsales,
+            (SELECT string_agg(x.namec::text, ','::text) AS string_agg FROM sys_user x, sys_user_assign y WHERE x.id = y.userid AND y.roletype::text = 'C'::text AND y.linkid = bc.id and y.isdelete = false) as csname,
+            (SELECT string_agg(x.namec::text, ','::text) AS string_agg FROM sys_user x, sys_user_assign y WHERE x.id = y.userid AND y.roletype::text = 'O'::text AND y.linkid = bc.id and y.isdelete = false) as opname,
+            (CASE WHEN fj.jobtype = 'D' THEN (CASE WHEN fj.ldtype2 = 'H' THEN 'FBA海运' WHEN fj.ldtype2 = 'K' THEN 'FBA空运' WHEN fj.ldtype2 = 'T' THEN 'FBA铁运' WHEN fj.ldtype2 = 'X' THEN '快递专线' WHEN fj.ldtype2 = 'Z' THEN '海运整柜' ELSE '其它' END) END) as ldtype2,
+            (select name from sys_department where id = (CASE WHEN (fj.corpid = 11540072274 OR fj.corpidop = 11540072274 OR (SELECT EXISTS(SELECT 1 FROM fina_corp WHERE jobid = fj.id AND corpid = 11540072274 AND isdelete = FALSE))) THEN (CASE WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TAE' THEN 516228802274 WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TSZ' THEN (CASE WHEN fj.deptid = 1565607982274 THEN 1565607982274 ELSE 516230252274 END) WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TBZ' THEN (CASE WHEN fj.deptid = 1565607982274 THEN 1565607982274 ELSE 516230252274 END) WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TDA' THEN 516239022274 WHEN SUBSTRING(fj.nos FROM 1 FOR 1) <![CDATA[ <> ]]> 'T' THEN fj.deptop END) ELSE fj.deptid END) limit 1) as tcdept,
+            (select name from sys_department where id = fj.deptop limit 1) as tcdeptop,
+            (CASE WHEN fj.iscomplete THEN '是' ELSE '否' END) as iscomplete,
+            (CASE WHEN fj.isconfirm2_pp THEN '是' ELSE '否' END) as confirm_pp,
+            (CASE WHEN fj.iscomplete_ar THEN '是' ELSE '否' END) as complete_ar_status,
+            (CASE WHEN fj.iscomplete_ap THEN '是' ELSE '否' END) as complete_ap_status,
+            (CASE WHEN fj.iscomplete_loss THEN '确认亏损' ELSE '' END) as iscomplete_loss,
+            (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount - a.amtstl2)), 0) FROM fina_arap a WHERE a.isdelete = FALSE AND a.araptype = 'AR' AND a.rptype <![CDATA[ <> ]]> 'O' AND a.jobid = fj.id $corpsql$ $financial$) AS arrears,
+            (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $financial$ $arapsql$ $isvirarapsql$) AS amountar,
+            (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $arapsql$ $isvirarapsql$) AS amountap,
+            ((SELECT COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $financial$ $isvirarapsql$) -
+            (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $isvirarapsql$)):: NUMERIC(18,2) as profitrmb,
+            ((SELECT COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'USD', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $financial$ $isvirarapsql$) -
+            (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'USD', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $isvirarapsql$)):: NUMERIC(18,2) as profitusd,
+            (CASE WHEN NOT EXISTS (SELECT 1 FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND jobid = fj.id)  THEN '无应收' WHEN (SELECT sum(amount-COALESCE(amtstl2,0)) = 0  FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND rptype <![CDATA[ <> ]]> 'O' AND jobid = fj.id) THEN '已收款' WHEN (SELECT COALESCE(SUM(amtstl2),0) = 0 FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND jobid = fj.id) THEN '未收款' ELSE '部分收款' END) AS arstatus,
+            (CASE WHEN NOT EXISTS (SELECT 1 FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND jobid = fj.id)  THEN '无应付' WHEN (SELECT sum(amount-COALESCE(amtstl2,0)) = 0  FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND rptype <![CDATA[ <> ]]> 'O' AND jobid = fj.id) THEN '已付款' WHEN (SELECT COALESCE(SUM(amtstl2),0) = 0 FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND jobid = fj.id) THEN '未付款' ELSE '部分付款' END) AS apstatus
+              FROM fina_jobs fj,
+                  bus_commerce bc
+              WHERE fj.id = bc.jobid
+                AND fj.jobtype = 'D'
+                AND fj.isdelete = FALSE $qry$ $filter$ $isinwmsin$ $nostype$ $commercesql$
+
+              UNION ALL
+
+              SELECT fj.id as id,
+                  fj.nos as nos,
+                  fj.jobtype as jobtype,
+                  fj.parentid as parentid,
+                  fj.customerid   as customerid,
+                  fj.customerabbr as customerabbr,
+                  fj.refno2 as refno2,
+                  '' as pnos,
+                  fj.jobdate as jobdate,
+                  TO_CHAR(fj.submitime, 'yyyy-MM-dd') as submitime,
+                  to_char(bc.etd, 'YYYY"年"IW"周"') AS year_week,
+                  to_char(bc.etd, 'YYYY"年"MM"月"') AS year_month,
+                   (SELECT f_bus_shipping_do_type(('shipid='::text || bc.id) || ';'::text) AS f_bus_shipping_do_type) as dotype,
+                   (SELECT sum(cnts.cnt) FROM (SELECT count(*)::NUMERIC * (case when left(cntypedesc, 2) = '20' then 1 when left(cntypedesc, 2) = '40' then 2 else 0 end)::NUMERIC AS cnt FROM _bus_ship_container WHERE shipid = bc.id AND isselect = TRUE AND isdelete = FALSE GROUP BY cntypedesc) cnts)::TEXT as cntnum,
+                  bc.pol as tcpol,
+                  bc.pod as tcpod,
+                  bc.jobid as jobid,
+                  to_char(bc.etd, 'yyyy-MM-dd') as etd,
+                  to_char(bc.eta, 'yyyy-MM-dd') as eta,
+                  '' as tcproductname,
+                   (CASE when fj.joborderid is null then (SELECT bsc.cntno FROM bus_ship_container bsc WHERE bsc.jobid = fj.id and bsc.isdelete = false limit 1) else fj.refno end) as ponum,
+                  bc.sono as sonum,
+                  fj.inputer AS inputer,
+                  TO_CHAR(fj.inputtime, 'yyyy-MM-dd hh24:mi') as inputtime,
+                  fj.updater AS updater,
+                  TO_CHAR(fj.updatetime, 'yyyy-MM-dd hh24:mi') as updatetime,
+                  '' as wmsintime,
+                  TO_CHAR(bc.pickcnttime, 'yyyy-MM-dd') as pickcnttime,
+                  TO_CHAR(bc.returncnttime, 'yyyy-MM-dd') as returncnttime,
+                  fj.remarks as remarks,
+                  bc.remark1 as remark,
+                   (SELECT SUM (piece) from bus_ship_container where isdelete = false and jobid = fj.id) AS tcpieces,
+                   (SELECT SUM (grswgt) from bus_ship_container where isdelete = false and jobid = fj.id) AS tcgrswgts,
+                   (SELECT SUM (chargwgt) from bus_ship_container where isdelete = false and jobid = fj.id) AS tcchargeweight,
+                   (SELECT SUM (cbm) from bus_ship_container where isdelete = false and jobid = fj.id) AS tccbms,
+                   (CASE WHEN fj.tradeway = 'F' THEN 'FOB' WHEN fj.tradeway = 'C' THEN 'CIF' WHEN fj.tradeway = 'D' THEN 'DDP' WHEN fj.tradeway = 'G' THEN 'DDU' WHEN fj.tradeway = 'E' THEN 'EXW' WHEN fj.tradeway = 'A' THEN 'FCA' END) AS tradeway,
+                   (SELECT abbr FROM sys_corporation WHERE id = fj.corpid AND iscustomer = FALSE LIMIT 1)  as corpidname,
+                   (SELECT abbr FROM sys_corporation WHERE id = fj.corpidop AND iscustomer = FALSE LIMIT 1)  as corpidopname,
+                  fj.sales as sales,
+                   (CASE WHEN deptop = 516228802274 THEN '途C中东操作部' WHEN deptop = 516230252274 THEN '途C北美操作部' WHEN deptop = 1565607982274 THEN '途C非标准项目部' ELSE '' END) AS opsales,
+                   (SELECT string_agg(x.namec::text, ','::text) AS string_agg FROM sys_user x, sys_user_assign y WHERE x.id = y.userid AND y.roletype::text = 'C'::text AND y.linkid = bc.id and y.isdelete = false) as csname,
+                   (SELECT string_agg(x.namec::text, ','::text) AS string_agg FROM sys_user x, sys_user_assign y WHERE x.id = y.userid AND y.roletype::text = 'O'::text AND y.linkid = bc.id and y.isdelete = false) as opname,
+                   (CASE WHEN fj.jobtype = 'S' THEN (CASE WHEN EXISTS(SELECT 1 FROM fina_jobs WHERE isdelete = FALSE AND parentid = fj.id LIMIT 1) THEN '海运拼箱' ELSE '海运整柜' END) END) as ldtype2,
+                   (SELECT name from sys_department where id = (CASE WHEN (corpid = 11540072274 OR corpidop = 11540072274 OR (SELECT EXISTS(SELECT 1 FROM fina_corp WHERE jobid = fj.id AND corpid = 11540072274 AND isdelete = FALSE))) THEN (CASE WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TAE' THEN 516228802274 WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TSZ' THEN (CASE WHEN fj.deptid = 1565607982274 THEN 1565607982274 ELSE 516230252274 END) WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TBZ' THEN (CASE WHEN fj.deptid = 1565607982274 THEN 1565607982274 ELSE 516230252274 END) WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TDA' THEN 516239022274 WHEN SUBSTRING(fj.nos FROM 1 FOR 1) <![CDATA[ <> ]]> 'T' THEN fj.deptop END) ELSE fj.deptid END) limit 1) as tcdept,
+                   (select name from sys_department where id = fj.deptop limit 1) as tcdeptop,
+                   (CASE WHEN fj.iscomplete THEN '是' ELSE '否' END) as iscomplete,
+                   (CASE WHEN fj.isconfirm2_pp THEN '是' ELSE '否' END) as confirm_pp,
+                   (CASE WHEN fj.iscomplete_ar THEN '是' ELSE '否' END) as complete_ar_status,
+                   (CASE WHEN fj.iscomplete_ap THEN '是' ELSE '否' END) as complete_ap_status,
+                   (CASE WHEN fj.iscomplete_loss THEN '确认亏损' ELSE '' END) as iscomplete_loss,
+                   (SELECT  COALESCE (SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount - a.amtstl2)), 0) FROM fina_arap a WHERE a.isdelete = FALSE AND a.araptype = 'AR' AND a.rptype <![CDATA[ <> ]]> 'O' AND a.jobid = fj.id $corpsql$ $financial$) AS arrears,
+                   (SELECT  COALESCE (SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $arapsql$ $isvirarapsql$) AS amountar,
+                   (SELECT  COALESCE (SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $arapsql$ $isvirarapsql$) AS amountap,
+                   ((SELECT COALESCE (SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $isvirarapsql$) -
+                   (SELECT  COALESCE (SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $isvirarapsql$)):: NUMERIC(18,2) as profitrmb,
+                   ((SELECT COALESCE (SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'USD', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $isvirarapsql$) -
+                   (SELECT  COALESCE (SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'USD', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $isvirarapsql$)):: NUMERIC(18,2) as profitusd,
+                   (CASE WHEN NOT EXISTS (SELECT 1 FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND jobid = fj.id)  THEN '无应收' WHEN (SELECT sum(amount-COALESCE(amtstl2,0)) = 0  FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND rptype <![CDATA[ <> ]]> 'O' AND jobid = fj.id) THEN '已收款' WHEN (SELECT COALESCE(SUM(amtstl2),0) = 0 FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND jobid = fj.id) THEN '未收款' ELSE '部分收款' END) AS arstatus,
+                   (CASE WHEN NOT EXISTS (SELECT 1 FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND jobid = fj.id)  THEN '无应付' WHEN (SELECT sum(amount-COALESCE(amtstl2,0)) = 0  FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND rptype <![CDATA[ <> ]]> 'O' AND jobid = fj.id) THEN '已付款' WHEN (SELECT COALESCE(SUM(amtstl2),0) = 0 FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND jobid = fj.id) THEN '未付款' ELSE '部分付款' END) AS apstatus
+              FROM fina_jobs fj,
+                  bus_shipping bc
+              WHERE fj.id = bc.jobid
+                AND fj.jobtype = 'S'
+                AND fj.isdelete = FALSE
+                AND bc.isdelete = FALSE $qry$ $filter$ $nostype$ $shipsql$
+
+              UNION ALL
+
+              SELECT fj.id as id,
+                  fj.nos as nos,
+                  fj.jobtype as jobtype,
+                  fj.parentid as parentid,
+                  fj.customerid  as customerid,
+                  fj.customerabbr as customerabbr,
+                  fj.refno2 as refno2,
+                  '' as pnos,
+                  fj.jobdate as jobdate,
+                  TO_CHAR(fj.submitime, 'yyyy-MM-dd') as submitime,
+                  to_char(bc.singtime, 'YYYY"年"IW"周"') AS year_week,
+                  to_char(bc.singtime, 'YYYY"年"MM"月"') AS year_month,
+                  '' as dotype,
+                  '' as cntnum,
+                  bc.pol as tcpol,
+                  bc.pod as tcpod,
+                  bc.jobid as jobid,
+                  to_char(bc.singtime, 'yyyy-MM-dd') as etd,
+                  to_char(bc.eta, 'yyyy-MM-dd') as eta,
+                  '' as tcproductname,
+                   (CASE when fj.joborderid is null then bc.mawbno else fj.refno end) as ponum,
+                  bc.sono as sonum,
+                  fj.inputer AS inputer,
+                  TO_CHAR(fj.inputtime, 'yyyy-MM-dd hh24:mi') as inputtime,
+                  fj.updater AS updater,
+                  TO_CHAR(fj.updatetime, 'yyyy-MM-dd hh24:mi') as updatetime,
+                  '' as wmsintime,
+                  '' as pickcnttime,
+                  '' as returncnttime,
+                  fj.remarks as remarks,
+                  bc.remarks as remark,
+                   (select SUM (piece) from bus_goods where isdelete = false and linkid = bc.id) AS tcpieces,
+                   (select SUM (grswgt) from bus_goods where isdelete = false and linkid = bc.id) AS tcgrswgts,
+                   (SELECT SUM (chargeweight) from bus_goods where isdelete = false and linkid = bc.id) as tcchargeweight,
+                   (SELECT SUM (cbm) from bus_goods where isdelete = false and linkid = bc.id) AS tccbms,
+                   (CASE WHEN fj.tradeway = 'F' THEN 'FOB' WHEN fj.tradeway = 'C' THEN 'CIF' WHEN fj.tradeway = 'D' THEN 'DDP' WHEN fj.tradeway = 'G' THEN 'DDU' WHEN fj.tradeway = 'E' THEN 'EXW' WHEN fj.tradeway = 'A' THEN 'FCA' END) AS tradeway,
+                   (SELECT abbr FROM sys_corporation WHERE id = fj.corpid AND iscustomer = FALSE LIMIT 1)  as corpidname,
+                   (SELECT abbr FROM sys_corporation WHERE id = fj.corpidop AND iscustomer = FALSE LIMIT 1)  as corpidopname,
+                  fj.sales as sales,
+                   (CASE WHEN deptop = 516228802274 THEN '途C中东操作部' WHEN deptop = 516230252274 THEN '途C北美操作部' WHEN deptop = 1565607982274 THEN '途C非标准项目部' ELSE '' END) AS opsales,
+                   (SELECT string_agg(x.namec::text, ','::text) AS string_agg FROM sys_user x, sys_user_assign y WHERE x.id = y.userid AND y.roletype::text = 'C'::text AND y.linkid = bc.id and y.isdelete = false) as csname,
+                   (SELECT string_agg(x.namec::text, ','::text) AS string_agg FROM sys_user x, sys_user_assign y WHERE x.id = y.userid AND y.roletype::text = 'O'::text AND y.linkid = bc.id and y.isdelete = false) as opname,
+                   (CASE WHEN fj.jobtype = 'A' THEN (CASE WHEN EXISTS(SELECT 1 FROM fina_jobs WHERE isdelete = FALSE AND parentid = fj.id LIMIT 1) THEN '空运拼箱' ELSE '航空货运' END) END) as ldtype2,
+                   (select name from sys_department where id = (CASE WHEN (corpid = 11540072274 OR corpidop = 11540072274 OR (SELECT EXISTS(SELECT 1 FROM fina_corp WHERE jobid = fj.id AND corpid = 11540072274 AND isdelete = FALSE))) THEN (CASE WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TAE' THEN 516228802274 WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TSZ' THEN (CASE WHEN fj.deptid = 1565607982274 THEN 1565607982274 ELSE 516230252274 END) WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TBZ' THEN (CASE WHEN fj.deptid = 1565607982274 THEN 1565607982274 ELSE 516230252274 END) WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TDA' THEN 516239022274 WHEN SUBSTRING(fj.nos FROM 1 FOR 1) <![CDATA[ <> ]]> 'T' THEN fj.deptop END) ELSE fj.deptid END) limit 1) as tcdept,
+                   (select name from sys_department where id = fj.deptop limit 1) as tcdeptop,
+                   (CASE WHEN fj.iscomplete THEN '是' ELSE '否' END) as iscomplete,
+                   (CASE WHEN fj.isconfirm2_pp THEN '是' ELSE '否' END) as confirm_pp,
+                   (CASE WHEN fj.iscomplete_ar THEN '是' ELSE '否' END) as complete_ar_status,
+                   (CASE WHEN fj.iscomplete_ap THEN '是' ELSE '否' END) as complete_ap_status,
+                   (CASE WHEN fj.iscomplete_loss THEN '确认亏损' ELSE '' END) as iscomplete_loss,
+                   (SELECT  COALESCE(SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount - a.amtstl2)), 0) FROM fina_arap a WHERE a.isdelete = FALSE AND a.araptype = 'AR' AND a.rptype <![CDATA[ <> ]]> 'O' AND a.jobid = fj.id $corpsql$ $financial$) AS arrears,
+                   (SELECT  COALESCE(SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $arapsql$ $isvirarapsql$) AS amountar,
+                   (SELECT  COALESCE(SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $arapsql$ $isvirarapsql$) AS amountap,
+                   ((SELECT COALESCE(SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $isvirarapsql$) -
+                   (SELECT  COALESCE(SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $isvirarapsql$)):: NUMERIC(18,2) as profitrmb,
+                   ((SELECT COALESCE(SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'USD', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $isvirarapsql$) -
+                   (SELECT  COALESCE(SUM(f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'USD', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $isvirarapsql$)):: NUMERIC(18,2) as profitusd,
+                   (CASE WHEN NOT EXISTS (SELECT 1 FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND jobid = fj.id)  THEN '无应收' WHEN (SELECT sum(amount-COALESCE(amtstl2,0)) = 0  FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND rptype <![CDATA[ <> ]]> 'O' AND jobid = fj.id) THEN '已收款' WHEN (SELECT COALESCE(SUM(amtstl2),0) = 0 FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND jobid = fj.id) THEN '未收款' ELSE '部分收款' END) AS arstatus,
+                   (CASE WHEN NOT EXISTS (SELECT 1 FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND jobid = fj.id)  THEN '无应付' WHEN (SELECT sum(amount-COALESCE(amtstl2,0)) = 0  FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND rptype <![CDATA[ <> ]]> 'O' AND jobid = fj.id) THEN '已付款' WHEN (SELECT COALESCE(SUM(amtstl2),0) = 0 FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND jobid = fj.id) THEN '未付款' ELSE '部分付款' END) AS apstatus
+              FROM fina_jobs fj,
+                  bus_air bc
+              WHERE fj.id = bc.jobid
+                AND fj.jobtype = 'A'
+                AND fj.isdelete = FALSE $qry$ $filter$ $nostype$ $airsql$
+
+              UNION ALL
+
+              SELECT fj.id as id,
+                  fj.nos as nos,
+                  fj.jobtype as jobtype,
+                  fj.parentid as parentid,
+                  fj.customerid  as customerid,
+                  fj.customerabbr as customerabbr,
+                  fj.refno2 as refno2,
+                  '' as pnos,
+                  fj.jobdate as jobdate,
+                  TO_CHAR(fj.submitime, 'yyyy-MM-dd') as submitime,
+                  to_char(bc.loadtime, 'YYYY"年"IW"周"') AS year_week,
+                  to_char(bc.loadtime, 'YYYY"年"MM"月"') AS year_month,
+                  '' as dotype,
+                  '' as cntnum,
+                  '' as tcpol,
+                  '' as tcpod,
+                  bc.jobid as jobid,
+                  to_char(bc.loadtime, 'yyyy-MM-dd') as etd,
+                  '' as eta,
+                  '' as tcproductname,
+                  fj.refno as ponum,
+                  bc.sono as sonum,
+                  fj.inputer AS inputer,
+                  TO_CHAR(fj.inputtime, 'yyyy-MM-dd hh24:mi') as inputtime,
+                  fj.updater AS updater,
+                  TO_CHAR(fj.updatetime, 'yyyy-MM-dd hh24:mi') as updatetime,
+                  '' as wmsintime,
+                  '' as pickcnttime,
+                  '' as returncnttime,
+                  fj.remarks as remarks,
+                  bc.remarks as remark,
+                   (select SUM (piece) from bus_goods where isdelete = false and linkid = bc.id) AS tcpieces,
+                   (select SUM (grswgt) from bus_goods where isdelete = false and linkid = bc.id) AS tcgrswgts,
+                   (SELECT SUM (chargwgt) from bus_ship_container where isdelete = false and jobid = bc.id) as tcchargeweight,
+                   (SELECT SUM (cbm) from bus_goods where isdelete = false and linkid = bc.id) AS tccbms,
+                   (CASE WHEN fj.tradeway = 'F' THEN 'FOB' WHEN fj.tradeway = 'C' THEN 'CIF' WHEN fj.tradeway = 'D' THEN 'DDP' WHEN fj.tradeway = 'G' THEN 'DDU' WHEN fj.tradeway = 'E' THEN 'EXW' WHEN fj.tradeway = 'A' THEN 'FCA' END) AS tradeway,
+                   (SELECT abbr FROM sys_corporation WHERE id = fj.corpid AND iscustomer = FALSE LIMIT 1)  as corpidname,
+                   (SELECT abbr FROM sys_corporation WHERE id = fj.corpidop AND iscustomer = FALSE LIMIT 1)  as corpidopname,
+                  fj.sales as sales,
+                   (CASE WHEN deptop = 516228802274 THEN '途C中东操作部' WHEN deptop = 516230252274 THEN '途C北美操作部' WHEN deptop = 1565607982274 THEN '途C非标准项目部' ELSE '' END) AS opsales,
+                   (SELECT string_agg(x.namec::text, ','::text) AS string_agg FROM sys_user x, sys_user_assign y WHERE x.id = y.userid AND y.roletype::text = 'C'::text AND y.linkid = bc.id and y.isdelete = false) as csname,
+                   (SELECT string_agg(x.namec::text, ','::text) AS string_agg FROM sys_user x, sys_user_assign y WHERE x.id = y.userid AND y.roletype::text = 'O'::text AND y.linkid = bc.id and y.isdelete = false) as opname,
+                  '陆路运输' as ldtype2,
+                   (SELECT name from sys_department where id = (CASE WHEN (corpid = 11540072274 OR corpidop = 11540072274 OR (SELECT EXISTS(SELECT 1 FROM fina_corp WHERE jobid = fj.id AND corpid = 11540072274 AND isdelete = FALSE))) THEN (CASE WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TAE' THEN 516228802274 WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TSZ' THEN (CASE WHEN fj.deptid = 1565607982274 THEN 1565607982274 ELSE 516230252274 END) WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TBZ' THEN (CASE WHEN fj.deptid = 1565607982274 THEN 1565607982274 ELSE 516230252274 END) WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TDA' THEN 516239022274 WHEN SUBSTRING(fj.nos FROM 1 FOR 1) <![CDATA[ <> ]]> 'T' THEN fj.deptop END) ELSE fj.deptid END) limit 1) as tcdept,
+                   (select name from sys_department where id = fj.deptop limit 1) as tcdeptop,
+                   (CASE WHEN fj.iscomplete THEN '是' ELSE '否' END) as iscomplete,
+                   (CASE WHEN fj.isconfirm2_pp THEN '是' ELSE '否' END) as confirm_pp,
+                   (CASE WHEN fj.iscomplete_ar THEN '是' ELSE '否' END) as complete_ar_status,
+                   (CASE WHEN fj.iscomplete_ap THEN '是' ELSE '否' END) as complete_ap_status,
+                   (CASE WHEN fj.iscomplete_loss THEN '确认亏损' ELSE '' END) as iscomplete_loss,
+                   (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount - a.amtstl2)), 0) FROM fina_arap a WHERE a.isdelete = FALSE AND a.araptype = 'AR' AND a.rptype <![CDATA[ <> ]]> 'O' AND a.jobid = fj.id $corpsql$ $financial$) AS arrears,
+                   (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $arapsql$ $isvirarapsql$) AS amountar,
+                   (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $arapsql$ $isvirarapsql$) AS amountap,
+                   ((SELECT COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $isvirarapsql$) -
+                   (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $isvirarapsql$)):: NUMERIC(18,2) as profitrmb,
+                   ((SELECT COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'USD', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $isvirarapsql$) -
+                   (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'USD', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $isvirarapsql$)):: NUMERIC(18,2) as profitusd,
+                   (CASE WHEN NOT EXISTS (SELECT 1 FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND jobid = fj.id)  THEN '无应收' WHEN (SELECT sum(amount-COALESCE(amtstl2,0)) = 0  FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND rptype <![CDATA[ <> ]]> 'O' AND jobid = fj.id) THEN '已收款' WHEN (SELECT COALESCE(SUM(amtstl2),0) = 0 FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND jobid = fj.id) THEN '未收款' ELSE '部分收款' END) AS arstatus,
+                   (CASE WHEN NOT EXISTS (SELECT 1 FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND jobid = fj.id)  THEN '无应付' WHEN (SELECT sum(amount-COALESCE(amtstl2,0)) = 0  FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND rptype <![CDATA[ <> ]]> 'O' AND jobid = fj.id) THEN '已付款' WHEN (SELECT COALESCE(SUM(amtstl2),0) = 0 FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND jobid = fj.id) THEN '未付款' ELSE '部分付款' END) AS apstatus
+              FROM fina_jobs fj,
+                  bus_truck bc
+              WHERE fj.id = bc.jobid
+                AND fj.jobtype = 'L'
+                AND fj.isdelete = FALSE $qry$ $filter$ $nostype$ $landsql$
+
+              UNION ALL
+
+              SELECT fj.id as id,
+                  fj.nos as nos,
+                  fj.jobtype as jobtype,
+                  fj.parentid as parentid,
+                  fj.customerid  as customerid,
+                  fj.customerabbr as customerabbr,
+                  fj.refno2 as refno2,
+                  '' as pnos,
+                  fj.jobdate as jobdate,
+                  TO_CHAR(fj.submitime, 'yyyy-MM-dd') as submitime,
+                  to_char(bc.singtime, 'YYYY"年"IW"周"') AS year_week,
+                  to_char(bc.singtime, 'YYYY"年"MM"月"') AS year_month,
+                  '' as dotype,
+                  '' as cntnum,
+                  '' as tcpol,
+                  '' as tcpod,
+                  bc.jobid as jobid,
+                  to_char(bc.singtime, 'yyyy-MM-dd') as etd,
+                  '' as eta,
+                  '' as tcproductname,
+                  fj.refno as ponum,
+                  bc.sono as sonum,
+                  fj.inputer AS inputer,
+                  TO_CHAR(fj.inputtime, 'yyyy-MM-dd hh24:mi') as inputtime,
+                  fj.updater AS updater,
+                  TO_CHAR(fj.updatetime, 'yyyy-MM-dd hh24:mi') as updatetime,
+                  '' as wmsintime,
+                  '' as pickcnttime,
+                  '' as returncnttime,
+                  fj.remarks as remarks,
+                  bc.remarks as remark,
+                   (select SUM (piece) from bus_goods where isdelete = false and linkid = bc.id) AS tcpieces,
+                   (select SUM (grswgt) from bus_goods where isdelete = false and linkid = bc.id) AS tcgrswgts,
+                   (SELECT SUM (chargwgt) from bus_ship_container where isdelete = false and jobid = bc.id) as tcchargeweight,
+                   (SELECT SUM (cbm) from bus_goods where isdelete = false and linkid = bc.id) AS tccbms,
+                   (CASE WHEN fj.tradeway = 'F' THEN 'FOB' WHEN fj.tradeway = 'C' THEN 'CIF' WHEN fj.tradeway = 'D' THEN 'DDP' WHEN fj.tradeway = 'G' THEN 'DDU' WHEN fj.tradeway = 'E' THEN 'EXW' WHEN fj.tradeway = 'A' THEN 'FCA' END) AS tradeway,
+                   (SELECT abbr FROM sys_corporation WHERE id = fj.corpid AND iscustomer = FALSE LIMIT 1)  as corpidname,
+                   (SELECT abbr FROM sys_corporation WHERE id = fj.corpidop AND iscustomer = FALSE LIMIT 1)  as corpidopname,
+                  fj.sales as sales,
+                   (CASE WHEN deptop = 516228802274 THEN '途C中东操作部' WHEN deptop = 516230252274 THEN '途C北美操作部' WHEN deptop = 1565607982274 THEN '途C非标准项目部' ELSE '' END) AS opsales,
+                   (SELECT string_agg(x.namec::text, ','::text) AS string_agg FROM sys_user x, sys_user_assign y WHERE x.id = y.userid AND y.roletype::text = 'C'::text AND y.linkid = bc.id and y.isdelete = false) as csname,
+                   (SELECT string_agg(x.namec::text, ','::text) AS string_agg FROM sys_user x, sys_user_assign y WHERE x.id = y.userid AND y.roletype::text = 'O'::text AND y.linkid = bc.id and y.isdelete = false) as opname,
+                  '报关单' as ldtype2,
+                   (SELECT name from sys_department where id = (CASE WHEN (corpid = 11540072274 OR corpidop = 11540072274 OR (SELECT EXISTS(SELECT 1 FROM fina_corp WHERE jobid = fj.id AND corpid = 11540072274 AND isdelete = FALSE))) THEN (CASE WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TAE' THEN 516228802274 WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TSZ' THEN (CASE WHEN fj.deptid = 1565607982274 THEN 1565607982274 ELSE 516230252274 END) WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TBZ' THEN (CASE WHEN fj.deptid = 1565607982274 THEN 1565607982274 ELSE 516230252274 END) WHEN SUBSTRING(fj.nos FROM 1 FOR 3) = 'TDA' THEN 516239022274 WHEN SUBSTRING(fj.nos FROM 1 FOR 1) <![CDATA[ <> ]]> 'T' THEN fj.deptop END) ELSE fj.deptid END) limit 1) as tcdept,
+                   (select name from sys_department where id = fj.deptop limit 1) as tcdeptop,
+                   (CASE WHEN fj.iscomplete THEN '是' ELSE '否' END) as iscomplete,
+                   (CASE WHEN fj.isconfirm2_pp THEN '是' ELSE '否' END) as confirm_pp,
+                   (CASE WHEN fj.iscomplete_ar THEN '是' ELSE '否' END) as complete_ar_status,
+                   (CASE WHEN fj.iscomplete_ap THEN '是' ELSE '否' END) as complete_ap_status,
+                   (CASE WHEN fj.iscomplete_loss THEN '确认亏损' ELSE '' END) as iscomplete_loss,
+                   (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount - a.amtstl2)), 0) FROM fina_arap a WHERE a.isdelete = FALSE AND a.araptype = 'AR' AND a.rptype <![CDATA[ <> ]]> 'O' AND a.jobid = fj.id $corpsql$ $financial$) AS arrears,
+                   (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $arapsql$ $isvirarapsql$) AS amountar,
+                   (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $arapsql$ $isvirarapsql$) AS amountap,
+                   ((SELECT COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $isvirarapsql$) -
+                   (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'CNY', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $isvirarapsql$)):: NUMERIC(18,2) as profitrmb,
+                   ((SELECT COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'USD', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AR' AND jobid = fj.id $corpsql$ $isvirarapsql$) -
+                   (SELECT  COALESCE (SUM (f_amtto((CASE WHEN isamend = TRUE AND (CASE WHEN COALESCE(f_sys_config('fina_arap_porfit_isamend_jobdate'),'N') = 'Y' THEN TRUE ELSE FALSE END) = FALSE THEN a.arapdate ELSE fj.jobdate END), a.currency, 'USD', a.amount)), 0) FROM fina_arap a WHERE isdelete = FALSE AND araptype = 'AP' AND jobid = fj.id $corpsql$ $financial$ $isvirarapsql$)):: NUMERIC(18,2) as profitusd,
+                   (CASE WHEN NOT EXISTS (SELECT 1 FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND jobid = fj.id)  THEN '无应收' WHEN (SELECT sum(amount-COALESCE(amtstl2,0)) = 0  FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND rptype <![CDATA[ <> ]]> 'O' AND jobid = fj.id) THEN '已收款' WHEN (SELECT COALESCE(SUM(amtstl2),0) = 0 FROM fina_arap WHERE isdelete = false AND araptype = 'AR' AND jobid = fj.id) THEN '未收款' ELSE '部分收款' END) AS arstatus,
+                   (CASE WHEN NOT EXISTS (SELECT 1 FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND jobid = fj.id)  THEN '无应付' WHEN (SELECT sum(amount-COALESCE(amtstl2,0)) = 0  FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND rptype <![CDATA[ <> ]]> 'O' AND jobid = fj.id) THEN '已付款' WHEN (SELECT COALESCE(SUM(amtstl2),0) = 0 FROM fina_arap WHERE isdelete = false AND araptype = 'AP' AND jobid = fj.id) THEN '未付款' ELSE '部分付款' END) AS apstatus
+              FROM fina_jobs fj,
+                  bus_customs bc
+              WHERE fj.id = bc.jobid
+                AND fj.jobtype = 'C'
+                AND fj.isdelete = FALSE $qry$ $filter$ $nostype$ $custsql$
+             ) result
+        WHERE 1 = 1 $greater$
+        ORDER BY inputtime DESC) json
+    </select>
+
+</sqlMap>

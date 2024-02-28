@@ -1,0 +1,187 @@
+.login-bg {
+  /*background: #eeeeee 0 0 no-repeat;*/
+  
+  background: #f8f8f8;
+  border-bottom: 1px solid #e8e8e8;
+}
+.login {
+  padding: 10px;
+  margin: 50px;
+  min-height: 420px;
+  max-width: 420px;
+  /*padding: 40px;*/
+  background-color: #ffffff;
+  margin-left: auto;
+  /*margin-right: auto;*/
+  right: 10px;
+  border-radius: 4px;
+  /* overflow-x: hidden; */
+  box-sizing: border-box;
+  border: 1px solid #e8e8e8;
+  border-top: 1px solid #58a7f7;
+  box-shadow: 2px 2px 2px #e8e8e8;
+}
+.login-left{
+    padding: 10px;
+    margin: 10px;
+    min-height: 420px;
+    max-width: 420px;
+    /*position:relative;*/
+}
+/*超小屏幕*/
+@media only screen and (max-width: 479px) {
+   .login {
+	  padding: 0px;
+ 	  margin: 0px;
+	}
+	.login-left{
+	    min-height: 10px;
+	    visibility:hidden;
+	}
+}
+/*超小屏幕(横屏)*/
+@media only screen and (max-height: 479px) and (orientation:landscape) {
+   .login {
+	  padding: 0px;
+ 	  margin: 0px;
+	}
+	.login-left{
+	    min-height: 50px;
+	    visibility:hidden;
+	}
+}
+
+.login-left img{
+  width: 100%;
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+}
+.login form {
+  padding:10px;
+}
+.login h3 {
+  color: #58a7f7;
+  border-bottom: 2px solid #58a7f7;
+}
+.login a {
+ 	display: inline-block;
+    float: right;
+    color: #2b86e3;
+    line-height: 30px;
+}
+
+
+.login a.logo {
+  display: block;
+  height: 58px;
+  width: 167px;
+  margin: 0 auto 30px auto;
+  background-size: 167px 42px;
+}
+.login .message {
+  margin: 10px 0 0 -58px;
+  padding: 18px 10px 18px 60px;
+  background: #189F92;
+  position: relative;
+  color: #fff;
+  font-size: 16px;
+}
+.login #darkbannerwrap {
+  background: url(../images/aiwrap.png);
+  width: 18px;
+  height: 10px;
+  margin: 0 0 20px -58px;
+  position: relative;
+}
+.login input[type=text],
+.login input[type=file],
+.login input[type=password],
+.login input[type=email],
+.login select {
+  border: 1px solid #DCDEE0;
+  vertical-align: middle;
+  border-radius: 3px;
+  height: 50px;
+  padding: 0px 16px;
+  font-size: 14px;
+  color: #555555;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.login input[type=text]:focus,
+.login input[type=file]:focus,
+.login input[type=password]:focus,
+.login input[type=email]:focus,
+.login select:focus {
+  border: 1px solid #27A9E3;
+}
+.login input[type=submit],
+.login input[type=button] {
+  display: inline-block;
+  padding: 12px 24px;
+  margin: 0px;
+  font-size: 18px;
+  line-height: 24px;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  color: #ffffff;
+  background-color: #4ab2ff;
+  border-radius: 3px;
+  border: none;
+  -webkit-appearance: none;
+  outline: none;
+  width: 100%;
+}
+.login hr {
+  background: #fff 0 0 no-repeat;
+}
+.login hr.hr15 {
+  height: 15px;
+  border: none;
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+}
+.login hr.hr20 {
+  height: 20px;
+  border: none;
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+}
+
+.register {
+    padding: 10px;
+  margin: 50px;
+  min-height: 420px;
+  max-width: 420px;
+  /*padding: 40px;*/
+  background-color: #ffffff;
+  margin-left: auto;
+  /*margin-right: auto;*/
+  right: 10px;
+  border-radius: 4px;
+  /* overflow-x: hidden; */
+  box-sizing: border-box;
+  border: 1px solid #e8e8e8;
+  border-top: 1px solid #58a7f7;
+  box-shadow: 2px 2px 2px #e8e8e8;
+}
+
+.register .layui-form-item {
+  margin-bottom: 1px;
+}
+
+#canvas{
+    float:right;
+    display: inline-block;
+    border:1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+}
+

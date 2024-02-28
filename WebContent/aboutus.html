@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<link rel="stylesheet" href="./res/static/css/index.css?t=25">
+	
+	<script src="/so/res/layui/layui.js"></script>
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script type="text/javascript" src="./admin/js/ufms.common.js?t=10" ></script>
+	<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+</head>
+<body>
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  <!-- banner部分 -->
+  <div class="banner about">
+    <div class="title">
+      <p>关于我们</p>
+      <p class="en">About Us</p>
+    </div>
+  </div>
+  <!-- main部分 -->
+  <div class="main-about">
+    <div class="layui-container">
+      <div class="layui-row">
+        <ul class="aboutab">
+          <li class="layui-this">公司简介</li><li>招贤纳士</li><li>联系方式</li>
+        </ul>
+        <div class="tabIntro">
+          <div class="content">
+            <div class="layui-inline img"><img src="./res/static/img/us_img1.jpg"></div><div class="layui-inline panel">
+              <p>信毅国际物流（深圳）有限公司成立于2018年3月，是经国家商务部批准的一家新型、多元化国际物流公司。以深圳为核心，在广州、DUBAI等地均有分支机构。公司承接海运、空运、陆运进出口货物的国际运输代理业务及第三方物流业务，包括：订舱、仓储、中转、报关、报检、保险、集装箱拼箱、相关的短途运输，物流分拨配送及咨询业务。</p>
+            </div>
+          </div>
+          <div class="content">
+            <div class="layui-inline panel p_block">
+              <p>公司主营业务包括涵盖中国至中东的海运、空运、拼箱门到门运输及中东本地仓储配送的传统物流。</p>
+            </div><div class="layui-inline img"><img src="./res/static/img/us_img2.jpg"></div>
+              <p class="p_hidden"></p>
+          </div>
+          <div class="content">
+            <div class="layui-inline img"><img src="./res/static/img/us_img3.jpg"></div><div class="layui-inline panel">
+              <p>公司价值观：<br/>
+				Integrity诚信<br/>Cooperation合作<br/>Efficiency 效率<br/>
+			</p><br/>
+				<p>资质：<br/>
+				中国交通部核准的无船承运人（NV11386）<br/>
+				对外贸易备案号03708194.   </p>
+				
+            </div>
+          </div>         
+        </div>
+        <div class="tabJob">
+          <div class="content">
+            <p class="title">国际物流文件(深圳）</p>
+            <p> 职位描述</p>
+            <ol>
+              <li>愿意从事过国际海运操作事务，对国际货运知识有一定了解；</li>
+              <li>整理资料、联系本地车行、联系海关、 核对物流相关文件，录入费用核对费用, 跟踪收款进度等；</li>
+              <li>有良好的工作习惯，做事情认真负责，有条理，有团队合作精神, 良好沟通表达能力；</li>
+            </ol>
+          </div>
+          <div class="content">
+            <p class="title">海外货代业务员（迪拜）</p>
+            <p> 职位描述</p>
+            <ol>
+              <li>负责开发进出口海运业务，向广大的内外贸供应商和采购商推广我司优势航线及服务，维护新、老客户关系，反馈市场信息。</li>
+              <li>负责客户销售合同及其他营销文件资料的管理、归档、整理、建档和保管工作。</li>
+              <li>性格外向、反应敏捷、表达能力强，具有较强的沟通能力及交际技巧，具有亲和力，具有良好的客户服务意识；</li>
+              <li>熟悉互联网络，熟练使用网络交流工具和各种办公软件；</li>
+              <li>无需工作经验，应届毕业生亦可</li>
+            </ol>
+          </div>
+          <div class="content">
+            <p class="title">海外国际物流跟单员（迪拜）</p>
+            <p> 职位描述</p>
+            <ol>
+              <li>从事过国际海运操作事务，对国际货运知识有一定了解；</li>
+              <li>处理客人到港后对货物报关，拖车，仓库安排的需求，与客户、供应商进行协调与沟通， 提供跟踪和查询服务；</li>
+              <li>及时处理在操作过程中的各种要求和建议，定期进行客户回访、沟通维护客户关系；</li>
+              <li>英文听说读写熟练，能流利的和本地供应商沟通；</li>
+            </ol>
+          </div>
+          
+          <div class="content">
+            <p class="title">公司福利：</p>
+            <p> 包住、包往返机票、一年有一个月带薪假期、餐补、话补</p>
+            <ol>
+            </ol>
+          </div>
+        </div>
+        
+        
+        <div class="tabSales">
+          <div class="content">
+            <div class="layui-inline img"><img src="./res/static/img/sales/susan.jpg" style="width: 100px"></div><div class="layui-inline panel">
+				<div class="layui-col-sm6 layui-col-md8 layui-col-lg9">
+	              <p class="contact-bottom"><i class="layui-icon layui-icon-home"></i>&nbsp;联系人:</span></p>
+	              <p class="contact-bottom"><i class="layui-icon layui-icon-user"></i>&nbsp;QQ : </p>
+	              <p class="contact-bottom"><i class="layui-icon layui-icon-cellphone"></i>&nbsp;Tel:0755-25119840&nbsp;&nbsp;&nbsp;</p>
+	              <p class="contact-bottom"><i class="layui-icon layui-icon-tips"></i>&nbsp;Email :   <a href="javascript:;">Diana@trustwill-logistics.com</a></p>
+	            </div>
+            </div>
+          </div>
+          <div class="content">
+            <div class="layui-inline img"><img src="./res/static/img/sales/susan.jpg" style="width: 100px"></div><div class="layui-inline panel">
+				<div class="layui-col-sm6 layui-col-md8 layui-col-lg9">
+	              <p class="contact-bottom"><i class="layui-icon layui-icon-home"></i>&nbsp;联系人:</span></p>
+	              <p class="contact-bottom"><i class="layui-icon layui-icon-user"></i>&nbsp;Mobile : 0581135905 </p>
+	              <p class="contact-bottom"><i class="layui-icon layui-icon-cellphone"></i>&nbsp;Tel:00971-4-7708063&nbsp;&nbsp;&nbsp;</p>
+	            </div>
+            </div>
+          </div>
+        </div>
+        
+        <!--<div class="service-more"><a href="https://promotion.aliyun.com/ntms/yunparter/invite.html?userCode=mda5msfo" target="_blank"><img src="./res/static/img/aly/bottom.png"></a></div>-->
+        
+      </div>
+    </div>
+  </div>
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+<script src="/so/res/layui/layui.js"></script>
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script>
+  layui.config({
+    base: './res/static/js/' 
+  }).use('firm'); 
+
+  $("#nav").load("./nav.html");
+  $("#footer").load("./footer.html");
+</script>
+
+
+</body>
+</html>

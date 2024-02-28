@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap>
+	<select id="pages.module.data.webNewsBean.grid.page" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+		select 
+		 * 
+		 ,COALESCE((SELECT x.namec FROM sys_user x where x.code = t.inputer and x.isdelete = false limit 1),t.inputer) AS inputername
+		FROM web_news t 
+		WHERE $qry$ 
+		ORDER BY id DESC
+		LIMIT $limit$ OFFSET $start$
+	</select>
+	<select id="pages.module.data.webNewsBean.grid.count" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+		select 
+		 count(*) AS counts 
+		FROM web_news t 
+		WHERE $qry$ 
+	</select>
+	
+	
+	
+	<select id="pages.module.data.currencyBean.grid.page" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+		select 
+		 * 
+		 ,COALESCE((SELECT x.namec FROM sys_user x where x.code = t.inputer and x.isdelete = false limit 1),t.inputer) AS inputername
+		 ,COALESCE((SELECT x.namec FROM sys_user x where x.code = t.updater and x.isdelete = false limit 1),t.updater) AS updatername
+		FROM _dat_currency t 
+		WHERE $qry$ 
+			AND isdelete = FALSE
+		LIMIT $limit$ OFFSET $start$
+	</select>
+	<select id="pages.module.data.currencyBean.grid.count" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+		select 
+		 count(*) AS counts 
+		FROM _dat_currency t 
+		WHERE $qry$ 
+			AND isdelete = FALSE
+	</select>
+	
+</sqlMap>

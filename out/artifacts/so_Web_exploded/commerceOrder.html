@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>工作单</title>
+    <!--vue 框架-->
+    <script src="vue/vue.js"></script>
+    <script src="vue/vue-router.js"></script>
+    <script src="vue/vue-resource.min.js"></script>
+    <script src="vue/http-vue-loader.js"></script>
+    <!--element ui-->
+    <link rel="stylesheet" href="element/index.css"/>
+    <script src="element/index.js"></script>
+    <script src="admin/js/config.js"></script>
+
+</head>
+<body style="display: block;margin: 0px;background: #eee;">
+<!-- nav部分 -->
+<div id="container">
+    <template>
+        <el-row>
+            <el-col style="text-align: center;padding:10px;">
+                <el-col style="height: 30px;text-align: start;border-bottom: 1px solid #dadada;">
+                    <el-col :span="11">
+                        <span style="color:#000000;">No: </span>
+                        <span style="font-size: small;" v-if="commerce.jobid != ''">{{commerce.nos}}</span>
+                    </el-col>
+                    <el-col :span="13">
+                        <el-dropdown trigger="click" placement="bottom" :hide-on-click="false">
+                    <span class="el-dropdown-link" style="font-size: 16px;font-weight: 700;">
+                        托运单/唛头打印
+                        <i class="el-icon-arrow-down el-icon--right"></i>
+                     </span>
+                            <el-dropdown-menu slot="dropdown">
+                                <!--入仓单 360~9-->
+                                <el-dropdown-item>
+                                    <el-dropdown trigger="click" placement="right-start">
+                                        <div class="el-dropdown-link" style="width: 180px;">
+                                            <i class="el-icon-takeaway-box"></i>
+                                            <span>入仓单</span>
+                                            <i class="el-icon-arrow-down el-icon-caret-right"
+                                               style="float: right;margin-top: 5px;margin-right: -10px;"></i>
+                                        </div>
+                                        <el-dropdown-menu slot="dropdown">
+                                            <el-dropdown-item index="1-1-1">
+                                                <div style="display: -webkit-box;" @click="printPdfReport(361)">
+                                                    <i style="padding-left: 5px;color: #337ab7;" class="el-icon-printer"></i>
+                                                    <div style="width: 180px;">途C入仓单</div>
+                                                </div>
+                                            </el-dropdown-item>
+                                        </el-dropdown-menu>
+                                    </el-dropdown>
+                                </el-dropdown-item>
+
+                                <!--箱唛 690~9-->
+                                <el-dropdown-item>
+                                    <el-dropdown trigger="click" placement="right-start">
+                                        <div class="el-dropdown-link" style="width: 180px;">
+                                            <i class="el-icon-printer"></i>
+                                            <span>打印箱唛</span>
+                                            <i class="el-icon-arrow-down el-icon-caret-right"
+                                               style="float: right;margin-top: 5px;margin-right: -10px;"></i>
+                                        </div>
+                                        <el-dropdown-menu slot="dropdown">
+                                            <el-dropdown-item index="2-2-1">
+                                                <div style="display: -webkit-box;" @click="printPdfReport(691)">
+                                                    <i style="padding-left: 5px;color: #337ab7;" class="el-icon-printer"></i>
+                                                    <div style="width: 180px;">途C入仓箱唛</div>
+                                                </div>
+                                            </el-dropdown-item>
+                                        </el-dropdown-menu>
+                                    </el-dropdown>
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </el-dropdown>
+                    </el-col>
+                </el-col>
+                <el-col style="padding:5px 0;">
+                    <el-col :span="8" style="padding-right: 10px">
+                        <el-col class="so-padding">
+                            <div class="so-title-css" style="color: #d53030;">
+                                件数.重量.体积(预报)
+                            </div>
+                            <el-col :span="8">
+                                <el-input type="number" v-model="commerce.bkpkgnum" placeholder="PKG" size="mini" @input="changebkpkgnum"></el-input>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="7">
+                                <el-input type="number" v-model="commerce.bkgw" placeholder="KGS" size="mini"></el-input>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="7">
+                                <el-input type="number" v-model="commerce.bkvol" placeholder="CBM" size="mini"></el-input>
+                            </el-col>
+                        </el-col>
+                        <el-col class="so-padding">
+                            <div class="so-title-css">
+                                <span style="color: #d53030;">送货地</span> / 海外仓 / 始发仓
+                            </div>
+                            <el-col :span="8">
+                                <el-select v-model="commerce.deliverytocode" size="mini" clearable filterable
+                                           reserve-keyword remote :remote-method="selectAddressList" placeholder="送货地" @change="deliChange">
+                                    <el-option v-for="(item,index) in addresslist" :key="index" :label="item.code" :value="item.code">
+                                        <div class="ufms-underline">
+                                            <div class="ufms-right-150">
+                                                {{ item.code }}
+                                            </div>
+                                            <div class="ufms-right-150">
+                                                {{ item.companyname }}
+                                            </div>
+                                            <div class="ufms-right-150">
+                                                {{ item.postcode }}
+                                            </div>
+                                            <div class="ufms-150">
+                                                {{ item.countrycode }}
+                                            </div>
+                                        </div>
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="7">
+                                <el-select clearable v-model="commerce.whid" filterable size="mini" placeholder="始发仓">
+                                    <el-option v-for="(item,index) in warehouselist" :key="index" :label="item.namec" :value="item.id">
+                                        <div class="ufms-underline">
+                                            <div class="ufms-right-150">
+                                                {{ item.code }}
+                                            </div>
+                                            <div class="ufms-right-150">
+                                                {{ item.namec }}
+                                            </div>
+                                            <div class="ufms-150">
+                                                {{ item.namee }}
+                                            </div>
+                                        </div>
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="7">
+                                <el-select clearable v-model="commerce.overseawhid" filterable size="mini" placeholder="海外仓">
+                                    <el-option v-for="(item,index) in warehouselist" :key="index" :label="item.namec" :value="item.id">
+                                        <div class="ufms-underline">
+                                            <div class="ufms-right-150">
+                                                {{ item.code }}
+                                            </div>
+                                            <div class="ufms-right-150">
+                                                {{ item.namec }}
+                                            </div>
+                                            <div class="ufms-150">
+                                                {{ item.namee }}
+                                            </div>
+                                        </div>
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+
+                        </el-col>
+                        <el-col class="so-padding">
+                            <div class="so-title-css">
+                                目的国 / 邮编
+                            </div>
+                            <el-col :span="11">
+                                <el-input v-model="commerce.destcountrycode" size="mini"></el-input>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input v-model="commerce.postcode" size="mini"></el-input>
+                            </el-col>
+                        </el-col>
+                        <el-col class="so-padding">
+                            <div class="so-title-css" style="color: #d53030;">
+                                产品名称
+                            </div>
+                            <el-select v-model="commerce.productname" size="mini" filterable reserve-keyword clearable
+                                       no-data-text remote placeholder="产品名称" :remote-method="selectProductList">
+                                <el-option v-for="(item,index) in productlist" :key="index" :label="item.namec" :value="item.namec">
+                                    <div class="ufms-underline">
+                                        <div class="ufms-150" style="width: 200px">
+                                            {{ item.namec }}
+                                        </div>
+                                    </div>
+                                </el-option>
+                            </el-select>
+                        </el-col>
+                        <el-col class="so-padding">
+                            <div class="so-title-css">
+                                商业地址（私人地址）
+                            </div>
+                            <el-input v-model="commerce.deliverybl" size="mini"></el-input>
+                        </el-col>
+                    </el-col>
+                    <el-col :span="8" style="padding-right: 10px">
+                        <el-col class="so-padding">
+                            <div class="so-title-css">
+                                PO/原单号
+                            </div>
+                            <el-input v-model="commerce.ponum" size="mini"></el-input>
+                        </el-col>
+                        <el-col class="so-padding">
+                            <div class="so-title-css">
+                                Reference ID
+                            </div>
+                            <el-input v-model="commerce.fbaref" size="mini"></el-input>
+                        </el-col>
+                        <el-col class="so-padding">
+                            <div class="so-title-css">
+                                Shipment ID
+                            </div>
+                            <el-input v-model="commerce.shipmentid" size="mini"></el-input>
+                        </el-col>
+                        <el-col class="so-padding">
+                            <div class="so-title-css">
+                                预计入仓时间 / 派送方式
+                            </div>
+                            <el-col :span="11">
+                                <el-date-picker
+                                        value-format="yyyy-MM-dd"
+                                        v-model="commerce.estimatedeliverydate"
+                                        size="mini"
+                                        type="date"
+                                        :prefix-icon="'el-icon-date'"
+                                        style="width: 100%;">
+                                </el-date-picker>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-select v-model="commerce.deliveryway" size="mini" placeholder="派送方式" clearable>
+                                    <el-option v-for="(item,index) in deliverylist" :key="index" :label="item.namec" :value="item.code">
+                                        <div class="ufms-underline">
+                                            <span>{{item.namec}}</span>
+                                        </div>
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                        </el-col>
+                        <el-col class="so-padding">
+                            <div class="so-title-css">
+                                货物类型 / 申报货值
+                            </div>
+                            <el-col :span="11">
+                                <el-select clearable v-model="commerce.cargotype" filterable size="mini" placeholder="货物类型">
+                                    <el-option v-for="(item,index) in goodtypelist" :key="index" :label="item.namec" :value="item.code">
+                                        <div class="ufms-underline">
+                                            <span>{{ item.namec }}</span>
+                                        </div>
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input type="number" v-model="commerce.cargovalue" size="mini"></el-input>
+                            </el-col>
+                        </el-col>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-col class="so-padding">
+                            <div class="so-title-css">
+                                其他信息
+                            </div>
+                            <el-col style="text-align: start;padding-bottom: 5px;">
+                                <el-checkbox label="提货" v-model="commerce.truckrequired"></el-checkbox>
+                                <el-checkbox label="报关" v-model="commerce.customrequired"></el-checkbox>
+                                <el-checkbox label="熏蒸" v-model="commerce.insurancerequired"></el-checkbox>
+                                <el-checkbox label="保险" v-model="commerce.fumigationrequired"></el-checkbox>
+                                <el-checkbox label="产地证" v-model="commerce.corequired"></el-checkbox>
+                            </el-col>
+                        </el-col>
+                        <el-col class="so-padding" v-if="commerce.customrequired">
+                            <div class="so-title-css">
+                                报关类型 / 报关备注
+                            </div>
+                            <el-col :span="11">
+                                <el-select v-model="commerce.declaretype" size="mini" placeholder="报关类型" clearable>
+                                    <el-option label="待定" value="待定"></el-option>
+                                    <el-option label="报关退税" value="报关退税"></el-option>
+                                    <el-option label="手册报关" value="手册报关"></el-option>
+                                    <el-option label="买单报关" value="买单报关"></el-option>
+                                    <el-option label="退税&买单" value="退税&买单"></el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input v-model="commerce.declareremarks" size="mini"></el-input>
+                            </el-col>
+                        </el-col>
+                        <el-col class="so-padding" v-if="commerce.truckrequired">
+                            <div class="so-title-css">
+                                提货时间 / 提货地址
+                            </div>
+                            <el-col :span="11">
+                                <el-input v-model="commerce.takedate" size="mini"></el-input>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input v-model="commerce.takeaddress" size="mini"></el-input>
+                            </el-col>
+                        </el-col>
+                        <el-col class="so-padding" v-if="commerce.truckrequired">
+                            <div class="so-title-css">
+                                提货联系人 / 提货电话
+                            </div>
+                            <el-col :span="11">
+                                <el-input v-model="commerce.takecontact" size="mini"></el-input>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input v-model="commerce.takephone" size="mini"></el-input>
+                            </el-col>
+                        </el-col>
+                        <el-col class="so-padding" v-if="commerce.fumigationrequired">
+                            <div class="so-title-css">
+                                保险受益人/投保金额/加成比例
+                            </div>
+                            <el-col :span="8">
+                                <el-input v-model="commerce.beneficiary" size="mini"></el-input>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="7">
+                                <el-input type="number" v-model="commerce.insuredamount" size="mini"></el-input>
+                            </el-col>
+                            <el-col :span="1">
+                                <div class="symbol-css">/</div>
+                            </el-col>
+                            <el-col :span="7">
+                                <el-input v-model="commerce.additionratio" size="mini"></el-input>
+                            </el-col>
+                        </el-col>
+                    </el-col>
+                </el-col>
+                <el-col style="padding: 10px 0px 5px 0px;">
+                    <el-dropdown trigger="click" placement="bottom" :hide-on-click="false">
+                    <span class="el-dropdown-link" style="font-size: 16px;font-weight: 700;">
+                         装箱单/申报要素
+                        <i class="el-icon-arrow-down el-icon--right"></i>
+                     </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <!--入仓单 360~9-->
+                            <el-dropdown-item>
+                                <el-dropdown trigger="click" placement="right-start">
+                                    <div class="el-dropdown-link" style="width: 180px;">
+                                        <i class="el-icon-takeaway-box"></i>
+                                        <span>箱单发票导入</span>
+                                        <i class="el-icon-arrow-down el-icon-caret-right"
+                                           style="float: right;margin-top: 10px;margin-right: -10px;"></i>
+                                    </div>
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item index="1-1-1">
+                                            <el-upload action="string" :show-file-list="false"
+                                                       :http-request="importTemplate.bind('', {'jobid':commerce.jobid})">
+                                                <div style="display: -webkit-box;">
+                                                    <i class="el-icon-printer"></i>
+                                                    <div style="width: 150px;">装箱单导入</div>
+                                                </div>
+                                            </el-upload>
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                    <el-col>
+                        <div class="title-font">
+                            <el-col :span="8">
+                                <div class="title-font">
+                                    单价 X 商品数量 = 总价(USD)
+                                </div>
+                            </el-col>
+                            <el-col :span="7">
+                                <div class="title-font">
+                                    包装件数 / 包装类型
+                                </div>
+                            </el-col>
+                            <el-col :span="3">
+                                <div class="title-font">
+                                    货物品名
+                                </div>
+                            </el-col>
+                            <el-col :span="3">
+                                <div class="title-font">
+                                    商品编码
+                                </div>
+                            </el-col>
+                            <el-col :span="3">
+                                <div class="title-font">
+                                    <i class="el-icon-plus" style="color: #337ab7;font-weight: 700;text-align: end;" @click="addPackList()">增加</i>
+                                </div>
+                            </el-col>
+                        </div>
+                    </el-col>
+                    <el-col>
+                        <el-form style="height: 364px;overflow-y: auto;">
+                            <el-form-item style="margin-bottom: 2px;" v-for="(buspack, index) in packlist" :key="index">
+                                <el-col :span="8" style="text-align: start;padding-right:5px;">
+                                    <el-col :span="7">
+                                        <el-input type="number" v-model="buspack.price" placeholder="单价" size="mini"></el-input>
+                                    </el-col>
+                                    <el-col :span="1">
+                                        <div class="symbol-css">X</div>
+                                    </el-col>
+                                    <el-col :span="7">
+                                        <el-input type="number" v-model="buspack.piece3" placeholder="商品数量" size="mini"></el-input>
+                                    </el-col>
+                                    <el-col :span="1">
+                                        <div class="symbol-css">X</div>
+                                    </el-col>
+                                    <el-col :span="8">
+                                        <el-input type="number" v-model="buspack.priceall" placeholder="总价(USD)" size="mini"></el-input>
+                                    </el-col>
+                                </el-col>
+
+                                <el-col :span="7" style="text-align: start;padding-right:5px;">
+                                    <el-col :span="11">
+                                        <el-input type="number" v-model="buspack.piece" size="mini"></el-input>
+                                    </el-col>
+                                    <el-col :span="1">
+                                        <div class="symbol-css">/</div>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-select clearable v-model="buspack.packagee" filterable size="mini"
+                                                   placeholder="包装类型">
+                                            <el-option v-for="(item,index1) in packagelist" :key="index1"
+                                                       :label="item.namee" :value="item.namee">
+                                                <div class="ufms-underline">
+                                                    <span>{{item.namee}}</span>
+                                                </div>
+                                            </el-option>
+                                        </el-select>
+                                    </el-col>
+                                </el-col>
+
+                                <el-col :span="3" style="text-align: start;padding-right:5px;">
+                                    <el-input v-model="buspack.factoryname" size="mini"></el-input>
+                                </el-col>
+
+                                <el-col :span="3" style="text-align: start;padding-right:5px;">
+                                    <el-input v-model="buspack.outerpackagecode" size="mini"></el-input>
+                                </el-col>
+
+                                <el-col :span="3" style="text-align: start;">
+                                    <el-button-group>
+                                        <el-button style="padding: 5px 15px !important;" type="danger" size="mini"
+                                                   @click="removePackList(packlist,buspack)">X
+                                        </el-button>
+                                        <el-button style="padding: 5px 15px !important;" type="primary" size="mini"
+                                                   @click="editPackList()">
+                                            <i class="el-icon-edit">More</i>
+                                        </el-button>
+                                    </el-button-group>
+                                </el-col>
+                            </el-form-item>
+                        </el-form>
+                    </el-col>
+                    <el-col>
+                        <el-divider></el-divider>
+                    </el-col>
+                    <el-col style="text-align: end;">
+                        <el-button type="primary" size="small" @click="saveCommerceOrder()">保存</el-button>
+                    </el-col>
+                </el-col>
+            </el-col>
+        </el-row>
+        <!--装箱弹窗-->
+        <el-dialog title="装箱清单" :close-on-click-modal="false" top="7vh" v-if="packListVisible"
+                   :visible.sync="packListVisible" width="85%">
+            <Packlist :finajobs="finajobs"></Packlist>
+        </el-dialog>
+        <!--PDF Preview-->
+        <el-dialog title="PDF Preview" :close-on-click-modal="false" top="7vh" v-if="pdfVisible"
+                   :visible.sync="pdfVisible" width="80%">
+            <embed :src="pdfUrl" type="application/pdf" height="530px" width="100%"></embed>
+        </el-dialog>
+    </template>
+</div>
+</body>
+
+<script>
+    //vue
+    Vue.use(httpVueLoader);
+    new Vue({
+        el: '#container',
+        components: {
+            'Packlist': 'url:./Packlist.vue'
+        },
+        data() {
+            return {
+                jobid: '',
+                value: '',
+                corpid: '',
+                packobj: {},
+                finajobs: {},
+                productlist: [],
+                addresslist: [],
+                packagelist: [],
+                goodtypelist: [],
+                deliverylist: [],
+                warehouselist: [],
+                pdfVisible: false,
+                packListVisible: false,
+                commerce: {
+                    nos: '',
+                    jobid: '',
+                    beneficiary: '',
+                    insuredamount: '',
+                    additionratio: '',
+                    takephone: '',
+                    takecontact: '',
+                    takeaddress: '',
+                    takedate: '',
+                    fumigationrequired: false,
+                    insurancerequired: false,
+                    customrequired: true,
+                    truckrequired: false,
+                    corequired: false,
+                    deliverybl: '',
+                    productname: '',
+                    postcode: '',
+                    destcountrycode: '',
+                    deliverytocode: '',
+                    overseawhid: '',
+                    whid: '',
+                    bkvol: '',
+                    bkgw: '',
+                    bkpkgnum: '',
+                    ponum: '',
+                    fbaref: '',
+                    shipmentid: '',
+                    estimatedeliverydate: '',
+                    deliveryway: '',
+                    declaretype: '',
+                    declareremarks: '',
+                    deliverynamec: '',
+                    bookingtoattn: '',
+                    companyname: '',
+                    bookingtocity: '',
+                    bookingtofax: '',
+                    bookingtoaddress: '',
+                    tel: ''
+                },
+                packlist: [
+                    {price: '', piece3: '', priceall: '', piece: '', packagee: '', factoryname: '', outerpackagecode: ''}
+                ]
+            }
+        },
+        methods: {
+            //修改件数
+            changebkpkgnum() {
+                this.packlist[0].piece = this.commerce.bkpkgnum;
+            },
+            //批量导入
+            importTemplate(parame, item) {
+                // if (parame.jobid == '' || parame.jobid == null) {
+                //     this.$message.error("请生成工作单后，在进行装箱单导入！");
+                //     return;
+                // }
+                let formdata = new FormData();
+                formdata.append('file', item.file);
+                formdata.append('jobid', parame.jobid);
+                formdata.append('corpid', this.corpid);
+                this.$http.post(this.url + "/scp/buspacklist?method=soimporttemplate", formdata, {headers: {'Content-Type': 'multipart/form-data'}}
+                ).then(response => {
+                    if (response.body.success) {
+                        this.$message.success('上传成功');
+                        setTimeout(() => {
+                            let commerce = eval('(' + response.body.data + ')');
+                            this.jobid = commerce.id;
+                            this.commerce.nos = commerce.nos;
+                            this.commerce.jobid = commerce.id;
+                            this.queryCommerceOrder();
+                        }, 800);
+                    } else {
+                        this.$message.error('上传失败，请检查Excel格式');
+                    }
+                })
+            },
+            //增加装箱单
+            addPackList() {
+                this.packlist.push(Object.assign({}, this.packobj));
+            },
+            //删除装箱单
+            removePackList(packlist, val) {
+                packlist.splice(packlist.indexOf(val), 1);
+            },
+            //编辑装箱单
+            editPackList() {
+                this.finajobs.id = this.jobid;
+                this.packListVisible = true;
+            },
+            //选择打印面单/报表
+            printPdfReport(code) {
+                this.pdfUrl = "http://cloud.gsitsystem.com/scp/jasper?id=" + this.commerce.jobid + "&code=" + code + "&type=pdf";
+                this.pdfVisible = true;
+            },
+            //下单接口
+            saveCommerceOrder() {
+                if (this.commerce.bkpkgnum == '') {
+                    this.$message.error("件数不能为空");
+                    return;
+                } else if (this.commerce.deliverytocode == '') {
+                    this.$message.error("送货地不能为空");
+                    return;
+                } else if (this.commerce.productname == '') {
+                    this.$message.error("产品名称不能为空");
+                    return;
+                } else {
+                    this.$http.post(this.url + "/so/commerce?method=save", {
+                        "commerce": this.commerce,
+                        "buspacklist": this.packlist
+                    }).then(function (res) {
+                            if (res.body.data != '') {
+                                let commerce = eval('(' + res.body.data + ')');
+                                this.commerce.nos = commerce.nos;
+                                this.commerce.jobid = commerce.id;
+                                this.$message.success('保存成功，请在我的运单进行查看');
+                            } else {
+                                this.$message.error("保存报错，请联系管理员处理！");
+                            }
+                        }
+                    );
+                }
+            },
+            //查询工作单
+            queryCommerceOrder() {
+                this.$http.post(this.url + "/so/commerce?method=query", {
+                    "id": this.jobid,
+                }).then(function (res) {
+                        if (res.body.commerce != '') {
+
+                            this.commerce = eval('(' + res.body.commerce + ')');
+                            var arr = res.body.buspacklist;
+                            if (arr != undefined) {
+                                this.packlist = [];
+                                for (let i = 0; i < arr.length; i++) {
+                                    let thisbuspack = eval('(' + arr[i].buspacklist.value + ')');
+                                    thisbuspack.buscommercecargomixedlist = JSON.parse(thisbuspack.buscommercecargomixedlist) == null
+                                        ? [] : JSON.parse(thisbuspack.buscommercecargomixedlist);
+                                    thisbuspack.isShowSubPl = thisbuspack.buscommercecargomixedlist.length == 0 ? false : true;
+                                    thisbuspack.filelist = JSON.parse(thisbuspack.filelist) == null ? [] : JSON.parse(thisbuspack.filelist);
+                                    for (let j = 0; j < thisbuspack.buscommercecargomixedlist.length; j++) {
+                                        thisbuspack.buscommercecargomixedlist[j].filelist =
+                                            JSON.parse(thisbuspack.buscommercecargomixedlist[j].filelist) == null
+                                                ? [] : JSON.parse(thisbuspack.buscommercecargomixedlist[j].filelist);
+                                    }
+                                    this.packlist.push(thisbuspack);
+                                }
+                            }
+                        }
+                    }
+                );
+            },
+            //送货地
+            deliChange(item) {
+                this.commerce.deliverytocode = item;
+                if (item) {
+                    let findStr = (arr, code) => {
+                        for (let i in arr) {
+                            if (arr[i].code == code) {
+                                this.commerce.deliverynamec = arr[i].code;
+                                this.commerce.bookingtoattn = arr[i].attn;
+                                this.commerce.companyname = arr[i].companyname;
+                                this.commerce.destcountrycode = arr[i].countrycode;
+                                this.commerce.postcode = arr[i].postcode;
+                                this.commerce.bookingtocity = arr[i].city;
+                                this.commerce.bookingtofax = arr[i].province;
+                                this.commerce.bookingtoaddress = arr[i].addressone;
+                                this.commerce.tel = arr[i].tel;
+                                return;
+                            }
+                        }
+                    }
+                    findStr(this.addresslist, item)
+                }
+            },
+            //获取仓库列表
+            queryWareHouse(val) {
+                let url = this.url + "/so/api?method=common";
+                this.$http.post(url, {
+                    id: this.commerce.whid == null ? 0 : this.commerce.whid,
+                    query: val == undefined ? '' : val,
+                    methodFlag: "warehouse"
+                }).then(function (res) {
+                    if (res.body.warehouse != '') {
+                        this.warehouselist = eval('(' + res.body.warehouse + ')');
+                    } else {
+                        this.warehouselist = [];
+                    }
+                });
+            },
+            //产品名称
+            selectProductList(query) {
+                var url = this.url + "/so/api?method=common";
+                this.$http.post(url, {
+                    query: query == undefined ? '' : query,
+                    methodFlag: "product"
+                }).then(function (res) {
+                    if (res.body.product != '') {
+                        this.productlist = eval('(' + res.body.product + ')');
+                    }
+                });
+            },
+            //地址簿
+            selectAddressList(query) {
+                var url = this.url + "/so/api?method=common";
+                this.$http.post(url, {
+                    code: query == undefined ? this.commerce.deliverytocode == null ? '' : this.commerce.deliverytocode : '',
+                    query: query == undefined ? '' : query,
+                    methodFlag: "address"
+                }).then(function (res) {
+                    if (res.body.address != '') {
+                        this.addresslist = eval('(' + res.body.address + ')');
+                    }
+                });
+            },
+            //获取基本参数
+            selectCommon() {
+                var url = this.url + "/so/api?method=common";
+                this.$http.post(url, {query: '', methodFlag: "common"}).then(function (res) {
+                    if (res.body != '') {
+                        //包装类型
+                        this.packagelist = eval('(' + res.body.package + ')');
+                        //货物类型
+                        this.goodtypelist = eval('(' + res.body.goodtype + ')');
+                        //派送方式
+                        this.deliverylist = eval('(' + res.body.delivery + ')');
+                    }
+                });
+            },
+            checkLoginUser() {
+                var url = this.url + "/so/api?method=checkLoginUser";
+                this.$http.get(url).then(function (res) {
+                    if (res.body != '') {
+                        this.corpid = res.body.data;
+                        console.log(this.corpid);
+                    }
+                });
+            }
+
+        },
+        created() {
+            this.url = getPortUrl();
+            this.jobid = window.location.search.split('=')[1];
+            if (this.jobid) {
+                this.queryCommerceOrder();
+            }
+            this.selectCommon();
+            this.checkLoginUser();
+            this.queryWareHouse();
+            this.selectProductList();
+            this.selectAddressList();
+        }
+    });
+</script>
+<style scoped>
+
+    html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    html {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0;
+        overflow: auto;
+    }
+
+    body {
+        overflow: auto;
+    }
+
+    .so-border {
+        border: 1px solid #adadad;
+        background: #dadada;
+        height: 25px;
+        padding-top: 2px;
+        margin-bottom: 2px;
+    }
+
+    .so-padding {
+        display: inline-table;
+        padding: 1px 0px;
+    }
+
+    .unfs-divider {
+        height: 1px;
+        margin: 5px 0;
+        overflow: hidden;
+        background-color: #e5e5e5;
+    }
+
+    .symbol-css {
+        height: 19.5px;
+        padding-top: 4px;
+        border: 1px solid #a9a9a9;
+        font-size: 10px;
+        border-radius: 0;
+        text-align: center;
+    }
+
+    .el-input__inner {
+        padding: unset;
+        padding-left: 5px;
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+    }
+
+    .el-input--mini .el-input__inner {
+        height: 26px !important;
+        line-height: 26px !important;
+    }
+
+    .el-checkbox {
+        color: #606266;
+        font-size: 12px;
+        cursor: pointer;
+        user-select: none;
+        margin-right: 20px;
+    }
+
+    .so-title-css {
+        text-align: left;
+        font-size: 14px;
+    }
+
+    .title-font {
+        text-align: start;
+        font-size: 14px;
+        padding: 4.25px 0px;
+    }
+
+    .el-form-item__content {
+        line-height: 15px;
+        position: relative;
+        font-size: 14px;
+    }
+
+    .ufms-right-150 {
+        display: inline-block;
+        width: 150px;
+        border-right: 1px solid #ebeef5;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ufms-150 {
+        display: inline-block;
+        width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ufms-underline {
+        background-color: rgb(220, 223, 230);
+        height: 1px;
+    }
+
+    .el-select {
+        display: initial;
+    }
+
+    .el-divider--horizontal {
+        margin: 10px 0;
+    }
+
+    .el-dialog__body {
+        padding: 0px 0px;
+        color: #606266;
+        font-size: 14px;
+        word-break: break-all;
+    }
+
+</style>
+</html>

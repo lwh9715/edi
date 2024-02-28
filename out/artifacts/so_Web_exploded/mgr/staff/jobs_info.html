@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/layui/layui.js"></script>
+	
+	<link rel="stylesheet" href="../../res/static/css/index.css?t=26">
+	
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="/so/res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="../../admin/js/ufms.common.js?t=13" ></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+</head>
+<body>
+  <!-- nav部分 
+  <div class="nav" id="nav">
+  </div>-->
+  <!-- main -->
+  <div class="layui-container">
+  		<!-- <a href="../../manager_staff.html" class="layui-btn layui-btn-sm supersmall">返回</a> -->
+		<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+		  <ul class="layui-tab-title">
+		    <li class="layui-this">业务</li>
+		    <li>委托</li>
+		    <li>柜子</li>
+		    <li>提单</li>
+		    <li>费用</li>
+		    <li>利润</li>
+		  </ul>
+		  <div class="layui-tab-content" style="height: 100px;">
+		    <div class="layui-tab-item layui-show">
+		    	<form class="layui-form" lay-filter="jobinfo">
+			    	<div class="layui-form-item">
+					    <div class="layui-inline">
+					      <label class="layui-form-label">业务员</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="salenamec" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">单号</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="nos" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">识别码</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="idcode" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">分配</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="assigndesc" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">委托人</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="customerabbr" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">部门</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="depname" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">日期</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="jobdate" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">操作公司</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="corpabbr" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">接单公司</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="corpopabbr" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">进出口</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="impexp" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">录入人</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="inputer" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">参考号</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="refno" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">贸易方式</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="tradeway" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">备注</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="remarks" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">装箱</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="ldtype" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">状态</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="jobstate" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">收款状态</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="arstatus" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">付款状态</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="apstatus" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+			    	</div>
+			    </form>
+			</div>
+		    <div class="layui-tab-item">
+		    	<form class="layui-form" lay-filter="jobshipping">
+			    	<div class="layui-form-item">
+		    			<div class="layui-inline">
+					      <label class="layui-form-label">发货人</label>
+					      <div class="layui-input-inline">
+					        <textarea type="text" name="cnortitle" autocomplete="off" class="layui-textarea"></textarea>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">收货人</label>
+					      <div class="layui-input-inline">
+					        <textarea type="text" name="cneetitle" autocomplete="off" class="layui-textarea"></textarea>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">通知人</label>
+					      <div class="layui-input-inline">
+					        <textarea type="text" name="notifytitle" autocomplete="off" class="layui-textarea"></textarea>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">目的港代理</label>
+					      <div class="layui-input-inline">
+					        <textarea type="text" name="agentdes" autocomplete="off" class="layui-textarea"></textarea>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">订舱号</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="sono" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">船名航次</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="vevo" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">驳船</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="bargecls" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">ETD</label>
+					      <div class="layui-input-inline">
+					      	<input type="text" name="etd" id="date" lay-verify="date" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">箱量箱型</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="cntdesc" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">船公司</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="carrier" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">装货港</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="pol" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">目的港</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="pod" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">ETA</label>
+					      <div class="layui-input-inline">
+					      	<input type="text" name="eta" id="date" lay-verify="date" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">卸货港</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="pdd" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">目的地</label>
+					      <div class="layui-input-inline">
+					        <input type="text" name="destination" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">截关日</label>
+					      <div class="layui-input-inline">
+					      	<input type="text" name="clstime" id="date" lay-verify="date" autocomplete="off" class="layui-input">
+					      </div>
+					    </div>
+			    	</div>
+			    </form>
+			</div>
+		    <div class="layui-tab-item"><table id="cntTable" ></table></div>
+		    <div class="layui-tab-item"><table id="billTable" ></table></div>
+		    <div class="layui-tab-item"><table id="actTable" ></table></div>
+		    <div class="layui-tab-item">
+		    	<form class="layui-form" lay-filter="profitForm">
+		    		<div class="layui-form-item">
+		    			<div class="layui-inline">
+					      <label class="layui-form-label">应收</label>
+					      <div class="layui-input-inline">
+					        <textarea type="text" name="arTip" autocomplete="off" class="layui-textarea"></textarea>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">应付</label>
+					      <div class="layui-input-inline">
+					        <textarea type="text" name="apTip" autocomplete="off" class="layui-textarea"></textarea>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">折合</label>
+					      <div class="layui-input-inline">
+					        <select name="currency" lay-verify="required" bind="comboboxs" lay-filter="currencyFilter">
+					        	<option value="USD">USD</option>
+					        </select>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">Pofit</label>
+					      <div class="layui-input-inline">
+					        <textarea type="text" name="profitTip" autocomplete="off" class="layui-textarea"></textarea>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">汇率</label>
+					      <div class="layui-input-inline">
+					        <textarea type="text" name="exchange" autocomplete="off" class="layui-textarea"></textarea>
+					      </div>
+					    </div>
+					    <div class="layui-inline">
+					      <label class="layui-form-label">分币制利润</label>
+					      <div class="layui-input-inline">
+					        <textarea type="text" name="cntdesc" autocomplete="off" class="layui-textarea"></textarea>
+					      </div>
+					    </div>
+		    		</div>
+		    	</form>
+		    </div>
+		</div> 
+  </div>
+  <!-- footer部分
+  <div class="footer" id="footer"> 
+  </div>-->
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script type="text/html" id="checkboxTpl">
+  <input type="checkbox" name="lock" disabled value="{{d.id}}" lay-skin="primary" title="" lay-filter="lockDemo" {{ d.isgetmbl == true ? 'checked' : '' }}>
+</script>
+<script type="text/html" id="ishblissigncheckbox">
+  <input type="checkbox" name="ishblissign" disabled value="{{d.id}}" lay-skin="primary" title="" lay-filter="ishblissignfil" {{ d.ishblissign == true ? 'checked' : '' }}>
+</script>
+<script>
+layui.use(['jquery','layer','form','table'], function() {
+	$ = layui.jquery;
+	var form = layui.form,table = layui.table; //只有执行了这一步，部分表单元素才会自动修饰成功
+	form.render();
+	getCombobox(form);
+	var parav = getRequest();
+	var para = new Object;
+    para.id = parav.id
+	actionPost('/jobs','getJobinfo',JSON.stringify(para),function(res){
+		var resjson = JSON.parse(res);
+    	if(resjson.success == false){
+    		layer.msg(resjson.msg,{icon: 7});
+		}else{
+			form.val("jobinfo",resjson);
+			form.val("jobshipping",resjson);
+		}
+	});
+	table.render({
+		elem: '#cntTable'
+	        ,height: 500
+	        ,limit: Number.MAX_VALUE
+	        ,url:getContextPath()+"/jobs?method=cntlist&id="+parav.id+getSid()
+	        ,id:'cntTable'
+	        ,cols: [[
+	            {field: 'cntno', title: '箱号', width: 120},
+	            {field: 'ldtypedesc', title: '箱型', width: 80},
+	            {field: 'cntypedesc', title: '箱量', width: 120},
+	            {field: 'sono', title: '订舱号', width: 100},
+	            {field: 'goodsname', title: '货物名称', width: 100},
+	            {field: 'piece', title: '件数', width: 80},
+	         ]]
+            ,done: function (res, curr, count) {
+    		    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+    	    }
+	});
+	table.render({
+		elem: '#billTable'
+	        ,height: 500
+	        ,limit: Number.MAX_VALUE
+	        ,url:getContextPath()+"/jobs?method=billlist&id="+parav.id+getSid()
+	        ,id:'billTable'
+	        ,cols: [[
+	            {field: 'bltype', title: '提单类型', width: 100},
+	            {field: 'isgetmbl', title: '取单', width: 60,templet:'#checkboxTpl'},
+	            {field: 'dategetmbl', title: '取单时间', width: 120},
+	            {field: 'ishblissign', title: 'HBL签单', width: 100,templet: '#ishblissigncheckbox'},
+	            {field: 'hbl', title: 'HBL提单号', width: 120},
+	            {field: 'mblno', title: 'MBL提单号', width: 120},
+	         ]]
+            ,done: function (res, curr, count) {
+    		    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+    	    }
+	});
+	table.render({
+		elem: '#actTable'
+	        ,height: 500
+	        ,limit: Number.MAX_VALUE
+	        ,url:getContextPath()+"/jobs?method=actlist&id="+parav.id+getSid()
+	        ,id:'actTable'
+	        ,cols: [[
+	            {field: 'araptype', title: '类别', width: 60},
+	            {field: 'arapdate', title: '日期', width: 110},
+	            //{field: 'customecode', title: '客户代码', width: 90},
+	            {field: 'customeabbr', title: '客户简称', width: 120},
+	            {field: 'feeitemdec', title: '费用项目', width: 150},
+	            {field: 'currency', title: '币制', width: 60},
+	            {field: 'amount', title: '金额', width: 100,align : 'right'},
+	            {field: 'amtstate', title: '状态', width: 60},
+	            {field: 'typepr', title: '收付状态', width: 100},
+	         ]]
+            ,done: function (res, curr, count) {
+    		    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+    	    }
+	});
+	function getProfitForm(currency){
+		var para = new Object;
+		para.id = parav.id;
+		para.currency = currency;
+		actionPost('jobs','getJobProfit',JSON.stringify(para),function(res){
+			var resjson = JSON.parse(res);
+			if(resjson.success == false){
+				layer.msg(resjson.msg,{icon: 7});
+			}else{
+				var arapinfo = resjson.arapinfo;
+				var info = arapinfo.split(',');
+				form.val('profitForm',{
+					 "arTip":info[0]
+					,"apTip":info[1]
+					,"profitTip":info[2]
+                    ,"exchange":info[3]
+                    ,"cntdesc":info[4]
+					});
+			}
+		})
+	}
+	getProfitForm('USD');
+
+	form.on('select(currencyFilter)',function(data){
+		var currency = data.value;
+		getProfitForm(currency);
+	});
+});
+
+$('.site-demo-active').on('click', function(){
+    var othis = $(this), type = othis.data('type');
+    active[type] ? active[type].call(this, othis) : '';
+  });
+</script>
+
+</body>
+</html>

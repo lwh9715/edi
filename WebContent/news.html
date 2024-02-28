@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/layui/layui.js"></script>
+	
+	<link rel="stylesheet" href="./res/static/css/index.css?t=22">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="./admin/js/ufms.common.js?t=13" ></script>
+	<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+</head>
+<body>
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  <!-- banner部分 -->
+  <div class="banner news">
+    <div class="title">
+      <p>新闻</p>
+      <p class="en">News</p>
+    </div>
+  </div>
+  <!-- main -->
+  <div class="main-news">
+    <div class="layui-container">
+      <div class="layui-row layui-col-space20" id="news"><!--
+        
+        <div class="layui-col-lg6 content">
+          <div>
+            <div class="news-img"><a href="newsDetail.html"><img src="./res/static/img/news_img1.jpg"></a></div><div class="news-panel">
+              <strong><a href="newsDetail.html">为何中小货代普遍转用云货代软件</a></strong>
+              <p class="detail"><span>在这期间内，中小型货代公司对云货代软件，普遍都非常接受。成功向前迈进的同时。中小型货代公司为何对云货代软件的接受度如此之高呢？
+
+							</span><a href="newsDetail.html">[详细]</a></p>
+              <p class="read-push">阅读 <span>120</span>&nbsp;&nbsp;&nbsp;&nbsp;发布时间：<span>2019-08-21</span></p>
+            </div>
+          </div>
+        </div>
+        <div class="layui-col-lg6 content">
+          <div>
+            <div class="news-img"><a href="newsDetail.html"><img src="./res/static/img/news_img1.jpg"></a></div><div class="news-panel">
+              <strong><a href="newsDetail.html">货代公司如何选择货代系统?</a></strong>
+              <p class="detail"><span>很多人认为货代软件只要能支持操作就可以了，其实不然，使用货代软件，最主要是为了提高效率，减少出错。操作固然重要，但其它如市场、销售、财务部门的工作也不应该被忽视，同样纳入软件的流程，达到提高效率的目的。
+
+</span><a href="newsDetail.html">[详细]</a></p>
+              <p class="read-push">阅读 <span>835</span>&nbsp;&nbsp;&nbsp;&nbsp;发布时间：<span>2019-06-21</span></p>
+            </div>
+          </div>
+        </div>
+        
+      --></div>
+      
+      <!--<div class="service-more"><a href="https://promotion.aliyun.com/ntms/yunparter/invite.html?userCode=mda5msfo" target="_blank"><img src="./res/static/img/aly/bottom.png"></a></div>-->
+      
+      <!--<div id="newsPage"></div>
+    --></div>
+  </div>
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script>
+var action = '/webnews';
+layui.use(['jquery','layer'], function() {
+	$ = layui.jquery;
+	$.ajax({
+		  type: 'GET',
+		  url: getContextPath()+action+"?method=queryList&page=1&limit=20",
+		  success: function(res){
+		  	var jsonData = JSON.parse(res);
+		  	var json = jsonData.data;
+			$('#news').empty();
+			var html = '';
+		    //遍历 json 数组
+		  	for (var i in json) {
+		  		var title = json[i].title;
+		  		var subject = json[i].subject;
+
+		  		subject = subject.substring(0,100);
+
+		  		var imgUrl = json[i].imgurlpath;
+		  		if(imgUrl == null || imgUrl =='')imgUrl='./res/static/img/news/1.gif';
+
+		  		//imgUrl='./res/static/img/news_img1.jpg';
+		  		
+
+		  		var readcount = json[i].readcount;
+		  		var inputtime = json[i].inputtime;
+
+		  		if(readcount == null || readcount == 0)readcount=160;
+		  		if(inputtime == null){
+		  			var myDate = new Date;
+		  		    var year = myDate.getFullYear(); //获取当前年
+		  		    var mon = myDate.getMonth() + 1; //获取当前月
+		  		    var date = myDate.getDate(); //获取当前日
+			  		inputtime= year + "-" + mon + "-" + date ;
+		  		}
+				
+				html += '<div class="layui-col-lg6 content">	'; 
+				html += '  <div>	'; 
+				html += '   <div class="news-img"><a href="newsDetail.html?id='+json[i].id+'"><img src="'+imgUrl+'" style="width:183px;height:141px;"></a></div><div class="news-panel">	'; 
+				html += '      <strong><a href="newsDetail.html?id='+json[i].id+'">'+title+'</a></strong> '; 
+				html += '      <p class="detail">'+subject+'<span>'; 
+
+				html += '						</span><a href="newsDetail.html?id='+json[i].id+'">[详细]</a>'; 
+				html += '	   </p>'; 
+				html += '      <p class="read-push" style="bottom: 10px;">阅读 <span>'+readcount+'</span>&nbsp;&nbsp;&nbsp;&nbsp;发布时间：<span>'+inputtime+'</span></p>'; 
+				html += '    </div>'; 
+				html += '  </div>'; 
+				html += '</div>'; 
+		  	}
+		  	$('#news').append(html);
+		  }
+	});
+});
+
+$("#nav").load("./nav.html");
+$("#footer").load("./footer.html");
+
+</script>
+
+
+</body>
+</html>

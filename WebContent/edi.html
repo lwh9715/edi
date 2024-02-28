@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>工作单</title>
+    <!--vue 框架-->
+    <script src="vue/vue.js"></script>
+    <script src="vue/vue-router.js"></script>
+    <script src="vue/vue-resource.min.js"></script>
+    <script src="vue/http-vue-loader.js"></script>
+    <!--element ui-->
+    <link rel="stylesheet" href="element/index.css"/>
+    <script src="element/index.js"></script>
+    <script src="admin/js/config.js"></script>
+
+</head>
+<body style="display: block;margin: 0px;background: #eee;">
+<!-- nav部分 -->
+<div id="container">
+    <template>
+        <el-row>
+            <el-col class="media-col1-cs">
+                <h2>Manifest EDI</h2>
+            </el-col>
+            <el-col class="media-co2-cs">
+                <el-input v-model="query.val" :placeholder="query.type=='vessel' ? '船名航次请用,逗号隔开':'单号集合请用,逗号隔开'"
+                          class="media-it-cs" @keyup.enter.native="searchNos">
+                    <el-select v-model="query.type" slot="prepend" placeholder="Option" @change="typeChange" clearable>
+                        <el-option label="工作号" value="jobno"></el-option>
+                        <el-option label="MBL" value="mbl"></el-option>
+                        <el-option label="箱号" value="cntno"></el-option>
+                        <el-option label="船名航次" value="vessel"></el-option>
+                    </el-select>
+                    <el-button slot="append" icon="el-icon-search" @click="searchNos">搜索</el-button>
+                </el-input>
+                <el-button icon="el-icon-download" style="color: #ffffff;background-color: #3a8ee6;border: 1px solid #3a8ee6;"
+                           v-if="isshowdownload" @click="includeEdi">下载
+                </el-button>
+            </el-col>
+            <el-col class="media-table-cs" v-if="isshowdownload">
+                <el-table style="overflow-y: auto;" size="mini" height="93%" @selection-change="handleSelection"
+                          :header-cell-style="{background:'#dfd2af',color:'#ffffff',border:'#bce8f1'}" :data="jobList" stripe border>
+                    <el-table-column type="selection" width="50"></el-table-column>
+                    <el-table-column type="index" width="80" label="序号"></el-table-column>
+                    <el-table-column show-overflow-tooltip prop="jobno" label="工作单号"></el-table-column>
+                    <el-table-column show-overflow-tooltip prop="jobdate" label="工作日期"></el-table-column>
+                    <el-table-column show-overflow-tooltip prop="blnom" label="MBL"></el-table-column>
+                    <el-table-column show-overflow-tooltip prop="cntno" label="箱号"></el-table-column>
+                    <el-table-column show-overflow-tooltip prop="vessel" label="船名"></el-table-column>
+                    <el-table-column show-overflow-tooltip prop="voyage" label="航次"></el-table-column>
+                </el-table>
+            </el-col>
+        </el-row>
+    </template>
+</div>
+</body>
+
+<script>
+    //vue
+    Vue.use(httpVueLoader);
+    new Vue({
+        el: '#container',
+        data() {
+            return {
+                query: {
+                    val: '',
+                    type: 'jobno'
+                },
+                jobIds: '',
+                jobIdList: '',
+                isshowdownload: false,
+                jobList: []
+            }
+        },
+        methods: {
+            //选择需要更新的行
+            handleSelection(e) {
+                this.jobIdList = e;
+            },
+            //搜索选项
+            typeChange() {
+            },
+            //搜索单号
+            searchNos() {
+                this.isshowdownload = false;
+                let url = "http://120.77.239.151:3000/job/searchJob?nos=" + this.query.val + "&type=" + this.query.type;
+                this.$http.get(url).then(function (res) {
+                    if (res.data != null) {
+                        this.jobList = res.data;
+                        this.isshowdownload = true;
+                    }
+                });
+
+            },
+            //下载edi
+            includeEdi() {
+                let resultString = '';
+                this.jobIdList.forEach(e => {
+                    if (!resultString.includes(",") && resultString === "") {
+                        resultString += e.jobno;
+                    } else {
+                        resultString += ',' + e.jobno;
+                    }
+                });
+                window.location.href = "http://120.77.239.151:3000/job/findAllJob?nos=" + resultString;
+            }
+        },
+        created() {
+            this.url = getPortUrl();
+        }
+    });
+</script>
+<style scoped>
+
+    html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    html {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0;
+        overflow: auto;
+    }
+
+    body {
+        overflow: auto;
+    }
+
+    .el-input-group__append, .el-input-group__prepend {
+        background-color: #ffbc00f0;
+        color: #FFFFFF;
+        border: 1px solid rgba(255, 188, 0, 0.94);
+    }
+
+    .el-input.is-active .el-input__inner, .el-input__inner:focus {
+        border-color: #ffbc00f0;
+        outline: 0;
+    }
+
+    .el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+        background-color: #ffbc00f0;
+        border-color: #ffbc00f0;
+    }
+
+    .el-table-column--selection .cell {
+        padding-left: 14px !important;
+        padding-right: 14px;
+    }
+
+    .el-input__inner {
+        min-width: 110px !important;
+    }
+
+    .el-select .el-input .el-select__caret {
+        color: #FFFFFF;
+    }
+
+    /* 对于大屏幕（电脑） */
+    @media screen and (min-width: 1450px) {
+        /* 在此设置针对大屏幕的样式 */
+        .media-col1-cs {
+            text-align: center;
+            padding: 100px 80px 0;
+        }
+
+        .media-co2-cs {
+            text-align: center;
+            padding: 50px 100px;
+        }
+
+        .media-it-cs {
+            width: 450px;
+            color: #ffbc00f0;
+        }
+
+        .media-table-cs {
+            height: 520px;
+            max-height: 520px;
+            padding: 0px 300px;
+        }
+
+    }
+
+    /* 对于中等尺寸的屏幕（平板） */
+    @media screen and (max-width: 1449px) and (min-width: 768px) {
+        /* 在此设置针对平板的样式 */
+        .media-col1-cs {
+            text-align: center;
+            padding: 60px 40px 0;
+        }
+
+        .media-co2-cs {
+            text-align: center;
+            padding: 40px 80px;
+        }
+
+        .media-it-cs {
+            width: 400px;
+            color: #ffbc00f0;
+        }
+
+        .media-table-cs {
+            height: 370px;
+            max-height: 370px;
+            padding: 0px 200px;
+        }
+    }
+
+    /* 对于小屏幕（手机等） */
+    @media screen and (max-width: 767px) {
+        /* 在此设置针对小屏幕的样式 */
+        .media-col1-cs {
+            text-align: center;
+            padding: 10px 20px 0;
+        }
+
+        .media-co2-cs {
+            text-align: center;
+            padding: 10px 20px;
+        }
+
+        .media-it-cs {
+            width: 300px;
+            color: #ffbc00f0;
+        }
+
+        .media-table-cs {
+            height: 300px;
+            max-height: 300px;
+            padding: 0px 50px;
+        }
+    }
+
+
+</style>
+</html>

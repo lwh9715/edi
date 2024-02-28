@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	<link rel="stylesheet" href="../res/static/css/index.css?t=13">
+	<link rel="stylesheet" href="../res/static/css/login.css?t=13">
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<link rel="stylesheet" href="../res/layui/layui-formSelects/formSelects-v4.css">
+	<script src="/so/res/layui/layui.js"></script>
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="../res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="../admin/js/ufms.common.js?t=10" ></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	<style type="text/css">
+		.layui-table-cell{
+		    height:20px;
+		    line-height: 20px;
+		}
+
+	</style>
+</head>
+<body>
+
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  
+  <!-- nav二级部分 -->
+  <div class="nav_level2" id="nav_level2">
+  </div>
+  
+   <!-- main -->
+   <form class="layui-form" lay-filter="formFilter">
+	   <div class="">
+	   		<!--<h3>发票列表</h3>
+	 		--><div class="layui-inline">
+			      <label class="layui-form-label">工作单号</label>
+			      <div class="layui-input-inline">
+			        <input type="text" name="nos" placeholder="Nos" autocomplete="off" class="layui-input">
+			      </div>
+			</div>
+			<div class="layui-inline">
+				  <label class="layui-form-label">发票号</label>
+			      <div class="layui-input-inline">
+			        <input type="text" name="invoiceno" placeholder="" autocomplete="off" class="layui-input">
+			      </div>
+			</div>
+			<div class="layui-inline">
+			      <div class="layui-input-inline">
+			        <button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="query"><i class="layui-icon layui-icon-search"></i><span class="translate">查询</span></button>
+			      </div>
+			</div>
+	   </div>
+	   <div style="">
+	  		<div class="layui-inline">
+				<table class="layui-table" id="datetable" lay-size="sm" lay-filter="datetable"></table>
+			</div>
+	   </div>
+   </form>
+   <form class="layui-form" id="businvoiceform" style="display:none" lay-filter="invoiceform">
+		<div class="layui-form-item">
+		    <div class="layui-inline">
+		      <label class="layui-form-label">发票号</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="invoiceno" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">客户名称</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="clientname" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">销方银行</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="accountinfo" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">发票代码</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="invoicecode" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">发票日期</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="invoicedate" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">发票抬头</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="clientitle" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">销方账号</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="accountcont" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">折合币制</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="currency" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">折合金额</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="amounts" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">发票金额</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="amountto" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">收款人</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="payee" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">复核人</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="checker" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">开票人</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="issuer" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		    <div class="layui-inline">
+		      <label class="layui-form-label">商品名称</label>
+		      <div class="layui-input-inline">
+		        <input type="text" name="productnametext" autocomplete="off" class="layui-input">
+		      </div>
+		    </div>
+		</div>
+		
+		<div style="">
+	  		<div class="layui-inline">
+				<table class="layui-table" id="arapdatetable" lay-size="sm" lay-filter="arapdatetable"></table>
+			</div>
+	    </div>
+	</form>
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+
+<script>
+$("#nav").load(getContextPath()+"/nav.html");
+$("#nav_level2").load(getContextPath()+"/managernav.html");
+$("#footer").load(getContextPath()+"/footer.html");
+actionGet('index','checkLogin','',function(res){
+	 var data = JSON.parse(res);
+	 if(data.success){//如果登录了就把导航宽度拓展到100%
+		 $('#nav-logo').css({width: "1350px"});
+	 }
+})
+
+layui.use(['jquery','layer','form','formSelects','laydate','table','element','i18np'], function() {
+	$ = layui.jquery;
+	var form = layui.form,formSelects = layui.formSelects,laydate = layui.laydate,table = layui.table,element = layui.element,i18np=layui.i18np; //只有执行了这一步，部分表单元素才会自动修饰成功
+	form.render();
+	i18np.translateOnForm(getLanguage());
+  	table.render({
+	    elem: '#datetable'
+	    ,url:getContextPath()+"/invoice?method=businvoicenolist"+getSid()
+	    ,limit:15
+	    ,cols: [[
+		   {field:'invoiceno',  title: '发票号',align:"left", width:140}
+	      ,{field:'invoicecode',  title: '发票代码',align:"left", width:100,hide:true}
+	      ,{field:'nos',  title: '工作单号',align:"left", width:220}
+	      ,{field:'invoicedate',  title: '日期',align:"left", width:110}
+	      ,{field:'clientcode',  title: '客户',align:"left", width:150,hide:true}
+	      ,{field:'clientitle',  title: '发票抬头',align:"left", width:100,hide:true}
+	      ,{field:'currency',  title: '币制',align:"left", width:60}
+	      ,{field:'amounts',  title: '金额',align:"right", width:90}
+	      ,{field:'amountto',  title: '发票金额',align:"right", width:90}
+	      ,{field:'remarks',  title: '备注',align:"left", width:180}
+	    ]]
+	    ,id: 'dataReload'
+	    ,title:'我的发票'
+	    ,page: {theme: '#1e9fff'}
+	    ,done: function (res, curr, count) {
+		    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+		    i18np.translateOnTanle(getLanguage());
+	    }
+	});
+  	form.on('submit(query)', function(data){
+  	  	var datajson = JSON.parse(JSON.stringify(data.field));
+  		table.reload('dataReload', {
+	        page: {
+	          curr: 1 //重新从第 1 页开始
+	        }
+	        ,where: {
+		  			nos: datajson.nos
+		  		   ,invoiceno: datajson.invoiceno
+	        }
+	    });
+    });
+  	table.on('rowDouble(datetable)', function(obj){
+  		actionGet("invoice",'invoiceinfo',"id="+obj.data.id,function(res){
+  		    var jsonData = JSON.parse(res);
+  		    form.val("invoiceform",jsonData);
+  	    });
+  		layer.open({
+  			type:1,
+  			area:['900px','600px'],
+  			shade: 0.3,
+  			shadeClose : true,
+  		    title: '发票信息',
+  		  	moveOut : true,
+  			content: $("#businvoiceform"),
+  			cancel: function(layero,index){ 
+  			   layer.closeAll();
+  			}
+  		});
+  		table.render({
+  		    elem: '#arapdatetable'
+  		    ,url:getContextPath()+"/invoice?method=businvoicearaplist&invoiceid="+obj.data.id+"&datarate="+obj.data.invoicedate+"&cyto="+obj.data.currency+getSid()
+  		    ,height: 280
+  		    ,limit:15
+  		    ,cols: [[
+  			   {field:'jobno',  title: '工作单号',align:"left", width:140}
+  		      ,{field:'sono',  title: '订舱号',align:"left", width:100,hide:true}
+  		      ,{field:'jobrefno',  title: '参考号',align:"left", width:100,hide:true}
+  		      ,{field:'jobdate',  title: '工作单日期',align:"left", width:110}
+  		      ,{field:'araptype',  title: '类别',align:"left", width:60}
+  		      ,{field:'ppcc',  title: 'PP/CC',align:"left", width:80}
+  		      ,{field:'feeitemdec',  title: '费用名称',align:"left", width:120}
+  		      ,{field:'currency',  title: '币制',align:"right", width:70}
+  		      ,{field:'amount',  title: '金额',align:"right", width:70}
+  		      ,{field:'price',  title: '单价',align:"right", width:70}
+  		   	  ,{field:'piece',  title: '数量',align:"right", width:60}
+  		   	  ,{field:'invoicextype',  title: '兑换符',align:"left", width:70}
+  		   	  ,{field:'invoicexrate',  title: '兑换率',align:"right", width:70}
+  		      ,{field:'invoiceamountflag',  title: '发票金额',align:"right", width:90}
+  		    ]]
+  		    ,id: 'arapdataReload'
+  		    ,title:'我的发票'
+  		    ,page: {theme: '#1e9fff'}
+  		    ,done: function (res, curr, count) {
+  			    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+  		    }
+  		}); 
+  	});
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>jQueryFormHelp练习</title>
+  <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+  <script src="jquery.formHelp.js"></script>
+  <script type="text/javascript">
+  $(function () {
+    $("#form").setForm({a: '张三家的附近可考虑将', b: '王五', c: '王五', d: 'nishi yaldjlkfjal ',e:7,f:'8;10',i:'王'});
+  });
+  function submitForm(){
+    console.log($("#form").serializeJson('id:12;name:13;'));
+  }
+</script>
+</head>
+<body>
+<form id="form">
+  <div><input type="text" name="a" /></div>
+  <div><input type="text" name="b" id="b" /></div>
+  <div><input type="hidden" name="c" id="c" /></div>
+  <div>
+    <textarea name="d" rows="8" cols="40"></textarea>
+    <input type="checkbox" name="f" value="10"/>
+  </div>
+  <div><select name="e">
+    <option value="5" selected="selected">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+  </select></div>
+  <div>
+    <input type="checkbox" name="f" value="8" />
+    <input type="checkbox" name="f" value="9"/>
+  </div>
+  <div>
+    <input name="i" type="radio" value="王" />王
+    <input name="i" type="radio" value="小" />小
+  </div>
+  <div>
+    <input type="button" name="g" value="Submit" id="g" onclick="submitForm()"/>
+  </div>
+</form>
+</body>
+</html>

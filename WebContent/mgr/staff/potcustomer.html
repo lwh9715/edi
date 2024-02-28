@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	<link rel="stylesheet" type="text/css" href="/so/res/static/css/jquery.step.index.css">
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<link rel="stylesheet" href="../../res/layui/layui-formSelects/formSelects-v4.css">
+	<script src="/so/res/layui/layui.js"></script>
+	<link rel="stylesheet" href="/so/res/static/css/index.css?t=26">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="/so/res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="/so/admin/js/ufms.common.js?t=13" ></script>
+	<script type="text/javascript" src="/so/res/static/js/jquery.toTop.min.js"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+</head>
+<body>
+
+ <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  
+  <!-- nav二级部分 -->
+  <div class="nav_level2" id="nav_level2">
+  </div>
+
+<form class="layui-form" lay-filter="qryFilter">
+	<div class="layui-form-item" style="margin-bottom:0px">
+	    <div class="layui-inline">
+	      <div class="layui-input-inline">
+	        <input name="qrynos" autocomplete="off" class="layui-input" placeholder="代码/简称/中文名/英文名">
+	      </div>
+	    </div>
+	    <div class="layui-inline">
+	      <button class="layui-btn layui-btn-normal" type="button" lay-submit="" lay-filter="query"><i class="layui-icon layui-icon-search"></i>搜索</button>
+	      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+	    </div>
+	</div>
+	<table id="customerTable" lay-filter="cutomFilter"></table>
+</form>
+<form class="layui-form" id="customeFiltid" style="display:none" lay-filter="customeFilter">
+	<div class="layui-form-item">
+			<label class="layui-form-label">指派人</label>
+			<div class="layui-input-inline" style="width:260px;">
+				<select id="taskuer" name="taskuer" lay-search="" xm-select="checkbox_taskuer" xm-select-search="" xm-select-skin="normal">
+		         	<option value=""><span class="translate">选择指派人</span></option>
+		      	</select>
+			</div>
+			<button type="button" class="layui-btn layui-btn layui-btn-normal" lay-submit lay-filter="saveCheck"><i class="layui-icon layui-icon-ok"></i>提交申请</button>
+	</div>
+	<div id="customeFiltidDiv"></div>
+</form>
+
+   <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+  
+<script type="text/html" id="customtool">
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm layui-btn-normal" type="button" lay-event="addcustom"><i class="layui-icon layui-icon-add-circle"></i>新增</button>
+  </div>
+</script>
+<script type="text/html" id="customBar">
+  <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+</script>
+<script type="text/html" id="isofficialtemp">
+  {{#  if(d.isofficial){ }}
+    <input type="checkbox" lay-skin="primary" checked>
+  {{#  } else { }}
+    <input type="checkbox" lay-skin="primary">
+  {{#  } }}
+</script>
+
+<script>
+$("#nav").load(getContextPath()+"/nav.html");
+$("#nav_level2").load(getContextPath()+"/manager_staffnav.html");
+$("#footer").load(getContextPath()+"/footer.html");　
+actionGet('index','checkLogin','',function(res){
+	 var data = JSON.parse(res);
+	 if(data.success){//如果登录了就把导航宽度拓展到100%
+		 $('#nav-logo').css({width:"100%"});
+	 }
+})　
+
+$("#customeFiltidDiv").load("./customerEdit.html");
+layui.use(['jquery','layer','form','table','formSelects'], function() {
+	$ = layui.jquery;
+	var form = layui.form,table = layui.table,formSelects = layui.formSelects;
+	getCombobox(form);
+	randerfromselect('/combobox','taskuer','checkbox_taskuer',formSelects,true);
+	form.render();
+	table.render({
+		elem: '#customerTable'
+        ,limit: 20
+        ,page: {theme: '#1e9fff'}
+        ,url:getContextPath()+"/customer?method=customList"+getSid()
+        ,id:'jobtable'
+	    ,toolbar:"#customtool"
+        ,cols: [[
+            //{type: 'checkbox', title: '##', fixed: 'left'},
+            {field: 'code', title: '代码', width: 110},
+            {field: 'abbr', title: '简称', width: 110},
+            {field: 'namec', title: '中文名', width: 120},
+            {field: 'namee', title: '英文名', width: 120},
+            {field: 'addressc', title: '地址中文', width: 120},
+            {field: 'tel1', title: '电话', width: 120},
+            {field: 'contact', title: '联系人', width: 100},
+            {field:'level',  title: '等级',align:"left", width:100},
+            {field:'salesnamec',  title: '业务员',align:"left", width:100},
+            {field:'isofficial',  title: '正式客户',align:"left", width:100
+                ,templet:isofficialtemp},
+            {field:'customertype',  title: '客户类型',align:"left", width:100},
+            {field:'tradeway',  title: '贸易方式',align:"left", width:100},
+            {field:'inputername',  title: '录入人',align:"left", width:100},
+            {field:'inputtime',  title: '录入时间',align:"left", width:100},
+            {fixed: 'right', width:90, align:'center', toolbar: '#customBar'}
+        ]]
+        ,done: function (res, curr, count) {
+		    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+	    }
+    });
+	table.on('toolbar(cutomFilter)', function(obj){
+		 switch(obj.event){
+		 	case 'addcustom':
+		 		var arraval = ['800px', '600px'];
+		   		var tille = '新增';
+		  		if(isMove() == true){
+		  			arraval = ['100%', '100%'];
+		  			tille = '<button type="button" lay-filter="closelayer" onclick="closelayer()" lay-submit class="layui-btn layui-btn-sm supersmall">返回</button>';
+		  	  	}
+		   		layer.open({
+		   		  title:tille,
+		   		  type:1,
+		   		  move: false,
+		   		  area: arraval, //宽高
+		   		  content: $("#customeFiltid")
+		   		});
+		   		$("#customeFiltid")[0].reset();
+                layui.form.render();
+		   		form.val("customeFilter",{id:0});
+		    break;
+		 };
+	});
+	table.on('tool(cutomFilter)', function(obj){
+		var data = obj.data;
+		var layEvent = obj.event;
+		if(layEvent === 'edit'){
+			var arraval = ['800px', '600px'];
+	   		var tille = '编辑';
+	  		if(isMove() == true){
+	  			arraval = ['100%', '100%'];
+	  			tille = '<button type="button" lay-filter="closelayer" onclick="closelayer()" lay-submit class="layui-btn layui-btn-sm supersmall">返回</button>';
+	  	  	}
+	   		layer.open({
+	   		  title:tille,
+	   		  type:1,
+	   		  move: false,
+	   		  area: arraval, //宽高
+	   		  content: $("#customeFiltid")
+	   		});
+	   		form.val("customeFilter",data);
+		}
+	});
+	form.on('submit(closelayer)',function(data){
+		closelayer();
+	});
+	form.on('submit(savecustom)',function(data){
+		data.field.isar = true;
+		data.field.isap = true;
+		data.field.isofficial = false;
+		data.field.iscustomer = true;
+		qryJson = JSON.stringify(data.field);
+        actionPost('/customer','saveCustomer',qryJson,function(res){
+			    var data = JSON.parse(res);
+			    if(data.success == true){
+			    	layer.msg(data.msg,{icon: 1});
+			    	table.reload('jobtable');
+				}else{
+					layer.msg(data.msg,{icon: 7});
+				}
+		 });
+        return false;
+	});
+	form.on('submit(query)', function(data){
+		var datajsonstring = JSON.stringify(data.field);
+		table.reload('jobtable', {
+	        page: {
+	          curr: 1 //重新从第 1 页开始
+	        }
+	        ,where: {
+	        	 qrynos:data.field.qrynos
+	        }
+	      }, 'data');
+  	});
+	form.on('submit(saveCheck)', function(data){
+		var taskuer = formSelects.value('checkbox_taskuer', 'valStr');
+		data.field.nextAssignUser = taskuer;
+		var datajsonstring = JSON.stringify(data.field);
+		if(data.field.id == '0'||data.field.id==0){
+			layer.msg("请先保存！",{icon: 7});
+			return;
+		}
+		actionPost('/customer','saveCheck',datajsonstring,function(res){
+		    var data = JSON.parse(res);
+		    if(data.success == true){
+		    	layer.msg(data.msg,{icon: 1});
+		    	table.reload('jobtable');
+			}else{
+				layer.msg(data.msg,{icon: 7});
+			}
+	 });
+  	});
+})
+</script>
+</body>
+</html>

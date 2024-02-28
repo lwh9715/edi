@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>入库单确认</title>
+<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+<script src="/so/res/static/js/jquery.min.js"></script>
+<script src="/so/res/layui/layui.js"></script>
+<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+
+</head>
+<body>
+	<form class="layui-form" lay-filter="formFilter">
+		<label>进仓编号</label>
+			<label><span id = "wmsinid"></span></label>
+		<label>班列日期</label>
+			<label><span></span></label>
+		<table class="layui-hide" id="datetable" lay-filter="datetable"></table>
+		
+		<div class="layui-form-item" style="margin-top: 30px">
+		    <div class="layui-input-block">
+		      <button class="layui-btn" type="button" lay-submit="" lay-filter="updateWmsin">确认提交</button>
+		      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+		    </div>
+		</div>
+	</form>	
+	
+	<script>
+	layui.use(['jquery','layer','form','table'], function(){
+	  var table = layui.table;
+	  var form = layui.form;
+	  $ = layui.jquery;
+	  form.render();
+	  table.render({
+	    elem: '#datetable'
+    	,cellMinWidth: 80 
+    	,id:'wmsintable'
+	    ,url:"/so/wmsinfo?method=getWmsinfo"
+	    ,cols: [[
+		  {field:'id', width:100, title: 'ID'}
+	      ,{field:'goodsnamec', width:120, title: '品名'}
+	      ,{field:'piece', width:100, title: '委托件数'}
+	      ,{field:'gdswgt', width:100, title: '委托毛重'}
+	      ,{field:'gdswgt', width:100, title: '委托体积'}
+	      ,{field:'piece_in', width: 100, title: '入仓件数',edit: 'text'} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
+	      ,{field:'gdswgt_in', title: '入仓毛重', width: 100,edit: 'text'}
+	      ,{field:'gdscbm_in', title: '入仓体积', width: 100,edit: 'text'}
+	    ]]
+	    ,done: function(res, curr, count){
+	        //接口回调，处理一些和表格相关的辅助事项
+	    }
+	  });
+
+	  table.on('edit(datetable)', function(obj){
+	    var value = obj.value //得到修改后的值
+	    ,data = obj.data //得到所在行所有键值
+	    ,field = obj.field; //得到字段	    
+	    var tips = '[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value;
+	    //layer.msg(tips);
+	    console.log(tips);
+ 	  }); 
+
+
+	 form.on('submit(updateWmsin)', function(data){
+		 console.log(data);
+		 //var a = table.cache.wmsintable;
+		 var postJson = JSON.stringify(data.field);
+		 console.log(postJson);
+
+	         $.ajax({
+				  type: 'POST',
+				  url: '/so/wmsinfo?method=updateWmsin',
+				  contentType:'application/json',
+				  data: postJson,
+				  dataType:"json",
+				  
+			});
+		});
+	});
+</script>
+	
+</body>
+</html>

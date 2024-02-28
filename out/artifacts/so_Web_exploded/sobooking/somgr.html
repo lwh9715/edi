@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>我的现舱</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+
+	<link rel="stylesheet" href="/so/res/static/css/index.css?t=31">
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	
+	
+	<link rel="stylesheet" href="/so/res/layui/layui-formSelects/formSelects-v4.css">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	
+	<script src="/so/res/layui/layui.js"></script>
+	<script src="/so/res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="/so/admin/js/ufms.common.js?t=13" ></script>
+	<script src="/so/res/static/js/index.js?t=14"></script>
+	<script src="/so/res/static/js/xm-select.js?t=1"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+  
+  <link rel="stylesheet" href="ufms.common.css">
+  <script src="ufms.common.js?t=6" ></script>
+  <script src="ufms.gridform.js?t=20" ></script>
+
+</head>
+<body>
+
+ <!-- nav部分 -->
+  <div class="nav index" id="nav">
+  </div>
+  
+  <!-- main部分 -->
+  <div class="main-product" style="padding-top: 120px;">
+	<div class="layui-row">
+		<form class="layui-form layui-col-md12 we-search" id="gridQry">
+			<div class="layui-inline">
+				<select id="pol" name="pol" lay-search="" xm-select="checkbox_pol" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+			    	<option value=""><span class="translate">起运港</span></option>
+			    </select>
+			</div>
+			<div class="layui-inline">
+				<select id="pod" name="pod" lay-search="" xm-select="checkbox_pod" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+			    	<option value=""><span class="translate">目的港</span></option>
+			    </select>
+			</div>
+			<div class="layui-inline">
+				<input class="layui-input" placeholder="船公司" name="carrier" />
+			</div>
+			<button class="layui-btn" onclick="search();return false;">搜索</button>
+		</form>
+	</div>
+	
+	<div id="grid"> 
+		<table class="layui-hide" id="grid" lay-filter="grid"></table>
+	</div>     
+
+
+ </div>  
+
+
+ <!-- footer部分 -->
+  <div class="footer" id="footer" style="background: #044fb2;">
+  </div>
+
+<style type="text/css">
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+ </style>   
+ 
+ <script type="text/html" id="toolbarGrid">
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm" lay-event="refresh" onclick="tableIns.reload();">刷新</button>
+    <button class="layui-btn layui-btn-sm" lay-event="add" onclick="add();">新增</button>
+  </div>
+</script>
+              
+
+ 
+<script>
+
+
+<!--
+
+var window_height = '650px';
+var window_width = '700px';
+
+var action = '/sobooking';
+
+editNewPage = true;
+editNewPageUrl = 'somgredit.html';
+
+var gridDefine =
+		[[
+			 {field:'index', width:60, title: '序号',fixed: 'left',templet:'#index'}
+            ,{field:'id',width:100,title:'ID',hide:true}
+			,{field:'pol', width:150, title: '起运港',align:"left",templet:"#routevtemp"}
+			,{field:'pod', width:150, title: '目的港', align:"left"}
+			,{field:'carrier', width: 150, title: '船公司', align:"left"}
+			,{field:'cls', width:120, title: '截关日', sort: true,align:"center"}
+			,{field:'etd', width:120, title: 'ETD', sort: true, align:"center"}
+			,{field:'cntdesc', width:150, title: "舱位", sort: true,align:"right",style:"color:#ff9900;font-weight:bolder"}
+			,{field:'contacter', width:120, title: '联系人',align:"center"}
+			,{field:'tel', width:120, title: '联系人电话',align:"center"}
+			,{field:'qq', width:120, title: '联系人QQ',align:"center"}
+			,{field:'remarks', width:250, title: '备注',align:"center"}
+         ]];
+
+var index;
+var tableIns;
+
+
+var laydate;
+layui.use(['form','formSelects', 'jquery','layer', 'laydate'], function() {
+	var form = layui.form,
+	formSelects = layui.formSelects,
+	$ = layui.jquery,
+	laydate = layui.laydate,
+	layer = layui.layer;
+
+	checkLogin();
+
+	randerfromselect('/sobooking','sopol?type=ship','checkbox_pol',formSelects,false);
+	randerfromselect('/sobooking','sopod?type=ship','checkbox_pod',formSelects,false);
+
+	gridInit();
+
+
+	//自定义验证规则
+	form.verify({
+		nikename: function(value) {
+			if(value.length < 5) {
+				return '昵称至少得5个字符啊';
+			}
+		}
+	});
+
+	//监听提交
+	form.on('submit(save)', function(data) {
+		console.log(data);
+		var jsonData = JSON.stringify(data.field);
+		console.log(jsonData);
+		$.ajax({
+			  type: 'POST',
+			  url: "/so/sobooking?method=save",
+			  contentType:'application/json',
+			  data: jsonData,
+			  success: function(res){
+					layer.close(index);
+					tableIns.reload();
+			  }
+		});
+		return false;
+	});
+	//监听提交
+	form.on('submit(del)', function(data) {
+		$.ajax({
+			  type: 'POST',
+			  url: "/so/sobooking?method=del&id="+data.field.id,
+			  success: function(res){
+					layer.close(index);
+					tableIns.reload();
+			  }
+		});
+		return false;
+	});
+
+
+	function checkLogin(){
+		  $.ajax({
+			  type: 'GET',
+			  url: getContextPath()+"/index?method=checkLogin",
+			  contentType:'application/json',
+			  success: function(res){
+			    var data = JSON.parse(res);
+			    if(data.success){
+			    	$('#nav #top1').hide();
+			  	  	$('#nav #top2').show();
+			  	  	$('#nav #top2 #loginname').text(data.username);
+			  	  	$('#nav #top2 #userinfo').text(data.userinfo);
+					}else{
+						login();
+					}
+				  }
+		 });
+	}
+});
+
+
+function closeEdit(){
+	layer.closeAll();
+	tableIns.reload();
+}
+
+--></script>
+
+<script type="text/html" id="index">
+{{d.LAY_TABLE_INDEX+1}}
+</script>
+
+<script type="text/html" id="switchTpl">
+<!-- 这里的 checked 的状态只是演示 -->
+<input type="checkbox" name="sex" value="{{d.id}}" lay-skin="switch" lay-text="是|否" lay-filter="sexDemo" {{ d.id == 10003 ? 'checked' : '' }}>
+</script>
+<script>
+$(function () {
+	$("#nav").load("./nav.html");
+	$("#footer").load("./footer.html");
+	init();
+});
+</script>
+</body>
+</html>

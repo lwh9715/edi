@@ -1,0 +1,133 @@
+
+	<div class="layui-form-item">
+		<div class="layui-form-item">
+			<button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="savecustom" type="submit">保存</button>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">代码</label>
+			<div class="layui-input-inline">
+				<input type="text" name="code" autocomplete="off" class="layui-input">
+				<input type="text" name="id" autocomplete="off" class="layui-input layui-hide">
+				<input type="text" name="abbr" autocomplete="off" class="layui-input layui-hide">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">简称</label>
+			<div class="layui-input-inline">
+				<input type="text" name="code" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">中文名</label>
+			<div class="layui-input-inline">
+				<input type="text" name="namec" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">英文名</label>
+			<div class="layui-input-inline">
+				<input type="text" name="namee" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">电话1</label>
+			<div class="layui-input-inline">
+				<input type="text" name="tel1" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">电话2</label>
+			<div class="layui-input-inline">
+				<input type="text" name="tel2" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">Email</label>
+			<div class="layui-input-inline">
+				<input type="text" name="email1" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">Emai2</label>
+			<div class="layui-input-inline">
+				<input type="text" name="email2" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">分级</label>
+			<div class="layui-input-inline">
+				<select name="level" lay-filter="levelFilter">
+					<option value="">请选择</option>
+		        	<option value="*">★</option>
+		        	<option value="**">★★</option>
+		        	<option value="***">★★★</option>
+		        	<option value="****">★★★★</option>
+		        	<option value="*****">★★★★★</option>
+		        </select>
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">地址中文</label>
+			<div class="layui-input-inline">
+				<input type="text" name="addressc" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">地址英文</label>
+			<div class="layui-input-inline">
+				<input type="text" name="addresse" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">贸易方式</label>
+			<div class="layui-input-inline">
+				<select name="tradeway">
+		        	<option value="">请选择</option>
+		        	<option value="F">FOB</option>
+		        	<option value="C">CIF</option>
+		        </select>
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">进出口</label>
+			<div class="layui-input-inline">
+				<select name="impexp" bind="comboboxs">
+		        	<option value="">请选择</option>
+		        </select>
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">客户来源</label>
+			<div class="layui-input-inline">
+				<select name="srctype" bind="comboboxs">
+		        	<option value="">请选择</option>
+		        </select>
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">业务员</label>
+			<div class="layui-input-inline">
+				<select name="salesid" bind="comboboxs">
+		        	<option value="">请选择</option>
+		        </select>
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">客户类型</label>
+			<div class="layui-input-inline">
+				<select name="customertype">
+		        	<option value="">请选择</option>
+		        	<option value="isdirect">直客</option>
+		        	<option value="istogether">同行</option>
+		        </select>
+			</div>
+		</div>
+		<div class="layui-inline">
+			<div class="layui-input-inline">
+				 <input type="checkbox" name="isfcl" lay-skin="primary" title="海运" checked="">
+			</div>
+			<div class="layui-input-inline">
+				 <input type="checkbox" name="isair" lay-skin="primary" title="空运" checked="">
+			</div>
+		</div>
+	</div>

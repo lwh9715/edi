@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="./res/static/css/index.css?t=31">
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<link rel="stylesheet" href="./res/layui/layui-formSelects/formSelects-v4.css">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	
+	<script src="/so/res/layui/layui.js"></script>
+	<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="./admin/js/ufms.common.js?t=13" ></script>
+	<script src="./res/static/js/index.js?t=14"></script>
+	<script src="./res/static/js/xm-select.js?t=1"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	<style type="text/css">
+		.layui-tab-title .layui-this{
+			background-color: #ffffff;
+			color:#1e9fff;
+		}
+		.layui-tab-title{
+			background-color: #1e9fff;
+			color:#FFF;
+		}
+		.layui-tab-title li{
+			font-size:20px
+		}
+		.layui-tab-title li:hover{
+			background-color: #ffffff;
+			color:#1e9fff;
+		}
+		/*运价推荐下信息样式*/
+		.pricedetail_contont{
+			overflow: hidden;position: relative;
+		}
+		.pricedetail_detail{
+			background-color: rgba(0,0,0,0.5);
+			bottom: -20px;
+			position: absolute;
+			width:100%;
+			height: 40px;
+		}
+		.pricedetail_detail p{
+			font-size: 12px;
+			color:#fff;
+			line-height: 18px;
+		}
+		@-webkit-keyframes myfirst /* Safari 和 Chrome */{
+			from {bottom: -20px;}
+			to {bottom: 0px;}
+		}
+		/**/
+	</style>
+</head>
+<body>
+
+  <!-- nav部分 -->
+  <div class="nav index" id="nav">
+  </div>
+  <!-- banner部分 -->
+  <div>
+    <div class="layui-carousel" id="banner" style="width: 100%;height: 400px;">
+      <div carousel-item>
+      	<div>
+          <img src="./res/static/img/banner/6.jpg">
+        </div>
+        <div>
+          <img src="./res/static/img/banner/banner1.jpg" >
+        </div>
+        <div>
+          <img src="./res/static/img/banner/banner2.jpg">
+        </div>
+        
+       <!-- <div>
+          <img class="balloon" src="./res/static/img/banner/33.png">
+          <div class="panel">
+          </div>
+        </div>
+      --></div>
+    </div>
+    
+    <div class="panel penel1-style">
+       <form class="layui-form form-style" lay-filter="formFilter">
+	       <div class="layui-tab">
+			  <ul class="layui-tab-title">
+			  	<li class="layui-this"><span class="translate">海运</span></li>
+			    <li><span class="translate">空运</span></li>
+			    <li><span class="translate">铁路</span></li>
+			  </ul>
+			  <div class="layui-tab-content">
+			    <div class="layui-tab-item layui-show">
+			    	<div class="layui-form-item" style="border: #666666 1px solid;">
+					    <label class="layui-form-label"><span class="translate">起运港</span></label>
+					    <div class="layui-input-block">
+					      <select id="pol" name="pol" lay-search="" xm-select="checkbox_pol" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+					         <option value=""><span class="translate">选择起运港</span></option>
+					      </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item" style="border: #666666 1px solid;">
+				        <label class="layui-form-label"><span class="translate">目的港</span></label>
+				        <div class="layui-input-block">
+					      <select id="pod" name="pod" lay-search="" xm-select="checkbox_pod" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+					         <option value="">选择目的港</option>
+					      </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item" style="border: #666666 1px solid;">
+				        <label class="layui-form-label"><span class="translate">船公司</span></label>
+				        <div class="layui-input-block">
+					      <select id="carrier" name="carrier" lay-search="" xm-select="checkbox_carrier" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+					         <option value="">选择船公司</option>
+					      </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item">
+				    	<button type="button" class="layui-btn layui-btn-normal layui-btn-fluid" lay-submit="" lay-filter="queryfcl"><i class="layui-icon layui-icon-search"><span class="translate">查询运价</span></i></button>
+				    </div>
+			    </div>
+			    <div class="layui-tab-item">
+			    	<div class="layui-form-item" style="border: #666666 1px solid;">
+					    <label class="layui-form-label">起运港</label>
+					    <div class="layui-input-block">
+					       <select id="pol" name="pol" lay-search="" xm-select="checkbox_airpol" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+						        <option value="">选择起运港</option>
+						   </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item" style="border: #666666 1px solid;">
+				        <label class="layui-form-label">目的港</label>
+				        <div class="layui-input-block">
+					      <select id="pod" name="pod" lay-search="" xm-select="checkbox_airpod" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+					         <option value="">选择目的港</option>
+					      </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item" style="border: #666666 1px solid;">
+				        <label class="layui-form-label">航线</label>
+				        <div class="layui-input-block">
+					       <select id="crrier" name="crrier" lay-search="" xm-select="checkbox_aircarrier" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+					         <option value="">选择航线</option>
+					      </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item">
+				         <button type="button" class="layui-btn layui-btn-normal layui-btn-fluid" lay-submit="" lay-filter="queryair"><i class="layui-icon layui-icon-search"><span class="translate">查询运价</span></i></button>
+				    </div>
+			    </div>
+			    <div class="layui-tab-item">
+			    	<div class="layui-form-item" style="border: #666666 1px solid;">
+					    <label class="layui-form-label">起运港</label>
+					    <div class="layui-input-block">
+					       <select id="pol" name="pol" lay-search="" xm-select="checkbox_trainpol" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+						        <option value="">选择起运港</option>
+						   </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item" style="border: #666666 1px solid;">
+				        <label class="layui-form-label">目的港</label>
+				        <div class="layui-input-block">
+					      <select id="pod" name="pod" lay-search="" xm-select="checkbox_trainpod" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+					         <option value="">选择目的港</option>
+					      </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item" style="border: #666666 1px solid;">
+				        <label class="layui-form-label">航线</label>
+				        <div class="layui-input-block">
+					       <select id="crrier" name="crrier" lay-search="" xm-select="checkbox_traincarrier" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+					         <option value="">选择航线</option>
+					      </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item">
+				         <button type="button" class="layui-btn layui-btn-normal layui-btn-fluid" lay-submit="" lay-filter="querytrain"><i class="layui-icon layui-icon-search"><span class="translate">查询运价</span></i></button>
+				    </div>
+			    </div>
+			  </div>
+			</div>
+	    
+	</form>
+ </div>
+    
+    
+    
+  </div>
+  <!-- main部分 -->
+  <div class="main-product">
+    <div class="layui-container">
+      <!--<p class="title">优惠<span>特价</span></p>
+      --><h4><span class="translate">特价</span></h4>
+      <div class="layui-row layui-col-space25" id="pricedetail">
+        <!--<div class="layui-col-sm6 layui-col-md3" style="padding: 2.5px;" >
+          <div class="content" >
+            <div><img src="./res/static/img/price/index1.png"></div>
+            <div>
+              <span>SHEKOU-DUBAI</span>
+              <ul>
+                <li>20GP</li>
+                <li>40GP</li>
+                <li>40HC</li>
+                <li class="act">$25</li>
+                <li class="act">$25</li>
+                <li class="act">$25</li>
+              </ul>
+              <button type="button" class="layui-btn layui-btn-warm " style="width: 268px;" onclick="createBooking();"> 订舱<i class="fa fa-check-circle"></i></button>
+            </div>
+            <a href="javascript:;">查看产品 ></a>
+          </div>
+        </div>
+        <div class="layui-col-sm6 layui-col-md3 " style="padding: 2.5px;">
+          <div class="content">
+            <div><img src="./res/static/img/price/index2.png"></div>
+            <div>
+              <span>SHEKOU-DUBAI</span>
+              <ul>
+                <li>20GP</li>
+                <li>40GP</li>
+                <li>40HC</li>
+                <li class="act">$25</li>
+                <li class="act">$25</li>
+                <li class="act">$25</li>
+              </ul>
+              <button type="button" class="layui-btn layui-btn-warm " style="width: 268px;" onclick="createBooking();"> 订舱<i class="fa fa-check-circle"></i></button>
+            </div>
+            <a href="javascript:;">查看产品 ></a>
+          </div>
+        </div>
+        <div class="layui-col-sm6 layui-col-md3 " style="padding: 2.5px;">
+          <div class="content">
+            <div><img src="./res/static/img/price/index3.jpg"></div>
+            <div>
+              <span>SHEKOU-DUBAI</span>
+              <ul>
+                <li>20GP</li>
+                <li>40GP</li>
+                <li>40HC</li>
+                <li class="act">$25</li>
+                <li class="act">$25</li>
+                <li class="act">$25</li>
+              </ul>
+              <button type="button" class="layui-btn layui-btn-warm " style="width: 268px;" onclick="createBooking();"> 订舱<i class="fa fa-check-circle"></i></button>
+            </div>
+            <a href="javascript:;">查看产品 ></a>
+          </div>
+        </div>
+        <div class="layui-col-sm6 layui-col-md3 " style="padding: 2.5px;">
+          <div class="content">
+            <div><img src="./res/static/img/price/index4.jpg"></div>
+            <div>
+              <span>SHEKOU-DUBAI</span>
+              <ul>
+                <li>20GP</li>
+                <li>40GP</li>
+                <li>40HC</li>
+                <li class="act">$25</li>
+                <li class="act">$25</li>
+                <li class="act">$25</li>
+              </ul>
+              <button type="button" class="layui-btn layui-btn-warm " style="width: 268px;" onclick="createBooking();"> 订舱<i class="fa fa-check-circle"></i></button>
+            </div>
+            <a href="javascript:;">查看产品 ></a>
+          </div>
+        </div>
+      --></div>
+    </div>
+  </div>
+  <div class="main-service">
+    <div class="layui-container">
+      <!--<p class="title"><span>资讯</span></p>
+      --><h4><span class="translate">资讯</span></h4>
+      <div class="layui-row layui-col-space25 layui-col-space80">
+        <div class="layui-col-sm8">
+         	<div class="layui-carousel" id="carouseNews" lay-filter="carouseNews" style="padding-top:0;">
+			  <div carousel-item="">
+			    	<div>
+			          <img src="./res/static/img/banner/web_banner1.jpg" >
+			        </div>
+			        <div>
+			          <img src="./res/static/img/banner/web_banner2.jpg">
+			        </div>
+			  </div>
+			</div>
+        </div>
+        <div class="layui-col-sm4">
+          	<div class="news" id="newslist">
+          	</div>	
+        </div>
+      </div>
+      <!--<div class="service-more"><a href="https://promotion.aliyun.com/ntms/yunparter/invite.html?userCode=mda5msfo" target="_blank"><img src="./res/static/img/aly/bottom.png"></a></div>-->
+      <!--<div class="service-more"><a href="">查看更多</a></div>
+    -->
+    </div>
+    </div>
+    <div class="main-product">
+    	<div class="layui-container"> 
+	    	<p class="title"><span class="translate">合作伙伴</span></p>
+		    <div class="wrap">
+			  <ul>
+			  </ul>
+			</div> 
+		</div> 
+	</div>
+	 
+  
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+  
+  <!-- 常用链接 -->
+  <div class="footer" >
+  	<div class="layui-container"> 
+  		<p style="padding-top:15px;">
+                				<span>常用链接：</span>
+				                <a href="http://eport.scctcn.com/" target="_blank" style="padding-left: 0;">蛇口港服务平台</a>
+				|                                    <a href="http://www.yesinfo.com.cn/" target="_blank">盐田港服务平台</a>
+				
+				|                                    <a href="http://www.dcblink.com/" target="_blank">大铲湾服务平台</a>
+				|                                    <a href="https://www.goct.com.cn/" target="_blank">南沙港服务平台</a>
+				|                                    <a href="http://e.gznict.com/" target="_blank">南沙三期</a>
+				|                                    <a href="http://sc.y2t.com/iport-hp/login/" target="_blank">广州黄埔乌冲码头</a>
+				|                                    <a href="http://www.hb56.com" target="_blank">上海港服务平台</a>
+				|                                    <a href="http://www.fzpu.com/fzpu2009/site/index2016.action" target="_blank">福州港服务平台</a>
+				|                                    <a href="https://www.qingdao-port.net/" target="_blank">青岛港服务平台</a>
+				|                                    <a href="https://www.cods.org.cn/" target="_blank">统一社会信用代码查询</a>
+				|                                    <a href="http://www.szcec.com/Schedule/index3.html" target="_blank">深圳展会查询</a>
+				|                                    <a href="http://dpay.cmclink.com/" target="_blank">深圳外堆场预约</a>
+				|                                    <a href="http://eir.ewinlu.com/eir/publics/search" target="_blank">深圳E箱管</a>
+				               </p>
+	</div> 
+  </div>
+  
+  
+  
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script>
+	var demo1 = xmSelect.render({
+	    el: '#demo1', 
+	    language: 'zn',
+	    data: [
+	        {name: '张三', value: 1},
+	        {name: '李四', value: 2},
+	        {name: '王五', value: 3},
+	    ]
+	})
+  
+  layui.use(['form','formSelects','carousel'], function(){
+	  var form = layui.form,formSelects = layui.formSelects; //只有执行了这一步，部分表单元素才会自动修饰成功
+	  var carousel = layui.carousel;
+	  form.render();
+	  randerfromselect('/combobox','fspol','checkbox_pol',formSelects,true);
+	  randerfromselect('/combobox','fspod','checkbox_pod',formSelects,true);
+	  randerfromselect('/combobox','fscarrier','checkbox_carrier',formSelects,true);
+	  randerfromselect('/combobox','datpol?type=air&limit=20','checkbox_airpol',formSelects,true);
+  	  randerfromselect('/combobox','datpod?type=air&limit=20','checkbox_airpod',formSelects,true);
+  	  randerfromselect('/combobox','lineair?limit=20','checkbox_aircarrier',formSelects,true);
+  	  randerfromselect('/combobox','datpol?type=air&limit=20','checkbox_trainpol',formSelects,true);
+  	  randerfromselect('/combobox','datpod?type=air&limit=20','checkbox_trainpod',formSelects,true);
+  	  randerfromselect('/combobox','lineair?limit=20','checkbox_traincarrier',formSelects,true);
+
+	  //首页最上面banner轮播
+	  actionGet('/index','getWebBanner','key=webbanner',function(res){
+		    var data = JSON.parse(res);
+		    if(data.label == ''){
+		    }else{
+		    	console.log(data);
+		    	$('#banner div').eq(0).empty();
+		    	//$('#banner div').eq(0).append('<div><img src="./res/static/img/banner/1.jpg"></div>');
+		    	//$('#banner div').eq(0).append('<div><img src="./res/static/img/banner/11.png"></div>');
+		    	for(var i=0; i<data.length; i++){
+		    		$('#banner div').eq(0).append('<div><img src="'+data[i].filename+'" style="width: 100%;"></div>');
+			    }
+		    	carousel.render({
+		    	    elem: '#banner'
+		    	    ,width: '100%'
+		    	    ,height: '898px'
+		    	    ,arrow: 'always'
+		    	});
+			}
+	  });
+
+
+	  //新闻部分小banner轮播
+	  actionGet('/index','getWebBanner','key=webbanner',function(res){
+		    var data = JSON.parse(res);
+		    console.log(data);
+		    if(data.label == ''){
+		    }else{
+		    	console.log(data);
+		    	$('#carouseNews div').eq(0).empty();
+		    	for(var i=0; i<data.length; i++){
+		    		$('#carouseNews div').eq(0).append('<div><img src="'+data[i].filename+'" style="width: 100%;"></div>');
+			    }
+		    	carousel.render({
+		    	    elem: '#carouseNews'
+		    	});
+		    	$('#carouseNews').css('width','100%').css('height','408px');
+			}
+	  });
+	  	    
+	  actionGet('/index','pricehomepage','',function(res){
+		    var data = JSON.parse(res);
+		    var option = "";
+		    for(var i=0; i<data.length; i++){
+		    		option+='<div class="layui-col-sm6 layui-col-md3" style="padding: 2.5px;" >';
+		    		option+='<div class=\"content\" >';
+		    		option+='<div class="pricedetail_contont" style=""><img width="285px" src="./res/static/img/price/index1.png">';
+		    		option+='<div class="pricedetail_detail"><p>'+$.i18n.prop('有效期')+'：'+data[i].datefmto+'</p><p>'+$.i18n.prop('截关/开航/航程')+'：'+data[i].tt+$.i18n.prop('天')+'</p></div>'
+		    		option+='</div>';
+		    		option+='<div>';
+		    			option+='<span>'+data[i].pol+'-'+data[i].pod+'</span>';
+		    				option+='<ul>';
+		    					option+='<li>20GP</li>';
+		    					option+='<li>40GP</li>';
+		    					option+='<li>40HQ</li>';
+		    					option+='<li class="act">$'+data[i].cost20p+'</li>';
+		    					option+='<li class="act">$'+data[i].cost40gpp+'</li>';
+		    					option+='<li class="act">$'+data[i].cost40hqp+'</li>';
+		    				option+=" </ul>";
+		    		if(data[i].islogin){
+		    			option+='<a class="layui-btn layui-btn-warm" style="width: 268px;font-size: 14px;color: #fff;line-height: 38px;" href = "tencent://message/?uin='+data[i].userqq+'&Site=Sambow&Menu=yes" target = "_blank">'+$.i18n.prop('请联系您的专属销售')+'</a>';
+		    		}else{
+		    			option+='<a class="layui-btn layui-btn-warm" style="width: 268px;font-size: 14px;color: #fff;line-height: 38px;" href = "./login.html">'+$.i18n.prop('请登录后联系您的专属销售')+'</a>';
+			    	}
+			    	option+="</div>";
+		    		option+="</div>";
+		    		option+="</div>";
+		    }
+		    $("#pricedetail").append(option);
+	  });
+	  $(document).on('mouseenter',".pricedetail_contont" , function(){
+		  $(this).find(".pricedetail_detail").css("-webkit-animation","myfirst 1s")
+		  $(this).find(".pricedetail_detail").css("bottom","0px")
+	  })
+	  $(document).on('mouseleave',".pricedetail_contont" , function(){
+		  $(this).find(".pricedetail_detail").css("bottom","-20px")
+	  })
+
+	  
+
+		//轮播
+	  carousel.render({
+	    elem: '#carouseNews'
+	    ,anim: 'fade'  
+    	,width: '100%'
+	    ,arrow: 'none'
+	  });
+
+	  actionGet('/webnews','queryList','page=1&limit=4',function(res){
+		    var jsonData = JSON.parse(res);
+	    	var json = jsonData.data;
+			$('#newslist').empty();
+			var html = '';
+		    //遍历 json 数组
+		  	for (var i in json) {
+		  		var title = json[i].title;
+		  		var subject = json[i].subject;
+		  		subject = subject.substring(0,100);
+
+		  		var imgUrl = json[i].imgurl;
+		  		if(imgUrl == null || imgUrl =='')imgUrl='./res/static/img/news/1.gif';
+
+		  		//imgUrl='./res/static/img/news_img1.jpg';
+		  		var inputtime = json[i].inputtime;
+		  		if(inputtime == null){
+		  			var myDate = new Date;
+		  		    var year = myDate.getFullYear(); //获取当前年
+		  		    var mon = myDate.getMonth() + 1; //获取当前月
+		  		    var date = myDate.getDate(); //获取当前日
+			  		inputtime= year + "-" + mon + "-" + date ;
+		  		}
+
+				html += '<div class="newsbox">	'; 
+				html += '   <div class="newstil">'; 
+				html += '   	<div class="layui-col-sm9">'; 
+				html += '   		<a href="newsDetail.html?id='+json[i].id+'" target="_blank">'+title+'</a>'; 
+				html += '   	</div>'; 
+				html += '   	<div class="layui-col-sm3">'; 
+				html += '   		<span style="float:right;">'+inputtime+'</span>'; 
+				html += '   	</div>'; 
+				html += '    </div>'; 
+				html += '</div>'; 
+		  	}
+			$('#newslist').append(html);
+	  });
+	 form.on('submit(queryfcl)',function (data){
+		 var pol = formSelects.value('checkbox_pol', 'valStr');
+		 var pod = formSelects.value('checkbox_pod', 'valStr');
+		 var carrier = formSelects.value('checkbox_carrier', 'valStr');
+		 if(pol == ''||pod== ''){
+			 layer.msg("起运港和目的港必填！", {icon: 7});
+			 return;
+		 }
+		 location.href='./queryfcl.html?pol='+pol+'&pod='+pod+'&carrier='+carrier;
+	 })
+	 form.on('submit(queryair)',function (data){
+		 var pol = formSelects.value('checkbox_airpol', 'valStr');
+		 var pod = formSelects.value('checkbox_airpod', 'valStr');
+		 var carrier = formSelects.value('checkbox_aircarrier', 'valStr');
+		 location.href='./qryair.html?pol='+pol+'&pod='+pod+'&carrier='+carrier;
+	 })
+	 form.on('submit(querytrain)',function (data){
+		 var pol = formSelects.value('checkbox_trainpol', 'valStr');
+		 var pod = formSelects.value('checkbox_trainpod', 'valStr');
+		 var carrier = formSelects.value('checkbox_traincarrier', 'valStr');
+		 location.href='./qrytrain.html?pol='+pol+'&pod='+pod+'&carrier='+carrier;
+	 })
+  });
+
+  $(function(){
+	  	$("#nav").load("./nav.html");
+		$("#footer").load("./footer.html");
+		initslider();
+		weinLogin();
+		
+  });
+
+  function createBooking(){
+	  var openLink = $("#qry");
+	  openLink.attr('href', './booking.html');
+	  openLink.attr('target', '_blank');
+	  openLink[0].click();
+  }
+
+	  
+</script>
+
+
+</body>
+</html>

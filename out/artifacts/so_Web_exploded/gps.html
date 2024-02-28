@@ -1,0 +1,250 @@
+<!DOCTYPE html> 
+<html>
+<head>  
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+<title>GPS Tracking</title>
+<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+<style type="text/css">  
+html{height:100%}  
+body{height:100%;margin:0px;padding:0px}  
+#container{height:100%}  
+input {
+       border: none;
+       line-height: inherit;
+       box-shadow: 0px 0px 3px #009688 inset;
+       background: #0d1c2f;
+   }
+</style>  
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=9xU3zEqlRAgQE7NgzctpaQIGHxi7o6Aq"/>
+
+
+<!-- v3.0版本的引用方式：src="http://api.map.baidu.com/api?v=3.0&ak=您的密钥" -->
+</script>
+</head>  
+ 
+<body>  
+<div id="container"></div> 
+
+<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+<script src="/so/res/layui/layui.js"></script>
+<script src="/so/res/static/js/jquery.min.js"></script>
+<script type="text/javascript" src="./admin/js/ufms.common.js?t=10" ></script>
+<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+
+<script type="text/javascript"> 
+
+function qry(){
+	$('#refno').val('39191703556');
+	$('#querydata').click();
+}
+
+
+layui.use(['form','jquery'], function(){
+	var form = layui.form,
+	layer = layui.layer,
+	$ = layui.$;
+	var map = new BMap.Map("container");
+	// 创建地图实例  
+	var point = new BMap.Point(76.973112,43.342532);
+	// 创建点坐标  
+	map.centerAndZoom(point, 5);
+	// 初始化地图，设置中心点坐标和地图级别  
+	map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+	map.addControl(new BMap.NavigationControl({
+		anchor: BMAP_ANCHOR_TOP_RIGHT
+	}));
+
+	//定义一个控件类,即function
+	function ZoomControl(){
+	  // 默认停靠位置和偏移量
+	  this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
+	  this.defaultOffset = new BMap.Size(50, 50);
+	}
+	
+	// 通过JavaScript的prototype属性继承于BMap.Control
+	ZoomControl.prototype = new BMap.Control();
+	
+	// 自定义控件必须实现自己的initialize方法,并且将控件的DOM元素返回
+	// 在本方法中创建个div元素作为控件的容器,并将其添加到地图容器中
+	ZoomControl.prototype.initialize = function(map){
+	  // 创建一个DOM元素
+	  var div = document.createElement("div");
+	  div.innerHTML += '<div class="layui-inline">'
+							+'<div class="layui-input-inline" style="width: 300px;">'
+							+	'<input id="refno" type="text" name="title" placeholder="请输入" autocomplete="off" class="layui-input">'
+							+'</div>'
+							+'<div class="layui-btn-group">'
+							+	'<button id="querydata" class="layui-btn"><i class="layui-icon layui-icon-search"></i></button>'
+							+	'<button id="querydataByTime" class="layui-btn">轨迹播放<i class="layui-icon layui-icon-play"></i></button>'
+							+'</div>'
+						+'</div>';
+	  // 添加DOM元素到地图中
+	  map.getContainer().appendChild(div);
+	  // 将DOM元素返回
+	  return div;
+	}
+	// 创建控件
+	var myZoomCtrl = new ZoomControl();
+	// 添加到地图当中
+	map.addControl(myZoomCtrl);
+	var points = [
+	      		{"longitude":116,"latitude":40,"url":"http://www.baidu.com","id":50,"refno":"p1"},
+	      		{"longitude":117,"latitude":31,"url":"http://www.taobao.com","id":2,"refno":"p2"},
+	      		{"longitude":116,"latitude":34,"url":"http://www.google.com","id":3,"refno":"p3"}
+	      		];
+	var bPoints = [];//百度化坐标数组。用于更新显示范围。
+		
+	function addMarker(points){// 创建图标对象   
+		bPoints = [];
+		console.dir(points);
+		map.clearOverlays();
+		var befrrPoint;
+		// 创建标注对象并添加到地图   
+		for(var i = 0,pointsLen = points.length;i <pointsLen;i++){
+			var point = new BMap.Point(points[i].longitude,points[i].latitude);	
+			var marker = new BMap.Marker(point);   
+			map.addOverlay(marker);
+			bPoints.push(new BMap.Point(points[i].longitude,points[i].latitude));
+			setZoom(bPoints); 
+			if(i>0){
+				var polyline = new BMap.Polyline([
+				                          		befrrPoint,
+				                          		new BMap.Point(points[i].longitude, points[i].latitude),
+				                          	], {strokeColor:"red", strokeWeight:5, strokeOpacity:0.8});   //创建折线
+	            map.addOverlay(polyline);   //增加折线
+			}
+			var thePoint = points[i]
+			if(i+1==pointsLen){
+				showInfo(marker,thePoint);
+			}
+			//给标注点添加点击事件。使用立即执行函数和闭包
+			(function() {
+				var thePoint = points[i];
+				marker.addEventListener("click",function(){
+					showInfo(this,thePoint);
+				});
+			})();
+			befrrPoint = new BMap.Point(points[i].longitude, points[i].latitude);
+		}
+		
+	}
+
+	//根据点信息实时更新地图显示范围，让轨迹完整显示。设置新的中心点和显示级别
+	function setZoom(bPoints){
+		var view = map.getViewport(eval(bPoints));
+		var mapZoom = view.zoom; 
+		var centerPoint = view.center; 
+		map.centerAndZoom(centerPoint,mapZoom);
+	}
+
+	addMarker(points);
+	//显示信息窗口，显示标注点的信息。
+	function showInfo(thisMaker,point){
+		var sContent =
+		'<ul style="margin:0 0 5px 0;padding:0.2em 0">'
+		+'<listyle="line-height: 26px;font-size: 15px;">位置信息</li>'
+		+'<li style="line-height: 26px;font-size: 15px;">'
+		+'<span style="width: 50px;display: inline-block;">设备：</span>' + point.refno + '</li>'
+		+'<li style="line-height: 26px;font-size: 15px;">'
+		+'<span style="width: 50px;display: inline-block;">经度：</span>' + point.longitude + '</li>'
+		+'<li style="line-height: 26px;font-size: 15px;">'
+		+'<span style="width: 50px;display: inline-block;">纬度：</span>' + point.latitude + '</li>'
+		+'<li style="line-height: 26px;font-size: 15px;">'
+		+'<span style="width: 150px;display: inline-block;">服务器时间(毫秒数)：</span>' + point.recvtime + '</li>'
+		+'<li style="line-height: 26px;font-size: 15px;">'
+		+'<span style="width: 140px;display: inline-block;">GPS时间(毫秒数)：</span>' + point.gpstime + '</li>'
+		+'<li style="line-height: 26px;font-size: 15px;">'
+		+'<span style="width: 100px;display: inline-block;"> 纬度修正值：</span>' + point.lat_xz + '</li>'
+		+'<li style="line-height: 26px;font-size: 15px;">'
+		+'<span style="width: 100px;display: inline-block;"> 经度修正值：</span>' + point.lng_xz + '</li>'
+		+'<li style="line-height: 26px;font-size: 15px;">'
+		+'<span style="width: 50px;display: inline-block;"> 速度：</span>' + point.speed + '</li>'
+		+'<li style="line-height: 26px;font-size: 15px;">'
+		+'<span style="width: 50px;display: inline-block;"> 方向：</span>' + point.direct + '</li>'
+		+'<li style="line-height: 26px;font-size: 15px;">'
+		+'<span style="width: 110px;display: inline-block;"> 文字位置信息：</span>' + point.info + '</li>'
+		+'<li style="line-height: 26px;font-size: 15px;"><span style="width: 50px;display: inline-block;">查看：</span><a target="_blank" href=""><font color="blue">详情</font></a></li>'
+		+'</ul>';
+		var infoWindow = new BMap.InfoWindow(sContent);  // 创建信息窗口对象
+	   	thisMaker.openInfoWindow(infoWindow);   //图片加载完毕重绘infowindow
+	}
+	$('#querydata').on('click', function(){
+		if($('#refno').val()!=''){
+			actionGet('/gps','gps','nos='+$('#refno').val(),function(data){
+				if(data == null || data == "")return;
+				if(typeof(data)==="string"){
+					data = JSON.parse(data);
+				}
+				console.log(data);
+				if(data){
+					addMarker(data)
+			   		points = data;
+				}
+			});
+		}else{
+			layer.msg('请先输入', {icon: 7});
+		}
+	});
+
+	$('#querydataByTime').on('click', function(){
+		if($('#querydataByTime i').attr('class')=='layui-icon layui-icon-pause'){
+			layer.msg('正在播放！', {icon: 5});
+			return;
+		}
+		addMarkerontime(points);
+	});
+
+	function addMarkerontime(points){// 创建图标对象   
+		bPoints = [];
+		console.dir(points);
+		map.clearOverlays();
+		var befrrPoint;
+		$('#querydataByTime i').attr('class','layui-icon layui-icon-pause');
+		// 创建标注对象并添加到地图   
+		for(var i = 0,pointsLen = points.length;i <pointsLen;i++){
+			var point = new BMap.Point(points[i].longitude,points[i].latitude);	
+			var marker = new BMap.Marker(point);
+			var wait = i*500;//等待时间
+			(function(j,pointsj,befrrPointv) {
+				setTimeout(function(){
+					var point = new BMap.Point(pointsj[j].longitude,pointsj[j].latitude);	
+					var marker = new BMap.Marker(point);
+					map.addOverlay(marker);
+					setZoom(bPoints); 
+					if(j>0){
+						var polyline = new BMap.Polyline([
+						                          		befrrPointv,
+						                          		point,
+						                          	], {strokeColor:"red", strokeWeight:5, strokeOpacity:0.8});   //创建折线
+			            map.addOverlay(polyline);   //增加折线
+					}console.log(j);
+					var thePoint = points[j];
+					if(i-1==j){
+						layer.msg('结束。', {icon: 1});
+						showInfo(marker,thePoint);
+						$('#querydataByTime i').attr('class','layui-icon layui-icon-play');
+					}
+					//给标注点添加点击事件。使用立即执行函数和闭包
+					marker.addEventListener("click",function(){
+						showInfo(this,thePoint);
+					});
+				},wait);
+			})(i,points,befrrPoint);
+			bPoints.push(point);
+			befrrPoint = new BMap.Point(points[i].longitude, points[i].latitude);
+		}
+	}
+
+	qry();
+});
+
+</script>  
+</body>
+</html>

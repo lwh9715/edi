@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="/so/res/static/css/index.css?t=13">
+	<link rel="stylesheet" href="/so/res/static/css/login.css?t=13">
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	
+	<script src="/so/res/layui/layui.js"></script>
+	
+	<script src="/so/admin/js/ufms.common.js?t=13" ></script>
+	<script src="/so/res/static/js/index.js?t=13"></script>
+	
+	<script src="/so/res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	
+</head>
+<body>
+
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  
+  <!-- nav二级部分 -->
+  <div class="nav_level2" id="nav_level2">
+  </div>
+
+
+
+<form class="layui-form" lay-filter="corpinv"> <!-- 提示：如果你不想用form，你可以换成div等任何一个普通元素 -->
+	<div class="layui-row" style="max-width: 1200px;">
+    	<div class="layui-col-lg12">
+    		<div class="layui-col-lg6">
+	    		<div class="layui-form-item">
+				    <label class="layui-form-label">中文全称</label>
+				    <div class="layui-input-block">
+				      <input type="text" name="invnamec" placeholder="" autocomplete="off" class="layui-input">
+				      <input type="text" name="id" placeholder="" autocomplete="off" class="layui-input layui-hide">
+				    </div>
+				 </div>
+				 <div class="layui-form-item">
+				    <label class="layui-form-label">英文全称</label>
+				    <div class="layui-input-block">
+				      <input type="text" name="invnamee" placeholder="" autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+				  <div class="layui-form-item">
+				    <label class="layui-form-label">电话</label>
+				    <div class="layui-input-block">
+				      <input type="tel1" name="licno" placeholder="" autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+				  <div class="layui-form-item">
+				    <label class="layui-form-label">税务登记号</label>
+				    <div class="layui-input-block">
+				      <input type="text" name="tel1" placeholder="" autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+				  <div class="layui-form-item">
+				    <label class="layui-form-label">公司地址</label>
+				    <div class="layui-input-block">
+				      <input type="tel1" name="addressc" placeholder="" autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+			</div>
+			<div class="layui-col-lg12">
+				 <div class="layui-form-item">
+				    <label class="layui-form-label">收件人地址及电话</label>
+				    <div class="layui-input-block">
+				      <input type="tel1" name="tel1andaddressc" placeholder="" autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+				  <div class="layui-form-item">
+				    <label class="layui-form-label">银行及账号</label>
+				    <div class="layui-input-block">
+				      <input type="tel1" name="bankandnumber" placeholder="" autocomplete="off" class="layui-input">
+				    </div>
+				  </div>
+				  <div class="layui-form-item">
+				    <div class="layui-input-block">
+				      <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="savedata" type="submit"><i class="layui-icon layui-icon-file"></i><span class="translate">保存</span></button>
+				    </div>
+				  </div>
+    		</div>
+    	</div>
+  </div>
+</form>
+ 
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+
+ 
+<script type="text/javascript">
+
+	$("#nav").load(getContextPath()+"/nav.html");
+	$("#nav_level2").load(getContextPath()+"/managernav.html");
+	$("#footer").load(getContextPath()+"/footer.html");
+	actionGet('index','checkLogin','',function(res){
+		 var data = JSON.parse(res);
+		 if(data.success){//如果登录了就把导航宽度拓展到100%
+			 $('#nav-logo').css({width: "1350px"});
+		 }
+	})
+
+  	
+  	layui.use(['form', 'jquery','i18np'], function(){
+           var form = layui.form,i18np=layui.i18np
+           i18np.translateOnForm(getLanguage());
+           //监听提交保存
+           form.on('submit(savedata)', function(data){
+             qryJson = JSON.stringify(data.field);
+             //console.dir(data.field);
+             actionPost('/corpinv','savecorpinv',qryJson,function(res){
+				    var data = JSON.parse(res);
+				    if(data.success == true){
+				    	layer.msg(data.message,{icon: 1});
+					}else{
+						layer.msg(data.message,{icon: 7});
+					}
+			 });
+             return false;
+           });
+           function getsyscorpinv(){
+        	   actionGet('/corpinv','getcorpinv','',function(res){
+				    var data = JSON.parse(res);
+				    form.val('corpinv',data);
+			   });
+           }
+		   $(function(){
+			   getsyscorpinv();
+	       });
+         });   
+</script>  
+ <!-- 底部结束 -->
+</body>
+</html>

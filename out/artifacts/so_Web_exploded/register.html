@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+    <meta name="description"
+          content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+    <meta name="author" content="Neo">
+    <meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+
+
+    <link rel="shortcut icon" href="favicon.ico"/>
+    <link rel="icon" type="image/gif" href="favicon.ico"/>
+    <title>SO.UFMS </title>
+
+    <link rel="stylesheet" href="./res/static/css/index.css?t=25">
+    <link rel="stylesheet" href="./res/static/css/login.css?t=13">
+
+    <link rel="stylesheet" href="/so/res/layui/css/layui.css">
+    <script src="/so/res/static/js/jquery.min.js"></script>
+
+    <script src="/so/res/layui/layui.js"></script>
+
+    <script src="./admin/js/ufms.common.js?t=13"></script>
+    <script src="./res/static/js/index.js?t=13"></script>
+    <script src="./res/layui/sliderVerify/sliderVerify.js?t=2"></script>
+
+    <script src="./res/static/js/jquery.cookie.js?t=1"></script>
+    <script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+    <script src="./res/static/js/verification.js"></script>
+
+</head>
+<body>
+
+<!-- nav部分 -->
+<div class="nav index" id="nav">
+</div>
+<!-- main -->
+<div class="main-news">
+    <div class="layui-container login-bg" style="width: 1300px !important;">
+        <div class="layui-row">
+            <div class="layui-col-xs12 layui-col-md6">
+                <div class="login-left">
+                    <img id="weblogoregist" alt="" src="./res/static/img/so_register.jpg"></img>
+                </div>
+            </div>
+            <div class="layui-col-xs12 layui-col-md6">
+                <div class="login">
+                    <form method="post" class="layui-form" id="form">
+                        <h3>注册</h3>
+
+                        <div class="layui-form-item" style="padding-top: 15px;">
+                            <label class="layui-form-label" style="line-height: 30px;">公司名称</label>
+                            <div class="layui-input-block">
+                                <input name="corpname" placeholder="" type="text" lay-verify="required" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="line-height: 30px;">用户名</label>
+                            <div class="layui-input-block">
+                                <input name="username" placeholder="" type="text" lay-verify="required" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="line-height: 30px;">联系人</label>
+                            <div class="layui-input-block">
+                                <input name="contacts" placeholder="" type="text" lay-verify="required" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="line-height: 30px;">邮箱</label>
+                            <div class="layui-input-block">
+                                <input name="email" placeholder="" type="text" lay-verify="required" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="line-height: 30px;">密码</label>
+                            <div class="layui-input-block">
+                                <input name="passwords" lay-verify="required" placeholder="" type="password" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="line-height: 30px;">确认密码</label>
+                            <div class="layui-input-block">
+                                <input name="passwords2" lay-verify="required" placeholder="" type="password" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="line-height: 30px;">手机</label>
+                            <div class="layui-input-block">
+                                <input name="tel" lay-verify="required" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-row">
+                                <div class="layui-col-xs7">
+                                    <input name="verification" lay-verify="required" placeholder="请输入验证码" type="text" class="layui-input">
+                                </div>
+                                <div class="layui-col-xs5">
+                                    <canvas id="canvas" width="120" height="43"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <input type="checkbox" name="isread" lay-skin="primary" title="已阅读条款">
+                                <a href="javascript:;" id="redclause" lay-filter="redclause">查看使用条款</a>
+                            </div>
+                        </div>
+                        <hr class="hr15">
+                        <div class="layui-form-item">
+                            <div class="layui-row">
+                                <div class="layui-col-xs8">
+                                    <button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="login" style="width:100%;"
+                                            type="submit">注册
+                                    </button>
+                                </div>
+                                <div class="layui-col-xs4">
+                                    <button type="button" class="layui-btn layui-btn-primary" style="width:80%;margin-left: 20px;" type="reset">重设
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="hr20">
+                        <div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- footer部分 -->
+<div class="footer" id="footer">
+</div>
+
+<!--[if lt IE 9]>
+<script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+<script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+<script type="text/javascript">
+    layui.config({
+        base: './res/static/js/'
+    }).use('firm');
+    layui.config({
+        base: './res/layui/sliderVerify/'
+    }).use(['sliderVerify', 'form', 'jquery'], function () {
+        var form = layui.form
+            , admin = layui.admin;
+        var sliderVerify = layui.sliderVerify,
+            form = layui.form;
+        var slider = sliderVerify.render({
+            elem: '#slider'
+            , bg: 'layui-bg-blue'
+        })
+        var show_num = [];
+        draw(show_num);
+        $("#canvas").on('click', function () {
+            draw(show_num);
+        })
+        //监听提交
+        form.on('submit(login)', function (data) {
+            var verification = data.field.verification;
+            var num = show_num.join("");
+            if (verification == '') {
+                alert('请输入验证码！');
+            } else if (verification == num) {
+                draw(show_num);
+            } else {
+                layer.msg('验证码错误！请重新输入！', {icon: 7});
+                $(".input-val").val('');
+                draw(show_num);
+                return;
+            }
+            if (data.field.isread == 'on') {
+            } else {
+                layer.msg("请先阅读使用条款!");
+                return;
+            }
+            qryJson = JSON.stringify(data.field);
+            $.ajax({
+                type: 'POST',
+                url: getContextPath() + "/login?method=register",
+                contentType: 'application/json',
+                data: qryJson,
+                dataType: "json",
+                success: function (res) {
+                    console.dir(res);
+                    if (res.success) {
+                        layer.confirm('注册成功，现在去登录吗？', {
+                            btn: ['去登录', '不登录'] //按钮
+                        }, function () {
+                            location.href = './login.html';
+                        }, function () {
+                            location.href = './register.html';
+                        });
+
+                    } else {
+                        layer.msg(res.message, {icon: 7});
+                    }
+                }
+            });
+            return false;
+        });
+        $("#redclause").click(function () {
+            actionGet('/login', 'termsofuse', '', function (res) {
+                layer.open({
+                    title: '使用条款',
+                    type: 1,
+                    //skin: 'layui-layer-rim', //加上边框
+                    area: ['600px', '700px'], //宽高
+                    content: res
+                });
+            })
+        })
+    });
+
+    $(function () {
+        $("#nav").load("./nav.html");
+        $("#footer").load("./footer.html");
+        getWebRegisterlogo(function (res) {
+            if (res != null && res != '') {
+                $('#weblogoregist').attr("src", res);
+            }
+        });
+    });
+</script>
+<!-- 底部结束 -->
+</body>
+</html>

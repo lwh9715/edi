@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layui</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <link rel="stylesheet" href="/so/res/layui/css/layui.css">
+  <script src="/so/res/layui/layui.js"></script>
+  
+  <script src="/so/res/static/js/jquery.min.js"></script>
+  
+  <script src="../../js/ufms.common.js?t=7" ></script>
+  <script src="../../js/ufms.gridform.js?t=7" ></script>
+	    
+
+</head>
+<body>
+  
+<div class="weadmin-body">
+	<div class="layui-row">
+		<form class="layui-form layui-col-md12 we-search" id="gridQry">
+			<div class="layui-inline">
+				<input class="layui-input" placeholder="标题"  name="title"/>
+			</div>
+			<div class="layui-inline">
+				<input class="layui-input" placeholder="摘要" name="subject"/>
+			</div>
+			<div class="layui-inline">
+				<input class="layui-input" placeholder="内容" name="content" />
+			</div>
+			<button class="layui-btn" onclick="search();return false;">搜索</button>
+		</form>
+	</div>
+	
+	<div id="grid"> 
+		<table class="layui-hide" id="grid"></table>
+	</div>     
+
+
+	<div id="editWindow" class="weadmin-body">
+		<form id="editForm" class="layui-form" lay-filter="formfilter">
+			<div class="layui-form-item">
+				<label for="L_username" class="layui-form-label">
+	                <span class="we-red">*</span>标题
+	            </label>
+				<div class="layui-input-inline">
+					<input type="text" id="title" name="title" lay-verify="required" autocomplete="off" class="layui-input" style="width: 780px">
+				</div>
+			</div>
+			
+			<div class="layui-form-item">
+				<label for="L_email" class="layui-form-label">
+	                <span class="we-red">*</span>摘要
+	            </label>
+				<div class="layui-input-inline">
+					<textarea id="subject" name="subject" lay-verify="required" autocomplete="" class="layui-input" style="width: 780px;height: 80px;"></textarea>
+				</div>
+			</div>
+			
+			<div class="layui-form-item">
+				<label for="L_email" class="layui-form-label">
+	                <span class="we-red">*</span>内容
+	            </label>
+				<textarea id="content" name="content" style="width: 780px;height: 480px;"></textarea>
+			</div>
+			
+			<div class="layui-btn-container"  style="padding-left: 100px">
+				<button class="layui-btn" lay-filter="save" lay-submit="">保存</button>
+				<button class="layui-btn" lay-filter="close" onclick="layer.close(index);return false;">关闭</button>
+				<input type="hidden" name="id" id="id" value="" />
+			</div>
+		</form>
+	</div>
+</div>  
+
+
+<style type="text/css">
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+ </style>   
+ 
+ <script type="text/html" id="toolbarGrid">
+  <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm" lay-event="refresh" onclick="tableIns.reload();">刷新</button>
+    <button class="layui-btn layui-btn-sm" lay-event="add" onclick="add();">新增</button>
+	<button class="layui-btn layui-btn-sm" lay-event="del">删除</button>
+  </div>
+</script>
+              
+
+ 
+<script>
+
+
+<!--
+
+var window_height = '600px';
+var window_width = '900px';
+
+var action = '/webnews';
+
+var gridDefine =
+		[[
+			{field:'index', width:60, title: '序号',fixed: 'left',templet:'#index'}
+           ,{field:'id', width:80, title: 'ID' , hide:true}
+           ,{field:'title', width:180, title: '标题'}
+           ,{field:'subject', width:220, title: '摘要', sort: true}
+           ,{field:'readcount', width:120, title: '阅读次数', sort: true}
+           ,{field:'inputer', width:120, title: '录入人', sort: true }
+           ,{field:'inputtime', width:180, title: '录入时间', sort: true}
+         ]];
+
+var index;
+var tableIns;
+
+layui.extend({
+	admin: '../../static/js/admin'
+});
+layui.use(['form', 'jquery', 'admin','layer','layedit'], function() {
+	var form = layui.form,
+	$ = layui.jquery,
+	admin = layui.admin,
+	layer = layui.layer;
+
+	gridInit();
+
+	//自定义验证规则
+	form.verify({
+		nikename: function(value) {
+			if(value.length < 5) {
+				return '昵称至少得5个字符啊';
+			}
+		}
+	});
+
+	//监听提交
+	form.on('submit(save)', function(data) {
+		console.log(data);
+		var layedit = layui.layedit;
+		var content = layedit.getContent(index);
+		//console.log('content:'+content);
+		data.field.content = content;
+		var jsonData = JSON.stringify(data.field);
+		console.log(jsonData);
+		$(this).attr("disabled","disabled");
+		$.ajax({
+			  type: 'POST',
+			  url: getContextPath()+action+'?method=saveObject',
+			  contentType:'application/json',
+			  data: jsonData,
+			  success: function(res){
+					layer.close(index);
+					tableIns.reload();
+			  }
+		});
+		return false;
+	});
+});
+
+var index = 0;
+function gridOnDblclickAfter(obj){
+	var layedit = layui.layedit;
+
+	layedit.set({
+		  uploadImage: {
+		    url: getContextPath()+action+'?method=uploadImg' //接口url
+		    ,type: 'post' //默认post
+		  }
+		});
+	//注意：layedit.set 一定要放在 build 前面，否则配置全局接口将无效。
+	
+	index = layedit.build('content', {
+		  height: 300 //设置编辑器高度
+	}); //建立编辑器
+}
+function addAfter(obj){
+	var layedit = layui.layedit;
+	index = layedit.build('content', {
+		  height: 300 //设置编辑器高度
+	}); //建立编辑器
+}
+
+
+--></script>
+
+<script type="text/html" id="index">
+{{d.LAY_TABLE_INDEX+1}}
+</script>
+
+</body>
+</html>

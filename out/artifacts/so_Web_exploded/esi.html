@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/layui/layui.js"></script>
+	
+	<link rel="stylesheet" href="./res/static/css/index.css?t=25">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="./admin/js/ufms.common.js?t=11" ></script>
+	<link rel="stylesheet" href="/so/res/static/css/bootstrap.min.css">
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	
+	<style type="text/css">
+		/*防止下拉框的下拉列表被表格隐藏-开始
+			.layui-table-cell{
+				overflow:visible
+			}
+			.layui-table-box{
+				overflow:visible
+			}
+			.layui-table-body{
+				overflow:visible
+			}*/
+			/*设置下拉框的高度和表格单元相同
+			.layui-table-box td .layui-form-select{
+				margin-top : -10px;
+				margin-left : -15px;
+				margin-right : -15px;
+			}*/
+		/*防止下拉框的下拉列表被隐藏-结束*/
+		
+		/*设置下拉框的高度和表格单元相同*/
+			.layui-table-box td .layui-form-select{
+				margin-top : -5px;
+				margin-left : -15px;
+				margin-right : -15px;
+			}
+		/**结束*/
+		
+		td .layui-table-cell{
+		    height:30px;
+		    font-family: Microsoft Yahei;
+    		font-size: 12px;
+    		line-height: 1.5;
+		}
+		
+		.title-hight{
+			font-size: 13px;
+    		font-weight: bold;
+		}
+		h5{
+			font: 12px/1.5 Tahoma,Helvetica,Arial,sans-serif;
+		}
+		body{
+			font: 12px/1.5 Tahoma,Helvetica,Arial,sans-serif;
+		}
+		.layui-form-radio *{
+		    font-size: 13px;
+		    font: 12px/1.5 Tahoma,Helvetica,Arial,sans-serif;
+		}
+	</style>
+</head>
+<body>
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  <!-- main -->
+  <div class="main-news">
+    <div class="layui-container">
+    
+    	<div style="padding-left: 10%;padding-right: 10%;padding-top: 2%;background-color: #F2F8Fa;">
+	    	<div class="layui-row  layui-col-space1">
+			    <div class="layui-col-lg3">
+			      <div class="layui-form-item" style="border: #E0F5F1 1px solid;">
+					    <label class="layui-form-label">BL No.</label>
+					    <div class="layui-input-block">
+					      	<input type="text" name="blno" class="layui-input">
+					    </div>
+				    </div>
+			    </div>
+			    <div class="layui-col-lg3">
+			      <div class="layui-form-item" style="border: #E0F5F1 1px solid;">
+				        <label class="layui-form-label">SO No.</label>
+				        <div class="layui-input-block">
+					     	<input type="text" name="sono" class="layui-input">
+					    </div>
+				    </div>
+			    </div>
+			    <div class="layui-col-lg3">
+			      <div class="layui-form-item">
+				        <div class="layui-input-block" style="margin-left:10px;">
+				            <button class="layui-btn layui-btn-normal" lay-submit="" lay-filter="query" onclick="search()">Search</button>
+				        </div>
+				    </div>
+			    </div>
+			</div>
+		</div>
+    
+    	<form id="shippingForm" class="layui-form" action="" lay-filter="esi" style="padding-top: 2%;padding-bottom: 5%;background-color: #f6f6f6;margin-top: 2%;">
+    	
+    	
+    		<div class="layui-row padding-bottom-10" style="border-style: ridge;border-width:1px;padding: 5px;">
+				<div class="layui-col-lg6">
+					<div class="layui-col-lg12">
+						<div>
+							<div><h5 style="color:red">发货人/SHIPPER</h5>
+								<textarea id="cnortitle" name="cnortitle" class="layui-textarea" onchange="this.value = this.value.toUpperCase();" style="height: 100px;" required lay-verify="required"></textarea> 
+							</div>
+							<div><h5>收货人 /Consignee<input type="checkbox" lay-skin="primary" lay-filter="checkbox_consignee"/> TO ORDER</h5>
+								<textarea id="cneetitle" layui-filter="consignee" name="cneetitle" class="layui-textarea" onchange="this.value = this.value.toUpperCase();" style="height: 100px;"></textarea> 
+							</div>
+							<div><h5>通知方 /Notify<input type="checkbox" lay-skin="primary" lay-filter="checkbox_notify" /> SAME AS CONSIGNEE</h5>
+								<textarea id="notifytitle" layui-filter="notify" name="notifytitle" class="layui-textarea" onchange="this.value = this.value.toUpperCase();" style="height: 100px;"></textarea> 
+							</div>
+						</div>
+					</div>
+					
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>收货地/PLACE OF RECEIPT</h5>
+								<input type="text" id="poa" name="poa"  class="layui-input"></input>
+							</div>
+							<div class="layui-col-lg6">
+								<h5>装货港/PORT OF LOADING</h5>
+								<input type="text" id="pol" name="pol"  class="layui-input"></input>
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>船名/VESSEL</h5>
+								<input type="text" id="vessel" name="vessel"  class="layui-input"></input>
+							</div>
+							<div class="layui-col-lg6">
+								<h5>航次/VOYAGE</h5>
+								<input type="text" id="voyage" name="voyage"  class="layui-input"></input>
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>卸货港/PORT OF DISCHARGE</h5>
+								<input type="text" id="pdd" name="pdd"  class="layui-input"></input> 
+							</div>
+							<div class="layui-col-lg6">
+								<h5>目的港/PLACE OF DELIVERY</h5>
+								<input type="text" id="pod" name="pod"  class="layui-input"></input> 
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="layui-col-lg6">
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>S/O NO.</h5>
+								<input type="text"  id="sono" name="sono" class="layui-input"></input>
+							</div>
+							<div class="layui-col-lg6">
+								<h5>B/L NO.</h5>
+								<input type="text"  id="nos" name="nos" class="layui-input" readonly="readonly"></input>
+							</div>
+						</div>
+					</div>
+					
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>运输条款/Trans Terms</h5>
+								<select name="carryitem" lay-verify="required" bind="combobox"></select>
+							</div>
+							<div class="layui-col-lg6">
+								<h5>运费条款/Freight Terms</h5>
+								<select name="freightitem" lay-verify="required" bind="combobox"></select>
+							</div>
+						</div>
+					</div>
+					<!--  
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<li><h5>HBL代理/FOR DELIVERY OF GOODS PLEASE APPLY TO:</h5>
+								<textarea class="layui-textarea" id="agentitle" name="agentitle" readonly="readonly"></textarea>
+							</li>
+						</div>
+					</div>
+					-->
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>FINAL DESTINATION</h5>
+								<!--<select name="destination" lay-verify="required" bind="combobox"></select>
+								-->
+								<input type="text" id="destination" name="destination"  class="layui-input"></input> 
+							</div>
+							<div class="layui-col-lg6">
+								<h5>付款地点/FREIGHT PAYABLE AT</h5>
+								<!--<select name="payplace" lay-verify="required" bind="combobox"></select>
+								-->
+								<input type="text" id="payplace" name="payplace"  class="layui-input"></input> 
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>提单类型/BillType</h5>
+								<select name="bltype" lay-filter="bltype">
+							        <option value="H">HBL</option>
+							        <option value="M">MBL</option>
+							    </select>
+							</div>
+							<div class="layui-col-lg6">
+								
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<li><h5>备注/Remarks</h5>
+								<textarea class="layui-textarea" id="claim_bill" name="claim_bill"></textarea>
+							</li>
+						</div>
+					</div>
+				</div>	
+			</div>
+			
+			<div class="layui-col-lg12">
+				<div class="layui-row" style="padding: 5px;">
+					<div class="layui-col-lg4" style="padding: 5px;">
+						<h5>标记与号码/MARKS & NO.
+						<input type="checkbox" name="isOneLine" lay-skin="primary" title="换行/New Line"/></h5>
+						<textarea class="layui-textarea"  id="marksno" name="marksno"></textarea>
+					</div>
+					<div class="layui-col-lg4" style="padding: 5px;">
+						<h5>货物描述/DESCRIPTIONS</h5>
+						<textarea class="layui-textarea"  id="goodsdesc" name="goodsdesc"></textarea>
+					</div>
+					<div class="layui-col-lg2" style="padding: 5px;">
+						<h5>毛重/KGS</h5>
+						<input class="layui-textarea"  id="grswgt" name="grswgt" ></input>
+					</div>
+					<div class="layui-col-lg2" style="padding: 5px;">
+						<h5>体积/CBM</h5>
+						<input class="layui-textarea"  id="cbm" name="cbm" ></input>
+					</div>
+				</div>
+			</div>
+			
+			<div class="layui-col-lg12">
+				<div class="layui-row" style="padding: 5px;">
+					<div class="layui-col-lg2">
+						<h5>合计箱数或柜数/</h5>
+     					<h5>TOTAL NUMBER OF CONT AINER OR PACKAGES(IN WORDS):</h5>
+					</div>
+					<div class="layui-col-lg10" style="padding: 5px;">
+						<input class="layui-textarea" id="totledesc" name="totledesc" readonly="readonly"></input>
+					</div>
+				</div>
+			</div>
+     	
+     	<!-- <table>
+     		<tr VALIGN="CENTER">
+     			<td width="20%">
+     				<h5>FERIGHT&CHARGE</h5>
+					<input class="layui-textarea" data-options="multiline:true,height:80,width:175" id="notifytitle" value="${shipping.notifytitle !""}"></input>
+     			</td>
+     			<td width="20%">
+     				<h5>REVENUE TONS</h5>
+					<input class="layui-textarea" data-options="multiline:true,height:80,width:175" id="notifytitle" value="${shipping.notifytitle !""}"></input>
+     			</td>
+     			<td width="20%">
+     				<h5>RATE</h5>
+					<input class="layui-textarea" data-options="multiline:true,height:80,width:175" id="notifytitle" value="${shipping.notifytitle !""}"></input>
+     			</td>
+     			<td width="20%">
+     				<h5>PREPAID</h5>
+					<input class="layui-textarea" data-options="multiline:true,height:80,width:175" id="notifytitle" value="${shipping.notifytitle !""}"></input>
+     			</td>
+     			<td width="20%">
+     				<h5>COLLECT</h5>
+					<input class="layui-textarea" data-options="multiline:true,height:80,width:175" id="notifytitle" value="${shipping.notifytitle !""}"></input>
+     			</td>
+     		</tr>
+     	</table> -->
+     	
+     	<div class="layui-col-lg6">
+			<div class="layui-row">
+				<div class="layui-col-lg6">
+					<h5>提单份数/NO. OF ORIGINAL B/L(S)</h5>
+					<select name="billcount" lay-verify="required" bind="combobox" disabled="disabled"></select>
+				</div>
+				<div class="layui-col-lg6">
+					<h5>签单地点/PLACE OF ISSUE</h5>
+					<select name="signplace" lay-verify="required" bind="combobox" disabled="disabled"></select>
+				</div>
+			</div>
+		</div>
+			
+     	
+     	<table class="layui-table cntdetail" lay-size="sm" id="cntdetail" lay-filter="cntdetail"></table>
+     	
+     	<div class="layui-form-item">
+		    <div class="layui-input-block">
+		      <button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="esisubmit">Submit</button>
+		      <input type="hidden" name="id" id="shipid"/>
+		      <input type="hidden" name="jobid" id="jobid"/>
+		    </div>
+		</div>
+  
+     </form>
+  </div>
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script type="text/html" id="toolbar">
+  <div class="layui-btn-container">
+	<button class="layui-btn layui-btn-sm  layui-btn-normal" type="button" lay-event="addcnt"><i class="layui-icon layui-icon-add-circle"></i>Add</button>
+	<button class="layui-btn layui-btn-sm  layui-btn-normal" type="button" lay-event="querycnt"><i class="layui-icon layui-icon-refresh-3"></i>Refresh</button>
+	<button class="layui-btn layui-btn-sm  layui-btn-normal" type="button" lay-event="chooseContainer"><i class="layui-icon layui-icon-ok"></i>Choose</button>
+	<button class="layui-btn layui-btn-sm  layui-btn-normal" type="button" lay-event="deletecnt"><i class="layui-icon layui-icon-delete"></i>Delete</button>
+  </div>
+</script>
+
+<script type="text/javascript">
+    var cntypeArr = [];
+    
+    actionGet('/combobox','cntype','',function(res){
+		var jsonData = JSON.parse(res);
+	    cntypeArr = jsonData;
+    });
+</script>
+
+<script>
+var action = '/esi';
+var form,table;
+layui.use(['jquery','layer','form','table','tablePlug','esiUtil'], function() {
+	$ = layui.jquery;
+	form = layui.form, tablePlug = layui.tablePlug,esiUtil = layui.esiUtil; //只有执行了这一步，部分表单元素才会自动修饰成功
+	form.render();
+	table = layui.table;
+	var detail = table.render({
+	    elem: '#cntdetail'
+	    //,url:getContextPath()+action+'?method=cntdetail'
+	    ,cellMinWidth: 80
+	    //,height: 332
+	    //,skin: 'nob'
+		,even:true
+	    ,cols: [[
+		   {type: 'checkbox', fixed: 'left'},
+	       {field:'id', width:80, title: 'ID',hide:true}
+	      ,{field:'cntypeid', width:110, title: 'Cnt Type', templet: '#selectTool'}
+	      ,{field:'cntno', width:140, title: 'Cnt No.', edit: 'text'}
+	      ,{field:'sealno', width:120, title: 'Seal No.', edit: 'text'}
+	      ,{field:'goodsnamee', width:120, title: 'Goods Name'
+		      ,templet : '<div><textarea style="padding:0px;margin-left:-15px;margin-right:-15px;width:120px" value="{{d.goodsnamee}}" class="layui-textarea">{{d.goodsnamee}}</textarea></div>'}
+	      ,{field:'markno', width:120, title: 'Mark No.'
+	    	  ,templet : '<div><textarea style="padding:0px;margin-left:-15px;margin-right:-15px;width:120px" value="{{d.markno}}" class="layui-textarea">{{d.markno}}</textarea></div>'}
+	      ,{field:'piece', title: 'Piece', width: 70, edit: 'text'}
+	      ,{field:'packagee', title: 'Package', width: 140, edit: 'text'}
+	      ,{field:'grswgt', title: 'WGT', width: 100, edit: 'text'}
+	      ,{field:'cbm', title: 'CBM', width: 100, edit: 'text'}
+	      ,{field:'hscode', title: 'HS Code', width: 110, edit: 'text'}
+	    ]]
+	    ,id: 'dataReload'
+	    ,toolbar: '#toolbar'
+	    ,defaultToolbar:[]
+	    ,response: {
+	      statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+	    }
+	    ,parseData: function(res){ //将原始数据解析成 table 组件所规定的数据
+	      return {
+	        "code": 200, //解析接口状态
+	        "msg": "", //解析提示文本
+	        "count": res.total, //解析数据长度
+	        "data": res.data //解析数据列表
+	      };
+	    }
+	    , done: function(res, curr, count){
+	    	setTimeout("$('div[lay-id=\"cntdetail\"] .layui-form-select').css({'margin-top':'-10px','margin-left':'-15px','margin-right':'-15px'});",100);
+	    	
+		}
+	});
+
+	//监听单元格编辑
+	table.on('edit(cntdetail)', function(obj){
+	  var value = obj.value //得到修改后的值
+	  ,data = obj.data //得到所在行所有键值
+	  ,field = obj.field; //得到字段
+	  console.log('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
+	});
+
+	
+
+	$('select[bind=combobox]').each(function(index,element){
+		var name = element.name;
+		actionGet('/combobox',name,'',function(res){
+		    var data = JSON.parse(res);
+		    for(var i=0; i<data.length; i++){
+		    	var option="<option value=\""+data[i].val+"\""+">"+data[i].label+"</option>"; //动态添加数据
+		    	$("select[name="+name+"]").append(option);
+		    }
+		    form.render('select','esi');
+	    });
+	});
+
+	var args = location.search.replace('?','&');
+	function getEsiInfo(){
+		actionGet(action,'esiInfo',args,function(res){
+		    var jsonData = JSON.parse(res);
+		    console.dir(jsonData);
+		    if(jsonData.error){
+			    //$('#shippingForm').remove();
+		    	layer.alert(jsonData.error, {icon: 2});
+		    	return;
+			}
+		  	form.val('esi',jsonData);
+		  	querycnt();
+	    });
+	};
+	getEsiInfo();
+	//监听提交
+	form.on('submit(esisubmit)', function(data){
+		data.field.cntarray = table.cache.dataReload;
+	    jsonData = JSON.stringify(data.field);
+	    console.log(jsonData);
+	    actionPost('esi','esisubmit',jsonData,function(res){
+	    	var resjson = JSON.parse(res);
+	    	if(resjson.success == true){
+	    		layer.msg(resjson.msg,{icon: 1});
+	    	}else{
+  				layer.msg(resjson.msg,{icon: 7});
+  			}
+	    });
+	    return false;
+	});
+	//头工具栏事件
+	table.on('toolbar(cntdetail)', function(obj){
+		var checkStatus = table.checkStatus(obj.config.id);
+	    switch(obj.event){
+	      case 'querycnt':
+	    	  querycnt();
+	      break;
+	      case 'deletecnt':
+	    	  var data = checkStatus.data;
+		      if(data.length<1){
+		      	layer.msg("Please choose one row!",{icon: 5});
+		        	return;
+			  };
+			  actionGet('/esi','deletecnt',"cntids="+getids(data),function(res){
+	    		  var jsonData = JSON.parse(res);
+	    		  if(jsonData.error){
+	    			  if(jsonData.error != ''){
+	    			    	layer.alert(jsonData.error, {icon: 7});
+	    			  }return;
+	    		  }
+	              if (checkStatus.data.length < 1) {
+	                  layer.alert("Please choose one row!");
+	                  return false;
+	              } else {
+	                  cbList = table.cache.dataReload;
+	                  for (var k = 0; k < checkStatus.data.length; k++) {
+	                      var _delId = checkStatus.data[k].id;
+	                      for (var i = 0; i < cbList.length; i++) {
+	                          var _id = cbList[i].id;
+	                          if (_id == _delId) {
+	                              cbList.splice(i, 1);
+	                              break;
+	                          }
+	                      }
+	                  }
+	                  table.reload("dataReload", {
+	                	  url:"",
+	                      data: cbList
+	                  })
+	              }
+	              layer.msg("OK!",{icon: 1});
+	    		  //querycnt();
+	    	  });
+		  break;
+	      case 'addcnt':
+		      var datas = []
+		      var tabledata = table.cache.dataReload;
+		      if(tabledata!=null){
+				for(var i=0;i<tabledata.length;i++){
+					datas.push(tabledata[i]);
+				}
+			  }
+		      datas.push({   
+	    	    "id": -1
+	    	    ,"cntypeid": cntypeArr[1].val
+	    	    ,"cntno": ""
+	    	    ,"sealno": ""
+	    	    ,"piece": null
+	    	    ,"packagee": ""
+	    	    ,"grswgt": null
+	    		,"cbm": null
+	    		,"hscode": ""
+		    	,"goodsnamee":""
+			    ,"markno":""
+	    	  });
+		      table.reload('dataReload', {
+		    	  url:"",
+		         data:datas
+		      });
+		  break;
+	      case 'chooseContainer':
+	    	  var tabledata = table.cache.dataReload;
+	    	  if (checkStatus.data.length < 1) {
+                  layer.alert("Please choose one row!");
+                  return false;
+              }
+	    	  esiUtil.chooseContainer();
+              /*
+              var cntids = '';
+		      if(tabledata!=null){
+			    if($('#shipid').val() == ""){
+			    	layer.alert("请先保存");
+	                return false;
+				}
+				for(var i=0;i<tabledata.length;i++){
+					if(tabledata[i].id < 0){
+						layer.alert("请先保存！");
+		                return false;
+					}
+					if(tabledata[i].LAY_CHECKED == true){
+						cntids = cntids+tabledata[i].id+',';
+					}
+				}
+			  }
+		      var para = new Object;
+			  para.jobid = $('#jobid').val();
+			  para.cntids = cntids;console.dir(form.val("esi").isOneLine);
+			  para.isOneLine = form.val("esi").isOneLine==null?"":form.val("esi").isOneLine;
+		      actionPost('/esi','chooseContainer',JSON.stringify(para),function(res){
+		    		var resjson = JSON.parse(res);
+		        	if(resjson.success == true){
+		        		layer.msg("OK",{icon: 1});
+		        		if($('input[name="blno"]').val() == '' && $('input[name="sono"]').val() == ''){
+		        			getEsiInfo();
+			        	}else{
+		        			search();
+			        	}
+		        	}else{
+						layer.msg(resjson.msg,{icon: 7});
+					}
+		      })
+		      */
+		  break;
+	    };
+	    //fixeditselect();
+	});
+
+	// 监听表格中的下拉选择将数据同步到table.cache中
+    form.on('select(selectCntype)', function (data) {
+      var selectElem = $(data.elem);
+      var tdElem = selectElem.closest('td');
+      var trElem = tdElem.closest('tr');
+      var tableView = trElem.closest('.layui-table-view');
+      table.cache[tableView.attr('lay-id')][trElem.data('index')][tdElem.data('field')] = data.value;
+    });
+
+    $(document).on('blur','div[lay-id=dataReload] textarea' , function(){
+    	var tdElem = $(this).closest('td');
+        var trElem = tdElem.closest('tr');
+        var tableView = trElem.closest('.layui-table-view');
+        table.cache[tableView.attr('lay-id')][trElem.data('index')][tdElem.data('field')] = $(this).val();
+    });
+});
+function getids(arrjson){
+	var ids ="";
+	for(var i=0;i<arrjson.length;i++){
+		if(i==0){	
+			ids=arrjson[i].id;
+    	}else{
+			ids=ids+","+arrjson[i].id;
+		}
+    }
+    return ids;
+};
+
+
+function search(){
+	var args = 'blno='+$('input[name="blno"]').val()+'&sono='+$('input[name="sono"]').val();
+	actionGet('/esi','search',args,function(res){
+		var jsonResult = JSON.parse(res);
+		//console.log(jsonResult);
+	    if(!jsonResult.success){
+		    //$('#shippingForm').remove();
+		    if(jsonResult.message != ''){
+		    	layer.alert(jsonResult.message, {icon: 2});
+		    }
+	    	return;
+		}
+	    var jsonData = JSON.parse(jsonResult.data);
+		if(!jsonData.success){
+			if(jsonData.message != ''){
+				if(jsonData.message == 'NoRow'){
+					layer.alert('没有找到信息，请重新输入! No Data,Please check!', {icon: 2});
+					return;
+				}
+		    }
+		}
+		//console.log(jsonData);
+	    form.val('esi',jsonData);
+	    querycnt();
+    });
+}
+
+function querycnt(){
+  	table.reload('dataReload', {
+  		url:getContextPath()+action+'?method=cntdetail',
+        where: {
+			jobid: $('#jobid').val()
+		}
+     });
+  	//fixeditselect();
+}
+function fixeditselect(){
+	$('td[data-field="cntypeid"] .layui-form-select').css('margin-top','-10px');
+	$('td[data-field="cntypeid"] .layui-form-select').css('margin-left','-15px');
+	$('td[data-field="cntypeid"] .layui-form-select').css('margin-right','-15px');
+}
+
+
+
+//$("#nav").load("./nav.html");
+$("#nav").hide();
+$("#footer").load("./footer.html");
+$("td").attr("valign","top");
+$(".layui-col-lg6").css("padding","2px");
+$(".layui-col-lg4").css("padding","2px");
+
+</script>
+
+<script type="text/html" id="selectTool">
+	    <select name="cntype" dataId="{{d.id}}" lay-filter="selectCntype" lay-search>
+	        {{# layui.each(cntypeArr, function(index, item){}}
+	        	<option value={{item.val}} {{ (d.cntypeid==item.val)?'selected' : '' }}>{{ item.label }}</option>
+	        {{# }); }}
+	    </select>
+</script>
+</body>
+</html>

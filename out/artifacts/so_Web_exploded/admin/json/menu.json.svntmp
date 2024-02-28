@@ -1,0 +1,65 @@
+{
+	"status": 0,
+	"msg": "ok",
+	"data": [{
+			"id": 1,
+			"name": "会员管理",
+			"icon": "&#xe6b8;",
+			"url": "",
+			"children": [{
+				"id": 2,
+				"name": "会员列表",
+				"icon": "",
+				"url": "./pages/member/list.html"
+			}, {
+				"id": 3,
+				"name": "会员删除",
+				"icon": "",
+				"url": "./pages/member/del.html"
+			}, {
+				"id": 4,
+				"name": "会员管理",
+				"icon": "&#xe70b;",
+				"url": "",
+				"children": [{
+					"id": 5,
+					"name": "输入框操作",
+					"icon": "",
+					"url": "./pages/member/addInput.html"
+				}, {
+					"id": 6,
+					"name": "三级菜单演示",
+					"icon": "",
+					"url": "./pages/404.html"
+				}, {
+					"id": 7,
+					"name": "导航菜单演示",
+					"icon": "&#xe70b;",
+					"url": "./pages/404.html"
+				}]
+			}]
+		},
+		
+		{
+			"id": 11,
+			"name": "新闻管理",
+			"icon": "&#xe723;",
+			"url": "",
+			"children": [{
+				"id": 12,
+				"name": "新闻",
+				"icon": "",
+				"url": "./pages/news/newsmgr.html"
+			}
+			,{
+				"id": 1201,
+				"name": "港口",
+				"icon": "",
+				"url": ""
+			}
+			]
+		}
+		
+		
+	]
+}

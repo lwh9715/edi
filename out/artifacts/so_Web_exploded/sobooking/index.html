@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO Booking </title>
+	
+	<link rel="stylesheet" href="/so/res/static/css/index.css?t=31">
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<link rel="stylesheet" href="/so/res/layui/layui-formSelects/formSelects-v4.css">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	
+	<script src="/so/res/layui/layui.js"></script>
+	<script src="/so/res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="/so/admin/js/ufms.common.js?t=13" ></script>
+	<script src="/so/res/static/js/index.js?t=14"></script>
+	<script src="/so/res/static/js/xm-select.js?t=1"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	<style type="text/css">
+		.layui-tab-title .layui-this{
+			background-color: #1e9fff;
+    		color: #fff;
+		}
+		
+		.layui-tab-title li{
+			font-size:18px
+		}
+		
+		/*运价推荐下信息样式*/
+		.pricedetail_contont{
+			overflow: hidden;position: relative;
+		}
+		.pricedetail_detail{
+			background-color: rgba(0,0,0,0.5);
+			bottom: -20px;
+			position: absolute;
+			width:100%;
+			height: 40px;
+		}
+		.pricedetail_detail p{
+			font-size: 12px;
+			color:#fff;
+			line-height: 18px;
+		}
+		@-webkit-keyframes myfirst /* Safari 和 Chrome */{
+			from {bottom: -20px;}
+			to {bottom: 0px;}
+		}
+		/**/
+	</style>
+</head>
+<body>
+
+  <!-- nav部分 -->
+  <div class="nav index" id="nav">
+  </div>
+  <!-- banner部分 -->
+  <div>
+    <div class="layui-carousel" id="banner" >
+      <div carousel-item>
+      	<div>
+          <img src="../res/static/img/banner/6.jpg">
+        </div>
+        <div>
+          <img src="../res/static/img/banner/banner2.jpg">
+        </div>
+       </div>
+    </div>
+    
+    <div class="panel penel1-style" style="margin-top: -480px;">
+       <form class="layui-form form-style" lay-filter="formFilter">
+	       <div class="layui-tab">
+			  <ul class="layui-tab-title">
+			  	<li class="layui-this"><span class="translate">找现舱</span></li>
+			    <li><span class="translate">找货盘</span></li>
+			  </ul>
+			  <div class="layui-tab-content">
+			    <div class="layui-tab-item layui-show">
+			    	<div class="layui-form-item" >
+					    <label class="layui-form-label"><span class="translate">起运港</span></label>
+					    <div class="layui-input-block">
+					      <select id="pol" name="pol" lay-search="" xm-select="checkbox_pol" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+					         <option value=""><span class="translate">选择起运港</span></option>
+					      </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item"  >
+				        <label class="layui-form-label"><span class="translate">目的港</span></label>
+				        <div class="layui-input-block">
+					      <select id="pod" name="pod" lay-search="" xm-select="checkbox_pod" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+					         <option value="">选择目的港</option>
+					      </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item">
+				    	<button type="button" class="layui-btn layui-btn-normal layui-btn-fluid" lay-submit="" lay-filter="querySoBooking"><i class="layui-icon layui-icon-search"><span class="translate">找现舱</span></i></button>
+				    </div>
+			    </div>
+			    <div class="layui-tab-item">
+			    	<div class="layui-form-item" >
+					    <label class="layui-form-label">起运港</label>
+					    <div class="layui-input-block">
+					       <select id="pol_rso" name="pol_rso" lay-search="" xm-select="checkbox_pol_cp" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+						        <option value="">选择起运港</option>
+						   </select>
+					    </div>
+				    </div>
+				    <div class="layui-form-item" >
+				        <label class="layui-form-label">目的港</label>
+				        <div class="layui-input-block">
+					      <select id="pod_rso" name="pod_rso" lay-search="" xm-select="checkbox_pod_cp" xm-select-search="" xm-select-radio="" xm-select-skin="normal" m-select-height="36px">
+					         <option value="">选择目的港</option>
+					      </select>
+					    </div>
+				    </div>
+					
+				    <div class="layui-form-item">
+				         <button type="button" class="layui-btn layui-btn-normal layui-btn-fluid" lay-submit="" lay-filter="queryCargoPallet"><i class="layui-icon "><span class="translate">找货盘</span></i></button>
+				    </div>
+			    </div>
+			  </div>
+			</div>
+	</form>
+ </div>
+    
+    
+    
+  </div>
+  <!-- main部分 -->
+  <div class="main-product">
+    <div class="layui-container">
+       <h4><span class="translate">最新现舱</span></h4>
+      	<div class="layui-row layui-col-space25" id="pricedetail">
+        </div>
+        <table class="layui-table" id="datetable" lay-filter="datetable"></table>
+        
+        <h4><span class="translate">最新货盘</span></h4>
+        <table class="layui-table" id="table_cargo_pallet" lay-filter="table_cargo_pallet"></table>
+    </div>
+  </div>
+  <div class="main-service">
+    <div class="layui-container">
+      <!--<p class="title"><span>资讯</span></p>
+      --><h4><span class="translate">资讯</span></h4>
+      <div class="layui-row layui-col-space25 layui-col-space80">
+        <div class="layui-col-sm8">
+         	<div class="layui-carousel" id="carouseNews" lay-filter="carouseNews" style="padding-top:0;">
+			  <div carousel-item="">
+			    	<div>
+			          <img src="/so/res/static/img/banner/web_banner2.jpg" >
+			        </div>
+			        <div>
+			          <img src="/so/res/static/img/banner/web_banner1.jpg">
+			        </div>
+			  </div>
+			</div>
+        </div>
+        <div class="layui-col-sm4">
+          	<div class="news" id="newslist">
+          	</div>	
+        </div>
+      </div>
+      <!--<div class="service-more"><a href="https://promotion.aliyun.com/ntms/yunparter/invite.html?userCode=mda5msfo" target="_blank"><img src="./res/static/img/aly/bottom.png"></a></div>-->
+      <!--<div class="service-more"><a href="">查看更多</a></div>
+    -->
+    </div>
+    </div>
+    <div class="main-product">
+    	<div class="layui-container"> 
+	    	<!--<p class="title"><span class="translate">合作伙伴</span></p>
+		    <div class="wrap">
+			  <ul>
+			  </ul>
+			</div> 
+		--></div> 
+	</div>
+	 
+  
+ <!-- footer部分 -->
+  <div class="footer" style="background: #044fb2;" id="footer">
+  </div>
+  
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script>
+	var demo1 = xmSelect.render({
+	    el: '#demo1', 
+	    language: 'zn',
+	    data: [
+	        {name: '', value: 1}
+	    ]
+	})
+  
+  layui.use(['form','formSelects','carousel','table', 'laydate'], function(){
+	  var form = layui.form
+	  ,formSelects = layui.formSelects
+	  ,table = layui.table
+	  ,laydate = layui.laydate
+	  ; //只有执行了这一步，部分表单元素才会自动修饰成功
+	  var carousel = layui.carousel;
+	  form.render();
+	  randerfromselect('/sobooking','sopol?type=ship','checkbox_pol',formSelects,false);
+	  randerfromselect('/sobooking','sopod?type=ship','checkbox_pod',formSelects,false);
+	  randerfromselect('/sobooking','sopol?type=ship','checkbox_pol_cp',formSelects,false);
+	  randerfromselect('/sobooking','sopod?type=ship','checkbox_pod_cp',formSelects,false);
+
+	   //日期
+	  laydate.render({
+	    elem: '#cls'
+	  });
+	  laydate.render({
+	    elem: '#etd'
+	  });
+	  
+	  table.render({
+		     elem: '#datetable'
+		    ,url:getContextPath()+"/sobooking?method=sobookinghomepage"+getSid()
+		    ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+		    //,height: 380
+		    ,skin: 'nob'
+		    ,even:true
+		    ,limit:20
+		    ,cols: [[
+				//{type: 'checkbox', fixed: 'left'},
+				{field:'id',width:100,title:'ID',hide:true}
+				,{field:'polpod', width:160, title: '起运港/目的港',align:"left",templet:"#routevtemp"}
+				,{field:'carrier', width: 90, title: '船公司', align:"left"}
+				,{field:'clsetd', width:110, title: '截关/ETD', sort: true,align:"center"}
+				,{field:'cntdesc', width:90, title: "舱位", sort: true,align:"right",style:"color:#ff9900;font-weight:bolder"}
+				,{field:'contacter', width:120, title: '联系人',align:"center"}
+				,{field:'tel', width:120, title: '电话',align:"center"}
+				,{field:'qq', width:120, title: 'QQ',align:"center"}
+				,{field:'remarks', width:115, title: '备注',align:"center"}
+				,{field:'corpname', minWidth:120, title: '公司名',align:"center"}
+		    ]]
+		    ,id: 'dataReload'
+		    ,title:'现舱列表'
+		    ,page: {theme: '#1e9fff'}
+	    	,text: {
+	        	none: '请点击查询'
+	      	}
+			,done: function (res, curr, count) {
+			    $('th').css({'background-color': '#044F82', 'color': 'white','line-height': '38px'});
+			    $("#datetable").parent().find('table').eq(2).find('tr').find("td:eq(2) div").css('line-height','20px')//把第一列起运港/目的港的文字行高搞成20PX
+			    $('tr').click(function(){$('tr').css('background-color','');$(this).css('background-color','#fdf5e3')});
+		    }
+	  });
+
+	  
+	  table.render({
+		     elem: '#table_cargo_pallet'
+		    ,url:getContextPath()+"/cargopallet?method=cargopallethomepage"+getSid()
+		    ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+		    //,height: 380
+		    ,skin: 'nob'
+		    ,even:true
+		    ,limit:20
+		    ,cols: [[
+				{field:'id',width:100,title:'ID',hide:true}
+				,{field:'polpod', width:160, title: '起运港/目的港',align:"left",templet:"#routevtemp"}
+				,{field:'cntinfo', width:160, title: "货盘类型/货量", sort: true,align:"left",style:"color:#ff9900;font-weight:bolder"}
+				,{field:'etdinfo', width:120, title: '预计出运日', sort: true, align:"center"}
+				,{field:'goodsdesc', width:120, title: '货物描述', sort: true, align:"center"}
+				
+				,{field:'contacter', width:120, title: '联系人',align:"center"}
+				,{field:'tel', width:120, title: '电话',align:"center"}
+				,{field:'qq', width:120, title: 'QQ',align:"center"}
+				,{field:'remarks', width:115, title: '备注',align:"center"}
+				,{field:'corpname', minWidth:100, title: '公司名',align:"center"}
+		    ]]
+		    ,id: 'dataReloadCargoPallet'
+		    ,title:'货盘列表'
+		    ,page: {theme: '#1e9fff'}
+	    	,text: {
+	        	none: '请点击查询'
+	      	}
+			,done: function (res, curr, count) {
+			    $('th').css({'background-color': '#044F82', 'color': 'white','line-height': '38px'});
+			    $("#datetable").parent().find('table').eq(2).find('tr').find("td:eq(2) div").css('line-height','20px')//把第一列起运港/目的港的文字行高搞成20PX
+			    $('tr').click(function(){$('tr').css('background-color','');$(this).css('background-color','#fdf5e3')});
+		    }
+	  });
+
+	  //首页最上面banner轮播
+	  actionGet('/index','getWebBanner','key=webbanner',function(res){
+		    var data = JSON.parse(res);
+		    if(data.label == ''){
+		    }else{
+		    	console.log(data);
+		    	$('#banner div').eq(0).empty();
+		    	//$('#banner div').eq(0).append('<div><img src="./res/static/img/banner/1.jpg"></div>');
+		    	//$('#banner div').eq(0).append('<div><img src="./res/static/img/banner/11.png"></div>');
+		    	for(var i=0; i<data.length; i++){
+		    		$('#banner div').eq(0).append('<div><img src="'+data[i].filename+'" style="width: 100%;"></div>');
+			    }
+		    	carousel.render({
+		    	    elem: '#banner'
+		    	    ,width: '100%'
+		    	    ,height: '898px'
+		    	    ,arrow: 'always'
+		    	});
+			}
+	  });
+
+
+	  //新闻部分小banner轮播
+	  actionGet('/index','getWebBanner','key=webbanner',function(res){
+		    var data = JSON.parse(res);
+		    console.log(data);
+		    if(data.label == ''){
+		    }else{
+		    	console.log(data);
+		    	$('#carouseNews div').eq(0).empty();
+		    	for(var i=0; i<data.length; i++){
+		    		$('#carouseNews div').eq(0).append('<div><img src="../'+data[i].filename+'" style="width: 100%;"></div>');
+			    }
+		    	carousel.render({
+		    	    elem: '#carouseNews'
+		    	});
+		    	$('#carouseNews').css('width','100%').css('height','408px');
+			}
+	  });
+	  	    
+	  actionGet('/sobooking','sobookinghomepage','',function(res){
+		    var data = JSON.parse(res);
+		    var option = "";
+		    for(var i=0; i<data.length; i++){
+		    		option+='<div class="layui-col-sm6 layui-col-md3" style="padding: 2.5px;" >';
+		    		option+='<div class=\"content\" >';
+		    		option+='<div class="pricedetail_contont" style=""><img width="285px" src="./res/static/img/price/index1.png">';
+		    		option+='<div class="pricedetail_detail"><p>'+$.i18n.prop('截关/开航/航程')+'：'+data[i].tt+$.i18n.prop('天')+'</p><p>'+$.i18n.prop('船公司')+'：'+data[i].tt+'</p></div>'
+		    		option+='</div>';
+		    		option+='<div>';
+		    			option+='<span>'+data[i].pol+'-'+data[i].pod+'</span>';
+		    				option+='<ul>';
+		    					option+='<li class="act" style="width:49%;">现成舱位</li>';
+		    					option+='<li class="act" style="width:49%;">'+'1*40HQ'+'</li>';
+		    					option+='<li class="act" style="width:49%;">截关</li>';
+		    					option+='<li class="act" style="width:49%;">'+'2020-11-28'+'</li>';
+		    				option+=" </ul>";
+		    		
+		    			option+='<a class="layui-btn layui-btn-warm" style="width: 268px;font-size: 14px;color: #fff;line-height: 38px;" href = "tencent://message/?uin='+data[i].userqq+'&Site=Sambow&Menu=yes" target = "_blank">'+'Tel:999  QQ：111'+'</a>';
+		    		
+			    	option+="</div>";
+		    		option+="</div>";
+		    		option+="</div>";
+		    }
+		    $("#pricedetail").append(option);
+	  });
+	  $(document).on('mouseenter',".pricedetail_contont" , function(){
+		  $(this).find(".pricedetail_detail").css("-webkit-animation","myfirst 1s")
+		  $(this).find(".pricedetail_detail").css("bottom","0px")
+	  })
+	  $(document).on('mouseleave',".pricedetail_contont" , function(){
+		  $(this).find(".pricedetail_detail").css("bottom","-20px")
+	  })
+
+		//轮播
+	  carousel.render({
+	    elem: '#carouseNews'
+	    ,anim: 'fade'  
+    	,width: '100%'
+	    ,arrow: 'none'
+	  });
+
+	  actionGet('/webnews','queryList','page=1&limit=4',function(res){
+		    var jsonData = JSON.parse(res);
+	    	var json = jsonData.data;
+			$('#newslist').empty();
+			var html = '';
+		    //遍历 json 数组
+		  	for (var i in json) {
+		  		var title = json[i].title;
+		  		var subject = json[i].subject;
+		  		subject = subject.substring(0,100);
+
+		  		var imgUrl = json[i].imgurl;
+		  		if(imgUrl == null || imgUrl =='')imgUrl='/so/res/static/img/news/1.gif';
+
+		  		//imgUrl='./res/static/img/news_img1.jpg';
+		  		var inputtime = json[i].inputtime;
+		  		if(inputtime == null){
+		  			var myDate = new Date;
+		  		    var year = myDate.getFullYear(); //获取当前年
+		  		    var mon = myDate.getMonth() + 1; //获取当前月
+		  		    var date = myDate.getDate(); //获取当前日
+			  		inputtime= year + "-" + mon + "-" + date ;
+		  		}
+
+				html += '<div class="newsbox">	'; 
+				html += '   <div class="newstil">'; 
+				html += '   	<div class="layui-col-sm9">'; 
+				html += '   		<a href="newsDetail.html?id='+json[i].id+'" target="_blank">'+title+'</a>'; 
+				html += '   	</div>'; 
+				html += '   	<div class="layui-col-sm3">'; 
+				html += '   		<span style="float:right;">'+inputtime+'</span>'; 
+				html += '   	</div>'; 
+				html += '    </div>'; 
+				html += '</div>'; 
+		  	}
+			$('#newslist').append(html);
+	  });
+	 form.on('submit(querySoBooking)',function (data){
+		 table.reload('dataReload', {
+		        page: {
+		          curr: 1 //重新从第 1 页开始
+		        }
+		  		,text: {
+		        	none: ''
+		      	}
+		        ,where: {
+		  		     pol: formSelects.value('checkbox_pol', 'valStr')
+		  	  		,pod: formSelects.value('checkbox_pod', 'valStr')
+		        }
+		     });
+	 })
+	form.on('submit(queryCargoPallet)',function (data){
+		table.reload('dataReloadCargoPallet', {
+	        page: {
+	          curr: 1 //重新从第 1 页开始
+	        }
+	  		,text: {
+	        	none: ''
+	      	}
+	        ,where: {
+	  		     pol: formSelects.value('checkbox_pol_cp', 'valStr')
+	  	  		,pod: formSelects.value('checkbox_pod_cp', 'valStr')
+	        }
+	     });
+	})
+  });
+
+
+  $(function(){
+	  	$("#nav").load("./nav.html");
+		$("#footer").load("./footer.html");
+		initslider();
+		weinLogin();
+  });
+
+	  
+</script>
+
+
+</body>
+</html>

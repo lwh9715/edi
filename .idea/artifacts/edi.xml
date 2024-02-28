@@ -1,0 +1,17 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="edi">
+    <output-path>$PROJECT_DIR$/out/artifacts/edi</output-path>
+    <root id="archive" name="edi.war">
+      <element id="javaee-facet-resources" facet="edi/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="edi" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="lib1" />
+          <element id="library" level="project" name="lib" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

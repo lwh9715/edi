@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/layui/layui.js"></script>
+	<link rel="stylesheet" href="./res/static/css/index.css?t=25">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="./admin/js/ufms.common.js?t=14" ></script>
+	<script src="./admin/js/jQuery.print.js?t=1" ></script>
+	<link rel="stylesheet" href="/so/res/static/css/bootstrap.min.css">
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	
+	<style type="text/css">
+		.title-hight{
+			font-size: 13px;
+    		font-weight: bold;
+		}
+		h5{
+			font: 12px/1.5 Tahoma,Helvetica,Arial,sans-serif;
+		}
+		body{
+			font: 12px/1.5 Tahoma,Helvetica,Arial,sans-serif;
+		}
+		.layui-form-radio *{
+		    font-size: 13px;
+		    font: 12px/1.5 Tahoma,Helvetica,Arial,sans-serif;
+		}
+		
+		.layui-form-radio {
+		    padding-right: 0;
+		}
+		.cntdetail {
+			padding: 0;
+		    margin: 0;
+		    margin-top: -7px;
+		}
+		.cntdetailinput {
+			color: #555;
+		    background-color: #fff;
+		    background-image: none;
+		    border: 1px solid #ccc;
+		    border-radius: 4px;
+		    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+		    text-align: right;
+		    height: 22px;
+		}
+	</style>
+	
+</head>
+<body >
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  <!-- main -->
+  <div class="main-news">
+    <div class="layui-container">
+    	<form class="layui-form" style="padding-top: 2%;" lay-filter="formFilter">
+    		<div class="layui-form-item layui-hide">
+				<input type="text" name="id" id="id" autocomplete="off" class="layui-input">
+			</div>
+    		<div class="layui-row  layui-col-space1" style="background-color: #CAD3DA;padding: 5px;margin-top: 10px;">
+    			<h5 id="salesman"></h5>
+    		</div>
+	    	 <div id="content" style="background-color: #f6f6f6;padding: 0;margin-top: 10px;"> 
+    
+    <!-- Choose Services -->
+      <div class="container" id="contentDiv" > 
+	        <!-- Tittle -->
+	        <div class="layui-row padding-bottom-10">
+				<div class="layui-col-lg12">
+				<h5> 完善订舱资料:</h5>
+				<div style="width: 0px;height: 0px;display: none;">
+					<input type="hidden" id="gp20" name="gp20" />
+					<input type="hidden" id="gp40" name="gp40" />
+					<input type="hidden" id="hq40" name="hq40" />
+					<input type="hidden" id="gp20grswgt" name="gp20grswgt" />
+					<input type="hidden" id="gp40grswgt" name="gp40grswgt" />
+					<input type="hidden" id="hq40grswgt" name="hq40grswgt" />
+					<input type="hidden" id="gp20pieces" name="gp20pieces" />
+					<input type="hidden" id="gp40pieces" name="gp40pieces" />
+					<input type="hidden" id="hq40pieces" name="hq40pieces" />
+					<input type="hidden" name="id" />
+					<input type="hidden" id="schedule" name="schedule" />
+				</div>
+				</div>
+	        </div>
+	        <!--startprint-->
+	        <div id="printid" class="layui-row">
+	        <div class="layui-row padding-bottom-10" style="border-style: ridge;border-width:1px;padding: 5px;">
+				<div class="layui-col-lg6">
+					<div class="layui-col-lg12">
+						<ul>
+							<li><h5 style="color:red" class="title-hight">Shipper(full name & address)/发货人</h5>
+							<textarea id="shipper" layui-filter="shipper" name="cnorname" class="layui-textarea" onchange="this.value = this.value.toUpperCase();" style="height: 100px;" required lay-verify="required"></textarea></h5> </li>
+							<li><h5 class="title-hight">Consignee/收货人 <input type="checkbox" lay-skin="primary" lay-filter="checkbox_consignee"/> TO ORDER</br>
+							<textarea id="consignee" layui-filter="consignee" name="cneename" class="layui-textarea" onchange="this.value = this.value.toUpperCase();" style="height: 100px;"></textarea></h5> </li>
+							<li><h5 class="title-hight">Notify/通知方 <input type="checkbox" lay-skin="primary" lay-filter="checkbox_notify" /> SAME AS CONSIGNEE</br>
+							<textarea id="notify" layui-filter="notify" name="notifyname" class="layui-textarea" onchange="this.value = this.value.toUpperCase();" style="height: 100px;"></textarea></h5> </li>
+						</ul>
+					</div>
+					<div class="layui-col-lg12">
+						<ul class="layui-row">
+							<li class="layui-col-lg6"><h5>Vessel/Voyage/船名航次</h5>
+							<input name="vesselvoyage" type="text" class="form-control" ></input></label> </li>
+							<li class="layui-col-lg6"><h5>Pre-carreage by/前程运输</h5>
+							<input name="pretrans" type="text" class="form-control"></input></label> </li>
+						</ul>
+						<ul class="layui-row">
+							<li class="layui-col-lg6"><h5> 货好时间:</h5>
+								<div class="input-append" data-date-format="yyyy-mm-dd">
+								    <input class="layui-input " name="goodsreadydate" type="text"  autocomplete="off" id="date_goodsreadydate"
+								    	>
+								   	<span class="add-on"><i class="icon-th"></i></span>
+								</div>
+							</label> </li>
+							<li class="layui-col-lg6"><h5 style="color:red"> 船公司:</br></h5>
+								<select id="shipSelect" name="shipping" class="form-control" type="text" required lay-verify="required" bind="comboboxs" bind-qry="carrier">
+								</select>
+							</label> </li>
+							<li class="layui-col-lg6"><h5 style="color:red">航线代码</h5>
+								<div id="linecodexm"></div>
+							</label> </li>
+							<li class="layui-col-lg6"><h5 style="color:red">航线</h5>
+								<div id="routecodexm"></div>
+							</label> </li>
+						</ul>
+						
+						
+						<ul class="layui-row">
+							<li class="layui-col-lg4" style="padding: 5px;"><h5>Place ofreceipt/收货地</h5>
+								<input name="poa" type="text" class="form-control"></input></label> 
+							</li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5> 驳船截关日期:</h5>
+								<div class="input-append " id="datetimepicker" data-date-format="yyyy-mm-dd">
+								    <input class="layui-input " name="bargecls" size="16" type="text"  autocomplete="off" id="date_bargecls" >
+								   	<span class="add-on"><i class="icon-th"></i></span>
+								</div>
+							</label> </li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5> 驳船预计离开日期:</h5>
+								<div class="input-append " id="datetimepicker" data-date-format="yyyy-mm-dd">
+								    <input class="layui-input " name="bargeetd" size="16" type="text"  autocomplete="off" id="date_bargeetd" >
+								   	<span class="add-on"><i class="icon-th"></i></span>
+								</div>
+							</label> </li>
+							
+						</ul>
+						<ul class="layui-row">
+							<li class="layui-col-lg6"><h5 style="color:red">Port of loading/起运港</h5>
+								<div id="polxm"></div>
+								<!-- <select id="polSelect" name="pol" class="form-control" type="text" required lay-verify="required" bind="comboboxs" bind-qry="pol">
+								</select> -->
+							</label> </li>
+							<li class="layui-col-lg6"><h5>Port of discharge/卸货港</h5>
+								<div id="pddxm"></div>
+								<!-- 
+								<select id="pddSelect" name="pdd" class="form-control" type="text" bind="comboboxs" bind-qry="pod">
+								</select> -->
+							</label> </li>
+							<li class="layui-col-lg6"><h5 style="color:red">Port of delivery/目的港</h5>
+								<div id="podxm"></div>
+								<!-- 
+								<select id="podSelect" name="pod" class="form-control" type="text" required lay-verify="required" bind="comboboxs" bind-qry="pod">
+								</select> -->
+							</label> </li>
+							<li class="layui-col-lg6"><h5>Port of delivery/目的地</h5>
+								<div id="destinationxm"></div>
+								<!-- 
+								<select id="destinationSelect" name="destination" class="form-control" type="text" bind="comboboxs" bind-qry="pod">
+									<option value="">请选择</option>
+								</select> -->
+							</label> </li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5 style="color:red"> 截关日期:</h5>
+								<div class="input-append " id="datetimepicker" data-date-format="yyyy-mm-dd">
+								    <input class="layui-input" id="date_cls" name="cls" size="16" type="text" required lay-verify="required">
+								   	<span class="add-on"><i class="icon-th"></i></span>
+								</div>  
+							</label> </li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5>ETD:</h5>
+								<div class="input-append" id="datetimepicker" data-date-format="yyyy-mm-dd">
+								    <input class="layui-input" id="date_etd" name="etd" size="16" data-date-format="yyyy-mm-dd" type="text" >
+								   	<span class="add-on"><i class="icon-th"></i></span>
+								</div>
+							</label> </li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5> 开船日期:</h5>
+								<div class="input-append " id="datetimepicker" data-date-format="yyyy-mm-dd">
+								    <input class="layui-input " name="atd" size="16" type="text"  autocomplete="off" id="date_atd" >
+								   	<span class="add-on"><i class="icon-th"></i></span>
+								</div>
+							</label> </li>
+						</ul>
+					</div>
+					
+				</div>
+				<div class="layui-col-lg6">
+					<div class="layui-col-lg12">
+						<ul class="layui-row">
+							<li class="layui-col-lg4"><h5> 运输条款</h5></li>
+							<li class="layui-col-lg8">
+								<select name="carryitem" class="form-control" lay-search="">
+								  <option value="CFS-CFS">CFS-CFS</option>
+								  <option value="CFS-CY">CFS-CY</option>
+								  <option value="CFS-DOOR">CFS-DOOR</option>
+								  <option value="CY-CFS">CY-CFS</option>
+								  <option value="CY-CY" selected>CY-CY</option>
+								  <option value="CY-DOOR">CY-DOOR</option>
+								  <option value="CY-FO">CY-FO</option>
+								  <option value="DOOR-CY">DOOR-CY</option>
+								  <option value="DOOR-DOOR">DOOR-DOOR</option>
+								  <option value="FCL-FCL">FCL-FCL</option>
+								</select>
+							</li>
+							<li class="layui-col-lg4" style="padding-top:5px;color:red"><h5> 运费条款</label></li>
+							<li class="layui-col-lg8" style="padding-top:5px;">
+								<select name="freightitem" class="form-control" lay-verify="required" lay-search="">
+								  <option value="PP">FREIGHT PREPAID</option>
+								  <option value="CC">FREIGHT COLLECT</option>
+								  <option value="PD">FREIGHT PAYABLE AT DESTINATION</option>
+								  <option value="HK">FREIGHT PAYABLE AT HONGKONG</option>
+								</select>
+							</li>
+						</ul>
+						<ul class="layui-row">
+							<li class="layui-col-lg4"><h5> 提单方式 </<h5></li>
+							<li class="layui-col-lg8">
+								<input type="radio" name="bltype" value="M" title="MB/L"/> 
+								<input type="radio" name="bltype" value="H" checked="checked" title="HB/L"/> 
+							</li>
+						</ul>
+						<ul class="layui-row">
+							<li class="layui-col-lg4"><h5> 放货方式:</h5>
+							</li>
+							<li class="layui-col-lg8">
+								<select class="form-control" name="putertype" id="putertype">
+									 	<option value="O"> 正本</option>
+										<option value="T"> 电放</option>
+								</select>
+							</li>
+						</ul>
+						<ul class="layui-row">
+							<li class="layui-col-lg4"><h5> 付款方式 </h5></li>
+							<li class="layui-col-lg8">
+								<input type="radio" name="ppcc" checked="checked" value="PP" title="预付/PP" />
+								<input type="radio" name="ppcc" value="CC" title="到付/CC"/>
+							</li>
+						</ul>
+						<ul class="layui-row">
+							<li class="layui-col-lg4"><h5 style="color:red">付款地点</h5></li>
+							<li class="layui-col-lg8"><input name="payplace" type="text" class="form-control" required lay-verify="required"></input></label> </li>
+						</ul>
+						<!-- 
+						<ul class="layui-row">
+							<li class="layui-col-lg4"><input type="checkbox" name="isinvoice" lay-skin="primary"  title="开具发票"/></li>
+						</ul> -->
+						
+						<div class="layui-col-lg12" id="cnyedit" style="padding-left:0px">
+							<div class="layui-row">
+								<div class="layui-col-lg5"><h5 style="margin-bottom:0px;"> 箱型</h5>
+								 </div>
+								<div class="layui-col-lg2"><h5> 箱量</h5>
+								</div>
+								<div class="layui-col-lg2"><h5> KGS</h5>
+								</div>
+								<div class="layui-col-lg1"><h5> 件数</h5>
+								</div>
+								<div class="layui-col-lg2"><h5></h5>
+								</div>
+							</div>
+							<div class="layui-row">
+								<div class="layui-col-lg5 cntdetail">
+									<input id="t_h_20gp" type="radio" name="cntype_0" lay-filter='cntypefilter' onchange="computeFeeitems();" value="20gp" title="20GP"></input>
+									<input id="t_h_40gp" type="radio" name="cntype_0" lay-filter='cntypefilter' onchange="computeFeeitems();" value="40gp" title="40GP"></input>
+									<input id="t_h_40hq" type="radio" name="cntype_0" lay-filter='cntypefilter' onchange="computeFeeitems();" value="40hq" title="40HQ"></input>
+								 </div>
+								<div class="layui-col-lg2">
+									<span class="glyphicon glyphicon-minus" onclick="minusCnt(this);"></span>
+									<input id='cntynumber' style="width: 40px;" type="text" value="0" class="cntdetailinput"  onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"/>
+									<span class="glyphicon glyphicon-plus" onclick="plusCnt(this);"></span>
+								</div>
+								<div class="layui-col-lg2">
+									<input style="width: 60px;" id="kgsnumber" type="text" value="0" class="cntdetailinput" onkeyup="onlyNumber(this,3)"></input>
+								</div>
+								<div class="layui-col-lg1">
+									<input style="width: 40px;" id="pieces" type="text" value="0" class="cntdetailinput" onkeyup="onlyNumber(this,3)"></input>
+								</div>
+								<div class="layui-col-lg2">
+									<span class="glyphicon" onclick="add_cntype();" style="color: blue">添加箱量</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-lg12">
+		        		<ul class="layui-row">
+							<li class="layui-col-lg6"><h5> 件数</h5>
+							<input class="form-control" name="piece" type="text" required onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"></input></label> </li>
+							<li class="layui-col-lg6"><h5> 包装</h5>
+								<select id="packgeSelect" name="packer" class="form-control">
+									<option value=''></option>
+								</select>
+							</label>
+							</li>
+							<li class="layui-col-lg6"><h5 style="color:red"> 毛重/KGS</h5>
+							<input class="form-control" name="grswgt" type="text" readonly required lay-verify="required"></input></label> </li>
+							<li class="layui-col-lg6"><h5> 合约号</h5>
+							<input class="form-control" name="contractno" type="text"></input></label> </li>
+							<li class="layui-col-lg6"><h5> 体积/CBM</h5>
+							<input class="form-control" name="cbm" type="text" required onkeyup="onlyNumber(this,3)"></input></label> </li>
+							<li class="layui-col-lg6"><h5> 参考号</h5>
+							<input class="form-control" name="refno" type="text"></input></label> </li>
+						</ul>
+					</div>
+					<div class="layui-col-lg12">
+		        		<ul class="layui-row">
+							<li class="layui-col-lg6"><h5>唛头<span style="color: red">(限英文，数字，每行35字符，回车为一行)</span></h5>
+							<textarea class="layui-textarea" name="marksno" style="height:155px;"></textarea></label> </li>
+							<li class="layui-col-lg6"><h5>品名<span style="color: red">(限英文，数字，每行35字符，回车为一行)</span></h5>
+							<textarea class="layui-textarea" name="goodsdesc" style="height:155px;" required lay-verify="required"></textarea></label> </li>
+						</ul>
+					</div>
+				</div>
+	        </div>
+	        <ul class="layui-row" style="border-style: ridge;border-width:1px;padding: 5px;font: 12px/1.5 Tahoma,Helvetica,Arial,sans-serif;">
+	        	<li class="layui-col-lg12"><h5 style="font-weight:bold"> 我司还可以提供以下服务：</h5></li>
+				<li class="layui-col-lg4"><input type="checkbox" name="istrailer" lay-skin="primary"  title="委托我司安排拖车"/></li>
+				<li class="layui-col-lg4"><input type="checkbox" name="isdeclare" lay-skin="primary" title="委托我司报关"/></li>
+				<li class="layui-col-lg4"><input type="checkbox" name="isbusinvoice" lay-skin="primary" title="委托我司开发票"/></li>
+				<li class="layui-col-lg4"><input type="checkbox" name="iswarehouse" lay-skin="primary" title="委托我司入仓库"/></li>
+				<li class="layui-col-lg4"><input type="checkbox" name="isdeclarevmg" lay-skin="primary" title="委托我司申报VGM"/></li>
+				<li class="layui-col-lg4"><input type="checkbox" name="isfumigation" lay-skin="primary" title="委托我司熏蒸"/></li>
+				<li class="layui-col-lg4"><input type="checkbox" name="isinsurance" lay-skin="primary" title="委托我司代买保险"/></li>
+				<li class="layui-col-lg4"><input type="checkbox" name="iscertificate" lay-skin="primary" title="委托我司代地产证"/></li>
+			</ul>
+	        <div class="layui-row" style="border-style: ridge;border-width:1px;padding: 5px;">
+        		<div class="layui-col-lg12" style="border-bottom-style: ridge;border-width:1px">
+        			<div class="layui-col-lg12">
+		        		<ul class="layui-row" >
+							<li class="layui-col-lg12"><h5 style="color:red;font-weight:bold"> 委托订舱联系人:</h5></li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5 style="color:red"> 联系人:</br>
+							<input class="form-control" name="blcontacts" required required lay-verify="required"></input></label> </li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5 style="color:red"> 电话:</br>
+							<input class="form-control" name="phone" required lay-verify="required" onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"></input></label> </li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5 style="color:red">E-MAIL:</br>
+							<input class="form-control" name="email" type="email" required lay-verify="required"></input> </li>
+						</ul>
+					</div>
+				</div>
+				<div class="layui-col-lg12" style="border-bottom-style: ridge;border-width:1px;padding: 5px;">
+					<div class="layui-col-lg12">
+						<ul class="layui-row">
+							<li class="layui-col-lg12"><span style="font-weight:bold"> 提单联系人: </span><input type="checkbox" lay-skin="primary" lay-filter="setbillname" title="与委托联系人一致"/></li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5> 联系人: </br>
+							<input class="form-control" name="billname" required></input></label> </li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5> 电话:</br>
+							<input class="form-control" name="billtel" required onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"></input></label> </li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5>E-MAIL:</br>
+							<input class="form-control" name="billemail" type="email"/></h5> </li>
+						</ul>
+					</div>
+				</div>
+				<div class="layui-col-lg12" style="border-bottom-style: ridge;border-width:1px;padding: 5px;">
+					<div class="layui-col-lg12">
+						<ul class="layui-row">
+							<li class="layui-col-lg12"><span style="font-weight:bold"> 财务联系人: </span><input type="checkbox" lay-skin="primary" lay-filter="setfinaceneme" title="与委托联系人一致"/></li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5> 联系人: </br>
+							<input class="form-control" name="financename" required></input></label> </li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5> 电话:</br>
+							<input class="form-control" name="financetel" required onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"></input></label> </li>
+							<li class="layui-col-lg4" style="padding: 5px;"><h5>E-MAIL:</br>
+							<input class="form-control" name="financeemail" type="email"/></h5> </li>
+						</ul>
+					</div>
+				</div>
+				<div class="layui-col-lg12">
+	        		<div class="layui-col-lg12">
+		        		<ul class="layui-row">
+							<h5 class="title-hight">备注<h5></br>
+							<textarea class="layui-textarea" name="remarks" style="height:80px;padding: 1px;" placeholder="订舱或其他服务要求，请在此说明"></textarea></h5> </li>
+						</ul>
+					</div>
+				</div>
+	        </div>
+	        <div class="layui-row">
+	        	<div class="layui-col-lg12">
+		        	<div class="layui-col-lg12"><h5> 费用 <span style="color: red">仅供参考，实际费用请以最终账单为准</span></h5></div>
+		        	<div class="layui-col-lg12">
+		        		<div class="layui-btn-container" style="height:25px">
+							<a type="button" class="layui-btn layui-btn-normal layui-btn-sm" onclick="addFeefilter()"><i class="layui-icon layui-icon-add-circle"></i>新增</a>
+						</div>
+		        		<table id="feetable" class="layui-table" lay-filter="feetable" lay-skin="nob" lay-size="sm">
+							<thead>
+								<tr height="40px">
+									<th width="300"> 费用名称</th>
+									<th width="120"> 单位</th>
+									<th> 单价</th>
+									<th> 数量</th>
+									<th width="110"> 币制</th>
+									<th> 金额</th>
+									<th width="80"> </th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td id="item_feeitem"></td>
+									<td id="item_unit"></td>
+									<td><span id="piece_currency"></span>&nbsp;<span id="piece_price" ></span></td>
+									<td id="item_piece"></td>
+									<td><span id="amt_currency"></span>&nbsp;<span id="amt_price" currency="${item.currency}"></span>
+										<div style="display: none;width: 0px;height: 0px;">
+											<input type="hidden" id="id"  style="display: none;" />
+											<input type="hidden" id="amt"  style="display: none;" />
+											<input type="hidden" id="amt20"  style="display: none;" />
+											<input type="hidden" id="amt40gp"  style="display: none;" />
+											<input type="hidden" id="amt40hq"  style="display: none;" />
+											<input type="hidden" id="unit"  style="display: none;" />
+											<input type="hidden" id="currency"  style="display: none;" />
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+		        	</div>
+		        	<div class="layui-col-lg12">
+		        		<div class="layui-col-lg8">
+		        		</div>
+		        		<div class="layui-col-lg4">
+		        			<lable id="total_text" style="font-weight: 800;font-size: 18px;color: #d2691e;"></lable>
+		        		</div>
+		        	</div>
+		        	<!--<div class="layui-col-lg12">
+		        		<span> "《协议连接》"</span>
+		        	</div>
+		        	--><div class="layui-col-lg12">
+		        		<hr class="margin-top-0 margin-bottom-10">
+		        	</div>
+		        </div>
+	        </div>
+	        </div>
+	        <div class="layui-form-item" >
+			      <input type="checkbox" name="isread" lay-skin="primary" title="我同意">
+			      <div style="float:left;margin-top: 7px;">
+			      	<a href="javascript:;" id="bookingAgreement">《在线订舱协议》</a>
+			      </div>
+		    </div>
+	        <!--endprint-->
+	        <div class="layui-row " style="padding-bottom:2%;max-width: 500px;">
+	        	<div class="layui-col-xs3">
+					<button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="createBookingisubmit"> 保存草稿<i class="fa fa-check-circle"></i></button>
+				</div>
+				<div class="layui-col-xs3">
+					<button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="createBooking"> 订舱<i class="fa fa-check-circle"></i></button>
+				</div>
+				<div class="layui-col-xs3" >
+					<button type="button" class="layui-btn layui-btn-danger" onclick="cancelBooking();" > 取消<i class="fa fa-envelope-o"></i></button>
+				</div>
+				<div class="layui-col-xs3">
+					<button type="button" class="layui-btn " id="print"  onclick="doPrint();" > 打印<i class="glyphicon glyphicon-print"></i></button>
+				</div>
+	        </div>
+      </div>
+  </div>
+	    	
+	    <input id="priceid" name="priceid" class="layui-hide"/>
+	    </form>	
+  </div>
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script>
+var action = '/booking';
+
+var price_fcl = {};
+
+var currrencyjson = '';
+function getCurrency(){
+	$.ajax({//获得系统币制
+       type: "GET",  //提交方式  
+       async : false,//设置为同步操作就可以给全局变量赋值成功 
+       url: getContextPath()+"/combobox?method=currency",
+ 	   contentType:'application/json',
+ 	   dataType:'json',
+       success: function (jsonData) { //提交成功的回调函数  
+		   currrencyjson = jsonData;
+		}
+ 	});
+}
+getCurrency();
+
+
+//增加箱数
+function plusCnt(obj){
+	$(obj).prev().val(parseInt($(obj).prev().val())+1);
+	computeFeeitems();
+	countcnyedit();
+}
+//减少箱数
+function minusCnt(obj){
+	if($(obj).next().val() > 1){
+		$(obj).next().val(parseInt($(obj).next().val())-1);
+	}else{
+		$(obj).next().val(1);
+	}
+	computeFeeitems();
+	countcnyedit();
+}
+//添加柜子
+function add_cntype(){
+	var tag = $("#cnyedit div").size();
+	var html = "<div class='layui-row'>";
+			html+="<div class='layui-col-lg5 cntdetail'>";
+			html+="	<input id='t_h_20gp' type='radio' name='cntype_"+tag+"' lay-filter='cntypefilter' onchange='computeFeeitems();' value='20gp' title='20GP'/>";
+			html+="	<input id='t_h_40gp' type='radio' name='cntype_"+tag+"' lay-filter='cntypefilter' onchange='computeFeeitems();' value='40gp' title='40GP'/>";
+			html+="	<input id='t_h_40hq' type='radio' name='cntype_"+tag+"' lay-filter='cntypefilter' onchange='computeFeeitems();' value='40hq' title='40HQ'/>";
+			html+="</div>";
+			html+="<div class='layui-col-lg2'>";
+			html+="	<span class='glyphicon glyphicon-minus' onclick='minusCnt(this);'></span>";
+			html+="	<input id='cntynumber' style='width: 40px;' type='text' value='0' class='cntdetailinput'/>";
+			html+="	<span class='glyphicon glyphicon-plus' onclick='plusCnt(this);'></span>";
+			html+="</div>";
+			html+="<div class='layui-col-lg2'>";
+			html+="	<input style='width: 60px;' type='text' value='0' id='kgsnumber' class='cntdetailinput'/>";
+			html+="</div>";
+			html+="<div class='layui-col-lg1'>";
+			html+="	<input style='width: 40px;' type='text' value='0' id='pieces' class='cntdetailinput'/>";
+			html+="</div>";
+			html+="<div class='layui-col-lg2'>";
+			html+=" <span class='glyphicon ' onclick='delete_cntype(this);' style='color:blue'>删除箱量</span>";
+			html+="</div>";
+		html+="</div>";
+	$("#cnyedit").append(html);
+	
+	computeFeeitems();
+	var form = layui.form;
+	form.render();
+	$(".layui-form-radio").css("margin","0");
+	countcnyedit();
+}
+//删除柜子
+function delete_cntype(obj){
+	$(obj).parent().parent().remove();
+	computeFeeitems();
+	countcnyedit();
+}
+//计算费用明细
+function computeFeeitems(){
+	var gp20 = 0;
+	var gp40 = 0;
+	var hq40 = 0;
+	var gp20grswgt = 0;
+	var gp40grswgt = 0;
+	var hq40grswgt = 0;
+	var gp20pieces = 0;
+	var gp40pieces = 0;
+	var hq40pieces = 0;
+	
+	$("#cnyedit .layui-row").each(function(index,item){
+		if(index>0){
+			var number = parseInt($(this).find("#cntynumber").val());
+			var kgsnumber = parseInt($(this).find("#kgsnumber").val());
+			var pieces = parseInt($(this).find("#pieces").val());
+			if($(this).find("#t_h_20gp").prop("checked")){
+				if(number && parseInt(number)>1){
+					gp20+=number;
+				}else{
+					gp20+=1;
+					$(this).find("#cntynumber").val(1);
+				}
+				if(kgsnumber){
+					gp20grswgt += Number(kgsnumber)
+				}
+				if(pieces){
+					gp20pieces += Number(pieces)
+				}
+			}else if($(this).find("#t_h_40gp").prop("checked")){
+				if(number && parseInt(number)>1){
+					gp40+=number;
+				}else{
+					gp40+=1;
+					$(this).find("#cntynumber").val(1);
+				}
+				if(kgsnumber){
+					gp40grswgt += Number(kgsnumber)
+				}
+				gp40pieces += Number(pieces)
+			}else if($(this).find("#t_h_40hq").prop("checked")){
+				if(number && parseInt(number)>1){
+					hq40+=number;
+				}else{
+					hq40+=1;
+					$(this).find("#cntynumber").val(1);
+				}
+				if(kgsnumber){
+					hq40grswgt += Number(kgsnumber)
+				}
+				if(pieces){
+					hq40pieces += Number(pieces)
+				}
+			}
+		}
+	})
+	console.log(gp20+"  "+gp40+"   "+hq40);
+	console.log(gp20grswgt+"  "+gp40grswgt+"   "+hq40grswgt);
+	console.log(gp20pieces+"  "+gp40pieces+"   "+hq40pieces);
+	$("#gp20").val(gp20);
+	$("#gp40").val(gp40);
+	$("#hq40").val(hq40);
+	$("#gp20grswgt").val(gp20grswgt);
+	$("#gp40grswgt").val(gp40grswgt);
+	$("#hq40grswgt").val(hq40grswgt);
+	$("#gp20pieces").val(gp20pieces);
+	$("#gp40pieces").val(gp40pieces);
+	$("#hq40pieces").val(hq40pieces);
+	let currrencyHtml = '<td ><select id="amt_currency" lay-verify="required">';
+	for (var j = 0; j < currrencyjson.length; j++) {
+			currrencyHtml +="<option value='"+currrencyjson[j].val+"' "+(currrencyjson[j].val==="USD"?" selected ":"")+">"+currrencyjson[j].label+"</option>"
+		}
+	currrencyHtml += '</select></td>';
+	var ocf20 = "<tr class='ocf'> <td id='feeitem'>海运费/OCF</td> <td id='cntype'>20'GP</td> <td><input id='piece_price' currency='USD' style='text-align:right;' class='layui-input' type='text' required onkeyup='onlyNumber(this,3)' value='"+price_fcl.cost20+"'></input></td> <td ><input id='item_piece' style='text-align:right;' class='layui-input' type='text' required onkeyup='onlyNumber(this,3)' value='"+gp20+"'></input></td>"+currrencyHtml+" <td ><input id='amt_price' currency='USD' style='text-align:right;' class='layui-input' type='text' required onkeyup='onlyNumber(this,3)' value='"+parseFloat(price_fcl.cost20)*gp20+"'></input> <div style='display: none;width: 0px;height: 0px;'> <input type='text' id='id' value='' style='display: none;'> <input type='text' id='amt' value='35.00' style='display: none;'> <input type='text' id='amt20' value='0.00' style='display: none;'> <input type='text' id='amt40gp' value='0.00' style='display: none;'> <input type='text' id='amt40hq' value='0.00' style='display: none;'> <input type='text' id='unit' value='箱' style='display: none;'> <input type='text' id='currency' value='USD' style='display: none;'> </div> </td> <td><button type='button' class='layui-btn layui-btn-normal layui-btn-sm' onclick='$(this).parent().parent().remove()'><i class='layui-icon layui-icon-delete'></i>删除</button></td></tr>";
+	var ocf40 = "<tr class='ocf'> <td id='feeitem'>海运费/OCF</td> <td id='cntype'>40'GP</td> <td><input id='piece_price' currency='USD' style='text-align:right;' class='layui-input' type='text' required onkeyup='onlyNumber(this,3)' value='"+price_fcl.cost40gp+"'></input></td> <td ><input id='item_piece' style='text-align:right;' class='layui-input' type='text' required onkeyup='onlyNumber(this,3)' value='"+gp40+"'></input></td> "+currrencyHtml+"<td ><input id='amt_price' currency='USD' style='text-align:right;' class='layui-input' type='text' required onkeyup='onlyNumber(this,3)' value='"+parseFloat(price_fcl.cost40gp)*gp40+"'></input> <div style='display: none;width: 0px;height: 0px;'> <input type='text' id='id' value='' style='display: none;'> <input type='text' id='amt' value='35.00' style='display: none;'> <input type='text' id='amt20' value='0.00' style='display: none;'> <input type='text' id='amt40gp' value='0.00' style='display: none;'> <input type='text' id='amt40hq' value='0.00' style='display: none;'> <input type='text' id='unit' value='箱' style='display: none;'> <input type='text' id='currency' value='USD' style='display: none;'> </div> </td> <td><button type='button' class='layui-btn layui-btn-normal layui-btn-sm' onclick='$(this).parent().parent().remove()'><i class='layui-icon layui-icon-delete'></i>删除</button></td></tr>";
+  	var ocf40hq = "<tr class='ocf'> <td id='feeitem'>海运费/OCF</td> <td id='cntype'>40'HQ</td> <td ><input id='piece_price' currency='USD' style='text-align:right;' class='layui-input' type='text' required onkeyup='onlyNumber(this,3)' value='"+price_fcl.cost40hq+"'></input></td> <td ><input id='item_piece' style='text-align:right;' class='layui-input' type='text' required onkeyup='onlyNumber(this,3)' value='"+hq40+"'></input></td> "+currrencyHtml+"<td ><input id='amt_price' currency='USD' style='text-align:right;' class='layui-input' type='text' required onkeyup='onlyNumber(this,3)' value='"+parseFloat(price_fcl.cost40hq)*hq40+"'></input> <div style='display: none;width: 0px;height: 0px;'> <input type='text' id='id' value='' style='display: none;'> <input type='text' id='amt' value='35.00' style='display: none;'> <input type='text' id='amt20' value='0.00' style='display: none;'> <input type='text' id='amt40gp' value='0.00' style='display: none;'> <input type='text' id='amt40hq' value='0.00' style='display: none;'> <input type='text' id='unit' value='箱' style='display: none;'> <input type='text' id='currency' value='USD' style='display: none;'> </div> </td> <td><button type='button' class='layui-btn layui-btn-normal layui-btn-sm' onclick='$(this).parent().parent().remove()'><i class='layui-icon layui-icon-delete'></i>删除</button></td></tr>";
+	
+	$("#feetable tr[class='ocf']").remove();
+	var count = 0;
+	if(gp20 && gp20 > 0){
+		$("#feetable").append(ocf20);
+		count+=gp20;
+	}
+	if(gp40 && gp40 > 0){
+		$("#feetable").append(ocf40);
+		count+=gp40;
+	}
+	if(hq40 && hq40 > 0){
+		$("#feetable").append(ocf40hq);
+		count+=hq40;
+	}
+	
+	var cny=0;
+	var usd=0;
+	var hkd=0;
+	var dhs=0;
+	$("#feetable tbody tr").not($("th")).each(function(item){
+		if($(this).find("#item_unit").val()=="箱型"){
+			var count_text = "";
+			var total = 0;
+			if(gp20 > 0){
+				total += parseInt(gp20)*parseFloat($(this).find("#amt20").text());
+				count_text += "20'GP X "+gp20+";";
+			}
+			if(gp40 > 0){
+				total += parseInt(gp40)*parseFloat($(this).find("#amt40gp").text());
+				count_text += "40'GP X "+gp40+";";
+			}
+			if(hq40 > 0){
+				total += parseInt(hq40)*parseFloat($(this).find("#amt40hq").text());
+				count_text += "40'HQ X "+hq40+";";
+			}
+			$(this).find("#item_piece").val(count_text);
+			$(this).find("#piece_price").val(total);
+			$(this).find("#amt_price").val(total);
+		}else if($(this).find("#item_unit").val()=="箱"){
+			$(this).find("#item_piece").val(count);
+			$(this).find("#amt_price").val(parseFloat($(this).find("#piece_price").val())*count);
+		}
+		
+		if("CNY"===$(this).find("#amt_currency").val()){
+			cny+=parseFloat($(this).find("#amt_price").val());
+		}else if("USD"===$(this).find("#amt_currency").val()){
+			usd+=parseFloat($(this).find("#amt_price").val());
+		}else if("HKD"===$(this).find("#amt_currency").val()){
+			hkd+=parseFloat($(this).find("#amt_price").val());
+		}else if("DHS"===$(this).find("#amt_currency").val()){
+			dhs+=parseFloat($(this).find("#amt_price").val());
+		}
+		
+	});
+	var total_text = (cny > 0 ? "CNY:" + cny + "</br>" : "" )
+		+ (usd > 0 ? "USD:" + usd + "</br>" : "")
+		+ (hkd > 0 ? "HKD:" + hkd + "</br>" : "")
+		+ (dhs > 0 ? "DHS:" + dhs + "</br>" : "");
+	$("#total_text").html(total_text);
+	form.render('select');
+	$("#feetable tbody tr").not($("th")).find("#piece_price,#item_piece,#amt_price").off('keyup');
+	$("#feetable tbody tr").not($("th")).find("#piece_price,#item_piece,#amt_price").bind({
+		keyup:function(){
+			console.log($(this).parent().parent().find("#item_unit").val());
+			if($(this).parent().parent().find("#item_unit").val() != "箱型"){
+				if("piece_price"==$(this).attr("id")){
+					$(this).parent().parent().find("#amt_price").val(parseFloat($(this).val())*parseFloat($(this).parent().parent().find("#item_piece").val()))
+				}
+				if("item_piece"==$(this).attr("id")){
+					$(this).parent().parent().find("#amt_price").val(parseFloat($(this).val())*parseFloat($(this).parent().parent().find("#piece_price").val()))
+				}
+				if("amt_price"==$(this).attr("id")){
+					$(this).parent().parent().find("#piece_price").val(parseFloat($(this).val())/parseFloat($(this).parent().parent().find("#item_piece").val()))
+				}
+			}
+		}
+	});
+}
+
+function onlyNumber(input, n) {
+    input.value = input.value.replace(/[^0-9\.]/ig, '');
+    var dotIdx = input.value.indexOf('.'), dotLeft, dotRight;
+    if (dotIdx >= 0) {
+        dotLeft = input.value.substring(0, dotIdx);
+        dotRight = input.value.substring(dotIdx + 1);
+        if (dotRight.length > n) {
+            dotRight = dotRight.substring(0, n);
+        }
+        input.value = dotLeft + '.' + dotRight;
+    }
+}
+
+var form;
+var table;
+layui.use(['jquery','layer','form', 'laydate','table','tablePlug','xmSelect'], function() {
+	$ = layui.jquery;
+	laydate = layui.laydate;
+	form = layui.form,xmSelect = layui.xmSelect;
+	form.render();
+	table = layui.table
+
+	//日期
+  	laydate.render({
+    	elem: '#date_etd'
+  	});
+  	laydate.render({
+    	elem: '#date_atd'
+  	});
+  	laydate.render({
+    	elem: '#date_cls'
+  	});
+  	laydate.render({
+    	elem: '#date_bargecls'
+  	});
+  	laydate.render({
+    	elem: '#date_bargeetd'
+  	});
+  	laydate.render({
+    	elem: '#date_goodsreadydate'
+    	,type: 'datetime'
+  	});
+
+  	
+  	actionGet('/combobox','package','',function(res){
+	    var data = JSON.parse(res);
+	    for(var i=0; i<data.length; i++){
+	    	var option="<option value='"+data[i].val+"'>"+data[i].label+"</option>";
+	    	$("select[name=packer]").append(option);
+	    }
+	    form.render('select','formFilter');
+  	});
+  	actionGet('/combobox','destination','',function(res){
+	    var data = JSON.parse(res);
+	    for(var i=0; i<data.length; i++){
+	    	var option="<option value='"+data[i].val+"'>"+data[i].label+"</option>";
+	    	$("select[name=destination]").append(option);
+	    }
+	    form.render('select','formFilter');
+  	});
+  	
+
+	form.on('checkbox(checkbox_consignee)', function(data){
+	  if(data.elem.checked){
+		//form.val("consignee","TO ORDER");
+		//form.render();
+		  $("#consignee").val("TO ORDER");
+	  }else{
+		  $("#consignee").val("");
+	  }
+	});
+	form.on('checkbox(setbillname)', function(data){
+		  var blcontacts = $('input[name="blcontacts"]').val();
+		  var phone = $('input[name="phone"]').val();
+		  var email = $('input[name="email"]').val();
+		  if(data.elem.checked){
+			  $('input[name="billname"]').val(blcontacts);
+			  $('input[name="billtel"]').val(phone);
+			  $('input[name="billemail"]').val(email);
+		  }else{
+		  }
+	});
+	form.on('checkbox(setfinaceneme)', function(data){
+		  var blcontacts = $('input[name="blcontacts"]').val();
+		  var phone = $('input[name="phone"]').val();
+		  var email = $('input[name="email"]').val();
+		  if(data.elem.checked){
+			  $('input[name="financename"]').val(blcontacts);
+			  $('input[name="financetel"]').val(phone);
+			  $('input[name="financeemail"]').val(email);
+		  }else{
+		  }
+	});
+	form.on('checkbox(checkbox_notify)', function(data){
+	  if(data.elem.checked){
+		$("#notify").val("SAME AS CONSIGNEE");
+	  }else{
+		$("#notify").val("");
+	  }
+	});
+
+	function createBooking(jsonData){
+		let goout = false;
+		$("#cnyedit .layui-row #kgsnumber").each(function(index,item){
+		    let kgsnumberv =  $(this).val();
+		    if(kgsnumberv==null||kgsnumberv<0.01){
+		    	layer.alert("每个柜型的KGS必填！", {icon: 7});
+		    	goout = true;
+		    	return false;
+			}
+		})
+		if(goout){
+			return;
+		}
+		actionPost('/booking','createBooking',jsonData,function(res){
+	    	 var data = JSON.parse(res);
+			 console.log(data);
+			 if(data.result == 'success'){
+				 layer.confirm('订舱成功：'+data.info, {
+			   		  btn: ['确定'] //按钮
+		   		 }, function(index){
+		   			//location.href='manager.html';
+			   		layer.close(index)
+		   		 });
+				 form.val("formFilter",{"id":data.bookid});
+			 }else{
+				 layer.confirm('订舱失败：'+data.info, {
+			   		  btn: ['确定'] //按钮
+		   		 }, function(index){
+		   			//location.href='manager.html';
+			   		layer.close(index)
+		   		 });
+			 }
+	    });
+	    return false;
+	}
+	//监听提交
+	form.on('submit(createBooking)', function(data){
+		if(data.field.isread == 'on'){
+		}else{
+			layer.msg("请先阅读使用条款!");
+			return ;
+  	  	}
+		data.field.isubmit = true;
+		let feeAry = getJsonData();
+		data.field.feeArray = feeAry;
+	    jsonData = JSON.stringify(data.field);
+	    console.log(jsonData);
+	    createBooking(jsonData);
+	});
+
+	form.on('submit(createBookingisubmit)', function(data){
+		if(data.field.isread == 'on'){
+		}else{
+			layer.msg("请先阅读使用条款!");
+			return ;
+  	  	}
+		let feeAry = getJsonData();
+		data.field.feeArray = feeAry;
+	    jsonData = JSON.stringify(data.field);
+	    console.log(jsonData);
+	    createBooking(jsonData);
+	});
+
+	function getJsonData(){
+		computeFeeitems();
+		var newdata = new Array();
+		$("#feetable tbody tr").not($("th")).each(function(item){
+			let row={};
+			let feeid = $(this).find('div[id^=feeitemidxm]').first().attr('id');
+			if(feeid==null){
+				row['feeitemid'] = price_fcl.defaultfeeid;//海运费id
+			}else{
+				row['feeitemid'] = eval(feeid).getValue('value')[0];
+			}
+			if($(this).find('#item_unit').val()==null){
+				row['unit'] = $(this).find('#cntype').first().text();
+			}else{
+				row['unit'] = $(this).find('#item_unit').val();
+			}
+			row['price'] = Number($(this).find('#piece_price').val());
+			row['piece'] = Number($(this).find('#item_piece').val());
+			row['currency'] = $(this).find('#amt_currency').val();
+			row['amt'] = Number($(this).find('#amt_price').val());
+			newdata[item] = row;
+		})
+		return newdata;
+	}
+
+	function initPrice(){
+		price_fcl.cost20 = 100;
+		price_fcl.cost40gp = 200;
+		price_fcl.cost40hq = 300;
+
+		var args = getRequest();
+		var priceid = args.id;
+		$('#priceid').val(priceid);
+		var uuid = args.uuid;
+		var pol = args.pol;
+		var pod = args.pod
+		var id = args.id;
+		var ispollink = args.ispollink;
+		if(priceid > 0){
+			$.ajax({
+				  type: 'GET',
+				  url: getContextPath()+action+"?method=fcl&uuid="+uuid+"&pol="+pol+"&pod="+pod+"&id="+id+"&ispollink="+ispollink,
+				  success: function(res){
+				  	var jsonData = JSON.parse(res);
+					form.render('select');
+					jsonData.shipping = jsonData.shippingv;
+					jsonData.pol = jsonData.pol_show;
+					jsonData.pod = args.pod;
+					jsonData.pdd = args.pod;
+					jsonData.destination = args.pod;
+					getComboboxSet(form,jsonData);
+					price_fcl.cost20 = jsonData.cost20;
+					price_fcl.cost40gp = jsonData.cost40gp;
+					price_fcl.cost40hq = jsonData.cost40hq;
+					price_fcl.defaultfeeid = jsonData.defaultfeeid;
+					var configDataSet = new randerXmselect.getConfig();
+					configDataSet.name = 'pol';configDataSet.action='fclpol';configDataSet.el='#polxm',configDataSet.initValue=[jsonData.pol_show];
+					var polxm = new randerXmselect.rander(xmSelect,configDataSet);
+					var configDataSetpod = new randerXmselect.getConfig();
+					configDataSetpod.name = 'pod';configDataSetpod.action='fclpod';configDataSetpod.el='#podxm',configDataSetpod.initValue=[args.pod];
+					var podxm = new randerXmselect.rander(xmSelect,configDataSetpod);
+					var configDataSetpdd = new randerXmselect.getConfig();
+					configDataSetpdd.name = 'pdd';configDataSetpdd.action='fclpod';configDataSetpdd.el='#pddxm',configDataSetpdd.initValue=[args.pod];
+					var pddxm = new randerXmselect.rander(xmSelect,configDataSetpdd);
+					var configDataSetdestin = new randerXmselect.getConfig();
+					configDataSetdestin.name = 'destination';configDataSetdestin.action='fclpod';configDataSetdestin.el='#destinationxm',configDataSetdestin.initValue=[args.pod];
+					var destinationxm = new randerXmselect.rander(xmSelect,configDataSetdestin);
+					
+					var configDataSetLine = new randerXmselect.getConfig();
+					configDataSetLine.name = 'linecode';configDataSetLine.action='linecode';configDataSetLine.el='#linecodexm',configDataSetLine.initValue=[jsonData.linecode];
+					var linecodexm = new randerXmselect.rander(xmSelect,configDataSetLine);
+
+					var configDataSetRoute = new randerXmselect.getConfig();
+					configDataSetRoute.name = 'routecode';configDataSetRoute.action='routecode';configDataSetRoute.el='#routecodexm',configDataSetRoute.initValue=[jsonData.routecode];
+					var routecodexm = new randerXmselect.rander(xmSelect,configDataSetRoute);
+					
+					form.val("formFilter",{
+							"blcontacts":jsonData.csnamec
+							,"phone":jsonData.cstel1
+							,"email":jsonData.csemail1
+							,"poa":jsonData.poa_show
+					});
+				  }
+			});
+		}
+	}
+	initPrice();
+	$(".layui-form-radio").css("margin","0");
+	var args = getRequest();
+	var priceid = args.uuid;
+	$('#feetable tbody').empty();
+	actionGet("/price","getfeeadd","id="+priceid,function(res){
+		if(res == null||res == ''){return}
+		var feedata = JSON.parse(res);
+		for(let i=0;i<feedata.length;i++){
+			addFeeDdd(feedata[i].currency,feedata[i].unit,feedata[i].feeitemid,feedata[i].feeitemname,feedata[i].amt,feedata[i].amt20,feedata[i].amt40gp,feedata[i].amt40hq)
+		}
+		computeFeeitems();
+	});
+	var index = 0;
+	function addFeeDdd(currency,unit,feeitemid,feeitemname,amt,amt20,amt40gp,amt40hq){
+		++index;
+		let currrencyHtml = '<select id="amt_currency" name="currency" lay-verify="required" lay-filter="selectCurrecy">';
+		for (var j = 0; j < currrencyjson.length; j++) {
+   			currrencyHtml +="<option value='"+currrencyjson[j].val+"' "+(currency===currrencyjson[j].label?" selected ":"")+">"+currrencyjson[j].label+"</option>"
+   		}
+		currrencyHtml += '</select>';
+		let unitHtml = '<select id="item_unit" lay-filter="unint'+i+'" lay-verify="required">';
+		if(unit === '箱型'){
+			unitHtml += '<option value="箱型" selected>箱型</option><option value="票">票</option><option value="箱">箱</option>';
+		}else if(unit === '票'){
+			unitHtml += '<option value="箱型">箱型</option><option value="票" selected>票</option><option value="箱">箱</option>';
+		}else if(unit === '箱'){
+			unitHtml += '<option value="箱型">箱型</option><option value="票">票</option><option value="箱" selected>箱</option>';
+		}
+		unitHtml += '</select>';
+		let feeHtml = '<div id="feeitemidxm'+index+'"></div><input class="layui-hide" id="feeitemid'+index+'">';
+		let html ='<tr>'
+	    +'  <td width="260px">'+feeHtml+'</td>'
+	    +'  <td>'+unitHtml+'</td>'
+	    +'  <td><input id="piece_price" style="text-align:right;" class="layui-input" type="text" required onkeyup="onlyNumber(this,3)" value="'+(unit=="箱型"?0:amt)+'"></input></td>'
+	    +'  <td><input id="item_piece" style="text-align:right;" class="layui-input" type="text" required onkeyup="onlyNumber(this,3)" value="'+(unit=="票"?1:0)+'"></input></td>'
+	    +'  <td>'+currrencyHtml+'</td>'
+	    +'  <td><input id="amt_price" style="text-align:right;" class="layui-input" type="text" required onkeyup="onlyNumber(this,3)" value="'+(unit=="票"?amt:0)+'"></input></td>'
+	    +'  <td id="amt20" class="layui-hide">'+amt20+'</td>'
+	    +'  <td id="amt40gp" class="layui-hide">'+amt40gp+'</td>'
+	    +'  <td id="amt40hq" class="layui-hide">'+amt40hq+'</td>'
+	    +'	<td><button type="button" class="layui-btn layui-btn-normal layui-btn-sm" onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);computeFeeitems()"><i class="layui-icon layui-icon-delete"></i>删除</button></td>'
+	    +'</tr>';
+		form.on('select(unint'+index+')', function(data){
+		    if(data.value === '票'||data.value === '箱'){
+			      let setvalue = (data.value === '票'?1:0);
+		    	  $(data.elem).parent().parent().find('#piece_price').val(setvalue);
+		    	  $(data.elem).parent().parent().find('#item_piece').val(setvalue);
+		    	  $(data.elem).parent().parent().find('#amt_price').val(setvalue);
+		    }
+		    computeFeeitems();
+	    });
+		form.on('select(selectCurrecy)', function(data){
+			computeFeeitems();
+	    });
+		$('#feetable tbody').append(html);
+		form.render('select');
+		var configDataSetfee = new randerXmselect.getConfig();
+		configDataSetfee.name = 'feeitemid';configDataSetfee.action='queryFeei';configDataSetfee.el='#feeitemidxm'+index;
+		configDataSetfee.initValue = [feeitemid];
+		configDataSetfee.on=function(data){
+			let feeval = data.change[0].value;
+			let	indexi = index
+			function setValue(){
+				$('#feeitemid'+indexi).text(feeval);
+			}
+			setValue()
+		}
+		let feeitemidxm = new randerXmselect.rander(xmSelect,configDataSetfee);
+		eval("feeitemidxm"+index+"=feeitemidxm");
+		computeFeeitems();
+	}
+
+	$.ajax({
+		  type: 'GET',
+		  url: getContextPath()+"/user?method=getsalse",
+		  success: function(res){
+		    if(res == null||res == ''){
+		    	 $('#salesman').html('');
+			}else{
+				var jsonData = JSON.parse(res);
+				var text = "";
+				for(var i=0;i<jsonData.length;i++){
+					text +="您的专属销售: "+jsonData[i].corpnamec+jsonData[i].depname+'  '+jsonData[i].namec+'  '+jsonData[i].namee+'  联系电话：'+jsonData[i].tel1+' 手机： '+jsonData[i].mobilephone+' 邮箱:'+jsonData[i].email+''+"<br>";
+				}
+				$('#salesman').html(text);
+			}
+		  }
+	});
+
+	form.on('radio(cntypefilter)', function(data){
+		computeFeeitems();
+	});  
+
+	window.addFeefilter=function(){
+		addFeeDdd('USD','票',0,'海运费/OCF',0,0,0,0)
+	}
+
+	$('#cnyedit .layui-row input').bind('input propertychange', function() {
+		computeFeeitems();
+	});
+	$("#bookingAgreement").click(function() {
+ 		  actionGet('/login','getbookingagreement','',function(res){
+    	  	layer.open({
+      		  title:'订舱协议',
+      		  type:1,
+      		  //skin: 'layui-layer-rim', //加上边框
+      		  area: ['600px', '700px'], //宽高
+      		  content: res
+      	 });
+ 		  })
+    })
+});
+
+$(document).on('input propertychange','#cnyedit .layui-row input' , function(){//箱量和KGS输入后自动计算赋值毛重
+	countcnyedit();
+});
+
+function countcnyedit(){
+	var kgssum = 0;
+	var piecessum = 0;
+	$('#cnyedit .layui-row').each(function(){
+		var cntynumber = $(this).find('div').find('#cntynumber').val();
+		var kgs = $(this).find('div').find('#kgsnumber').val();
+		if(cntynumber != null||kgs != null){
+			kgssum = kgssum + cntynumber * kgs;//console.log(cntynumber * kgs);console.log(cntynumber);console.log(kgs);
+		}
+		var pieces = $(this).find('div').find('#pieces').val();
+		if(cntynumber != null||pieces != null){
+			piecessum = piecessum + cntynumber * pieces;//console.log(cntynumber * kgs);console.log(cntynumber);console.log(kgs);
+		}
+	});
+	$('input[name=grswgt]').val(kgssum);
+	$('input[name=piece]').val(piecessum);
+}
+
+function cancelBooking(){
+	history.go(-1);
+} //跳转到上一个页面
+
+//打印
+function doPrint(){
+ $("#printid").print({//Use Global styles
+	                    globalStyles : true,
+	                    mediaPrint : false,
+	                    iframe : false,
+						title:'订舱',
+					})
+}
+
+$("#nav").load("./nav.html");
+$("#footer").load("./footer.html");
+
+$(".layui-col-lg6").css("padding","2px");
+
+</script>
+
+
+</body>
+</html>

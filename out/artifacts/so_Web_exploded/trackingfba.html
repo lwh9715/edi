@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	
+	<script src="/so/res/layui/layui.js"></script>
+	
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	
+	<link rel="stylesheet" href="./res/static/css/index.css?t=25">
+	<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	<script type="text/javascript" src="./admin/js/ufms.common.js?t=10" ></script>
+	<script type="text/javascript" src="./res/static/js/jquery.toTop.min.js"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	
+	
+	<link rel="stylesheet" href="http://track.fba.jp/themes/default/query_order/bootstrap/bootstrap.css">
+	
+	<style><!--
+		
+    body{
+        width: 100%;
+        
+    }
+    .background_mask{
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        background: rgba(000,000,000,0.7);
+        position: fixed;
+    }
+    .info_box{
+        z-index: 2;
+        width: 1000px;
+        border-radius: 6px;
+        background-color: rgba(000,000,000,0.4);
+        color: #efefef;
+        padding: 15px;
+        height: 90%;
+    }
+    .info_box_main{
+        height: 100%;
+        overflow: hidden;
+    }
+    /*滚动条样式*/
+    .info_box_main::-webkit-scrollbar {/*滚动条整体样式*/
+        width: 5px;     /*高宽分别对应横竖滚动条的尺寸*/
+        height: 5px;
+    }
+    .info_box_main::-webkit-scrollbar-thumb {/*滚动条里面小方块*/
+        border-radius: 5px;
+        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        background: rgba(0,0,0,0.6);
+    }
+    .info_box_main::-webkit-scrollbar-track {/*滚动条里面轨道*/
+        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+        border-radius: 0;
+        background: rgba(0,0,0,0.2);
+    }
+    #order_box{
+        background: #fff;
+        padding: 0px 10px;
+        border-radius: 15px;
+        border: 1px solid #fff;
+        display: inline-block;
+        color: #666;
+    }
+    .info_box .info_box_top{
+        padding: 3px 0px;
+        margin-bottom: 10px;
+    }
+    .waybill_info_box{
+        width: 100%;
+        <!--color: #efefef;-->
+    }
+    .waybill_info_container{
+        position: relative;
+        margin-top: 10px;
+    }
+    .waybill_info_container:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 91px;
+        width: 1px;
+        background: #bcbab9;
+    }
+    .waybill_info_box li{
+        position: relative;
+        margin-bottom: 15px;
+        display: table;
+    }
+    .waybill_info_box li a{
+        color: #FF2222 !important;
+        margin: 0px 2px;
+    }
+    .waybill_info_box .waybill_info{
+        display: table-cell;
+        vertical-align: middle;
+        text-align: justify;
+    }
+    .waybill_info_box .info_time{
+        display: table-cell;
+        width: 110px;
+        padding-right: 20px;
+        vertical-align: middle;
+        color: #bcbab9;
+    }
+    .waybill_info_box .circle{
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        left: 88px;
+        top: 50%;
+        margin-top: -3px;
+        background: #5bc0de;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px #fff, 1px 1px 0px 4px rgba(0, 0, 0, 0.3);
+    }
+
+		
+		
+	--></style>
+	
+</head>
+<body>
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  
+
+
+  <div style='background: url("http://track.fba.jp/themes/default/query_order/img/bg.jpg") top center;opacity: 0.5;opacity: 0.5;width: 100%;height: 100%;position: fixed;'>
+  </div>
+  <div class="main-news" >	
+  	<div class="layui-container" id="mainInfo" style="min-height: 800px;">
+  		
+    	<form class="layui-form" style="padding-left: 8%;padding-right: 8%;padding-top:5%;" lay-filter="formFilter">
+	    	<div class="layui-form-item layui-row layui-col-space1">
+			    <div class="layui-col-md2">
+				    <select name="qrytype" lay-search lay-verify="" lay-filter="qryFilter">
+				    	<option value="JNO" selected>Job No.</option>
+			       		<option value="FBA">FBA No.</option>
+				    </select>
+			    </div>
+			    <div class="layui-col-xs12 layui-col-sm12 layui-col-md3">
+			      	<input type="text" name="qrynos" id="qrynos" class="layui-input">
+			    </div>
+			    <div class="layui-col-md1">
+			    	<button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="query" id="query">Tracking</button>
+			    </div>
+			</div>
+		</form>
+  
+		<a class="to-top" style="cursor: pointer; display: none; position: fixed; right: 15px; bottom: 30px;">Top</a>
+		
+		
+		
+		
+		<div class="layui-row layui-col-space20" id="trackDiv">
+	    	<div class="layui-col-lg6">
+	    		<div class="info_box">
+		    		<div class="info_box_main">
+		                <div class="info_box_top" >
+					                    物流单号 ：<span id="fbanos"></span>
+					    </div>
+		                <div class="waybill_info_box">
+		                	<ul class="waybill_info_container">
+		                	</ul>
+		                 </div>
+				    </div>
+				 </div>
+	    	</div>
+	    </div>
+      </div> 
+  </div>
+  <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script>
+var fid;
+var count = 0;
+var j = 0;
+var dataJson;
+var jobno = '';
+$(function(){
+	$('.to-top').toTop();
+	jobno = getRequest().jobno;
+	if(jobno != undefined && jobno != '' ){
+		$('#qrynos').val(jobno);
+		setTimeout('$("#query").trigger("click")',"1000");;
+	}
+});
+
+layui.use(['jquery','layer','form'], function() {
+	$ = layui.jquery;
+	layer = layui.layer //弹层
+	
+	var form = layui.form; //只有执行了这一步，部分表单元素才会自动修饰成功
+	form.render();
+
+	$('.info_box_top').hide();
+
+	 //监听提交
+	form.on('submit(query)', function(data){
+		var qrynos = data.field.qrynos;
+		var qrytype = data.field.qrytype;
+
+		if(qrynos == undefined || qrynos == null || qrynos == '' ){
+			return false;
+		}
+
+		$('.waybill_info_container').empty();
+		$('#fbanos').html('');
+		
+		console.log($('#fbanos').html());
+		if(qrytype == 'FBA'){
+			$('#fbanos').html(qrynos);
+			console.log($('#fbanos').html());
+			showTrackInfo();
+		}else{
+			var args = 'qrynos='+qrynos+'&qrytype='+data.field.qrytype;
+		  	actionGet('/tracking','track',args,function(data){
+		  		if(data == null || data == "")return;
+				if(typeof(data)==="string"){
+					data = JSON.parse(data);
+				}
+				console.log(data);
+				//if(data){
+				//	$('#fbanos').html(data.fbano);
+				//	console.log($('#fbanos').html());
+				//	showTrackInfo();
+				//}
+				for(var i=0; i<data.length; i++){
+					var option='<li>';
+			    		option+='<span class="info_time">'+data[i].dealdate+'</span>';
+			    		option+='<span class="circle"></span>';
+			    		option+='<span class="waybill_info">'+data[i].statusdesc+'</span>';
+		    		option+="</li>";
+					$('.waybill_info_container').append(option);
+					
+				}
+		  	});
+		}
+	  	
+	  	return false;
+	});
+});
+function showTrackInfo(){
+	//var args = 'qrynos='+$('input[name="qrynos"]').val()+'&qrytype='+$('select[name="qrytype"]').val();
+	var fbano = $('#fbanos').html();
+	var args = 
+				"&company_id=1343BE1A6D6"+
+				"&company_key=5C9F93D44962AD10E76870772999DF92"+
+				"&user_name=YHD"+
+				"&express_no=" + fbano;
+	var urls = 	"http://track.fba.jp/package_track.php?r=get_track_info" + args;
+    console.log(urls);
+    $('.info_box_top').show();
+	$.ajax({
+		  	type: 'GET',
+		  	url: urls,
+		  	contentType:'application/x-www-form-urlencoded',
+	        success:function(result){
+				console.log(result);
+				//var jsonData = '[{"AcceptTime":"2020-03-10 14:59:00","AcceptStation":"配达完成"},{"AcceptTime":"2020-03-10 14:16:00","AcceptStation":"到达日亚FSZ1仓库"},{"AcceptTime":"2020-03-10 09:25:00","AcceptStation":"运输中"},{"AcceptTime":"2020-03-09 18:30:00","AcceptStation":"装车完成"},{"AcceptTime":"2020-03-09 10:47:00","AcceptStation":"掏箱完成"},{"AcceptTime":"2020-03-09 08:56:00","AcceptStation":"集装箱到达指定仓库"},{"AcceptTime":"2020-03-04 09:46:00","AcceptStation":"清关完成"},{"AcceptTime":"2020-03-03 15:20:00","AcceptStation":"清关中"},{"AcceptTime":"2020-03-03 11:33:00","AcceptStation":"对查完成"},{"AcceptTime":"2020-03-02 17:40:00","AcceptStation":"船运入港 提单号：NOSNB20TK94400"}]';
+				var jsonResult = JSON.parse(result);
+				var state = jsonResult.state;
+				var message = jsonResult.message;
+				
+				if(state == 'success' && message != ''){
+					layer.msg(message,{icon: 7});
+					return;
+				}
+				jsonData = jsonResult.data;
+				for(var i=0; i<jsonData.length; i++){
+					var option='<li>';
+			    		option+='<span class="info_time">'+jsonData[i].AcceptTime+'</span>';
+			    		option+='<span class="circle"></span>';
+			    		option+='<span class="waybill_info">'+jsonData[i].AcceptStation+'</span>';
+		    		option+="</li>";
+					$('.waybill_info_container').append(option);
+					
+				}
+	        },
+	        error:function(result){
+	        }
+	});
+}
+
+
+//判断字符是否为空的方法
+function isEmpty(obj){
+    if(typeof obj == "undefined" || obj == null || obj == "" || obj == "null"){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+$("#nav").load("./nav.html");
+$("#footer").load("./footer.html");
+
+</script>
+</body>
+</html>

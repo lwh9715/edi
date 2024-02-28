@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="/so/res/static/css/index.css?t=25">
+	<link rel="stylesheet" href="/so/res/static/css/login.css?t=13">
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	
+	<script src="/so/res/layui/layui.js"></script>
+	<script src="/so/res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="/so/admin/js/ufms.common.js?t=13" ></script>
+	<script src="/so/res/static/js/index.js?t=13"></script>
+	<script src="/so/admin/js/md5.js" ></script>
+	<script src="/so/res/layui/sliderVerify/sliderVerify.js?t=5"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	<!--二维码 -->
+	<script src="/so/admin/js/qrcode.js"></script>
+</head>
+<body>
+    	<div class="layui-row">
+		    <div class="layui-col-xs12 layui-col-md6">
+		    	<div class="login" style="margin-right: auto;">
+			        <div id="darkbannerwrap"></div>
+			        <form method="post" class="layui-form layui-form-pane" id="form" lay-filter="loginform">
+			        	<!-- <h3><span class="navtranslate">会员登录</span></h3> -->
+			        	<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+			        		<ul class="layui-tab-title" style="display: flex;align-items:center;justify-content: space-around ;">
+			        			<li class="layui-this">账户登录</li>
+			        			<!--<li>扫码登录</li>
+    						--></ul>
+ 							<div class="layui-tab-content">
+ 								<div class="layui-tab-item layui-show">
+						        	<div class="layui-form-item" style="padding-top: 15px;">
+								    	<label class="layui-form-label" style="height: 50px;line-height: 30px;"><span class="navtranslate">手机号</span></label>
+									    <div class="layui-input-block">
+									      <input name="username" placeholder="手机号"  type="text" lay-verify="required" class="layui-input" >
+									    </div>
+								    </div>
+								    <div class="layui-form-item">
+								    	<label class="layui-form-label" style="height: 50px;line-height: 30px;"><span class="navtranslate">密码</span></label>
+									    <div class="layui-input-block">
+									       <input name="password" lay-verify="required" placeholder="请输入密码"  type="password" class="layui-input">
+									    </div>
+								    </div>
+								     
+								    <div class="layui-form-item">
+								    	<label class="layui-form-label">滑动验证</label>
+										<div class="layui-input-block">
+											<div id="slider"></div>
+										</div>
+									</div>
+									 
+						            <hr class="hr15">
+						            
+						            <div class="layui-form-item">
+						            	<div class="layui-row">
+										    <div class="layui-col-xs4">
+										       <input type="checkbox" name="rememberme" lay-skin="primary"  title="记住密码"/>
+										    </div>
+										    <!-- <div class="layui-col-xs3">
+										      <select name="langue" lay-filter="languetype">
+										        <option value="ch" selected="">中文</option>
+										        <option value="en">ENGLISH</option>
+										      </select>
+										    </div>
+										     -->
+										    <!--<div class="layui-col-xs4">
+										    	<a href="javascript:;" id="forgetPassword"><span class="navtranslate">忘记密码</span>？</a>
+										    </div>
+										--></div>
+									</div>
+									<div class="layui-form-item" >
+									    <div class="layui-input-block">
+									      <input type="checkbox" name="isread" lay-skin="primary" title="已阅读条款">
+									      <a href="javascript:;" id="redclause" lay-filter="redclause">查看使用条款</a>
+									    </div>
+								    </div>
+						            <input class="loginin" value="登录" onclick="return false;" lay-submit lay-filter="login" style="width:100%;" type="submit">
+						            <a href="javascript:;" id="register" lay-filter="register" onclick="parent.register()">没有账号，现在注册</a>
+						            <hr class="hr20" >
+						            <div>
+						            </div>
+						       </div>
+						       <div class="layui-tab-item">
+						       		<div id="qrcode" style="display: flex;align-items:center;justify-content: center;">
+									</div>
+						       </div>
+					       </div>
+			        </form>
+			    </div>
+		    </div>
+		</div>
+    	
+	    
+  <form class="layui-form" id="forgetPasswordForm" style="display:none" lay-filter="forgetPasswordForm">
+ 	<div class="layui-form-item">
+ 		<h3>填写用户名和邮箱获取密码</h3><br>
+ 		<div class="layui-inline">
+			<label class="layui-form-label">*用户名</label>
+			<div class="layui-input-inline">
+				<input type="text" name="procname" lay-verify="required" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">*邮箱</label>
+			<div class="layui-input-inline">
+				<input type="text" name="proemaile" lay-verify="required" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<div class="layui-row">
+				<div class="layui-col-xs6">
+					<input name="forgetPassWordv" lay-verify="required" autocomplete="off" placeholder="请输入验证码" type="text" class="layui-input">
+				</div>
+				<div class="layui-col-xs6">
+					<canvas id="passWordCanvas" width="120" height="43"></canvas>
+				</div>
+			</div>
+		</div>
+		<div class="layui-inline">
+			<button type="button" lay-filter="sendPassWord" lay-submit class="layui-btn layui-btn layui-btn-normal">发送</button>
+		</div>
+	</div>
+	
+  </form>
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+ 
+    <script type="text/javascript">
+	    layui.config({
+	        base: '/so/res/static/js/' 
+	      }).use('firm'); 
+
+	    layui.config({
+			base: '/so/res/layui/sliderVerify/'
+		}).use(['sliderVerify','form', 'jquery'], function(){
+              var form = layui.form
+              	,admin = layui.admin;
+              var sliderVerify = layui.sliderVerify,
+				form = layui.form;
+			  var slider = sliderVerify.render({
+			  		elem: '#slider'
+			  		,bg : 'layui-bg-blue'
+			  })
+              form.render();
+              //监听提交
+              form.on('submit(login)', function(data){
+                var qryJson = data.filed;
+                console.log(qryJson);
+           	    if(slider.isOk()){//用于表单验证是否已经滑动成功
+   					//layer.msg(JSON.stringify(data.field));
+   				}else{
+   					layer.msg("请先通过滑块验证!");
+   					return;
+   				}
+   				var data1 = form.val("formTest");
+   				var formdata = form.val("loginform");
+                if(data.field.isread != 'on'){
+  	  				layer.msg("请先阅读使用条款!");
+  	  				return ;
+  	  	  	  	}
+   				if(data.field.password.length != 32){
+           	 		data.field.password = hex_md5(data.field.password);
+   				}
+           	 	qryJson = JSON.stringify(data.field);
+           	 	//console.dir(qryJson);
+           	 	if(data.field.rememberme == 'on'){
+           	 		$.cookie('username', data.field.username,{ expires: 30, path: '/so' });
+           	 		$.cookie('password', data.field.password,{ expires: 30, path: '/so' });
+           	 		$.cookie('rememberme', true,{ expires: 30, path: '/so' });
+               	}else{
+               		$.removeCookie('username',{path:'/so'});
+               		$.removeCookie('password',{path:'/so'});
+               		$.removeCookie('rememberme',{path:'/so'});
+                }
+           	 	if(data.field.issysuser == 'on'){
+           	 		$.cookie('issysuser', true,{ expires: 30, path: '/so' });
+           	 	}else{
+                	$.removeCookie('issysuser',{path:'/so'});
+                }
+	           	if(data.field.isread == 'on'){
+	        	 	$.cookie('isread', true,{ expires: 365*20, path: '/so' });
+	        	}else{
+	             	$.removeCookie('isread',{path:'/so'});
+	            }
+                $.ajax({
+					  type: 'POST',
+					  url: getContextPath()+"/sobooking?method=login",
+					  contentType:'application/json',
+					  data: qryJson,
+					  dataType:"json",
+					  success: function(res){
+					    console.dir(res);
+					    if(res.success){
+					    	$.cookie('sid', res.sid,{ expires: 30, path: '/so' });
+					    	$.cookie('userid', res.id,{ expires: 30, path: '/so' });
+					    	$.cookie('token', res.token,{ expires: 30, path: '/so' });
+					    	$.cookie('namec', res.namec,{ expires: 30, path: '/so' });
+					    	$.cookie('issysuser', res.issysuser,{ expires: 30, path: '/so' });
+					    	$.cookie('opneid', res.opneid,{ expires: 30, path: '/so' });
+					    	if(res.defaultPassword == 'true'){
+					    		$.cookie('defaultPassword', true,{ expires: 30, path: '/so' });
+					    		layer.msg('登录成功！检测到此密码为初始密码，马上跳转到修改密码界面。',{icon: 7},function(){location.href='./modifyPassWord.html'});
+					    		return false;
+					    	}else{
+					    		$.cookie('defaultPassword', false,{ expires: 30, path: '/so' });
+						    }
+					    	//location.href='/so/sobooking/index.html?id='+res.id;
+					    	parent.loginSucess();
+						}else{
+							layer.msg(res.message,{icon: 7});
+						}
+					  }
+				});
+                //layer.msg(JSON.stringify(data.field),function(){
+            	//	location.href='./index.html'
+                //});
+                return false;
+              });
+			  $(function(){
+				  setTimeout(function(){
+					  form.val("loginform", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+						  "username": $.cookie('username') // "name": "value"
+						  ,"password": $.cookie('password')
+						  ,"rememberme":$.cookie('rememberme')=='true'?true:false
+						  ,"issysuser":$.cookie('issysuser')=='true'?true:false
+						  ,"isread":$.cookie('isread')=='true'?true:false
+					  });
+				  },500);
+	          });
+			  $("#redclause").click(function() {
+           		  actionGet('/login','termsofuse','',function(res){
+              	  	layer.open({
+                		  title:'使用条款',
+                		  type:1,
+                		  //skin: 'layui-layer-rim', //加上边框
+                		  area: ['600px', '530px'], //宽高
+                		  content: res
+                	 });
+           		  })
+              })
+              var layerIndex = 1;
+              $("#forgetPassword").click(function() {
+            	$('#passWordCanvas').width(130)
+            	$('#passWordCanvas').height(43)
+            	draw(show_num_passWord,'passWordCanvas');
+				let arraval = ['350px', '350px'];
+				if(isMove() == true){
+					arraval = ['100%', '350px'];
+				}
+				layerIndex = layer.open({
+					title:'忘记密码',
+					type:1,
+					move: false,
+					fixed: false,
+					area: arraval, //宽高
+					content: $("#forgetPasswordForm")
+				});
+              })
+              form.on('submit(sendPassWord)', function(data){
+            	  var forgetPassWordv = data.field.forgetPassWordv;
+                  var numpassWord = show_num_passWord.join("");
+                  if(forgetPassWordv==''){
+                      alert('请输入验证码！');
+                  }else if(forgetPassWordv == numpassWord){
+                  }else{
+                      layer.msg('验证码错误！请重新输入！',{icon: 7});
+                      draw(show_num_passWord,'passWordCanvas');
+                      return;
+                  }
+                  actionGet('login','sendpasswordemail','user='+data.field.procname+'&emaile='+data.field.proemaile,function(res){
+                	  var para = JSON.parse(res);
+                	  if(para.success == true){
+                		  layer.msg('密码已发送至邮箱：'+data.field.proemaile+',请注意查收！',{icon: 1},function(){layer.close(layerIndex)});
+                      }else{
+                    	  layer.alert(para.message, {icon: 7});
+                      }
+                  })
+              })
+              var qrcode = new QRCode(document.getElementById("qrcode"), {
+			   	width : 250,//设置宽高
+			   	height : 250
+			 });
+              var uuid = getUuid();
+              actionGet('login','getwxloginurl','uuid='+uuid,function(res){
+               	  var para = JSON.parse(res);
+               	  if(para.success == true){
+               		qrcode.makeCode(para.codeUrl);
+                  }else{
+					console.log('请求url异常！');
+                  }
+              })
+              setInterval(
+                function(){
+	     		  actionGet('login','logintimer','uuid='+uuid,function(res){
+	                   var para = JSON.parse(res);
+	                   if(para.success == true){
+	                	    $.cookie('sid', para.sid,{ expires: 30, path: '/so' });
+					    	$.cookie('token', para.token,{ expires: 30, path: '/so' });
+					    	$.cookie('namec', para.namec,{ expires: 30, path: '/so' });
+					    	$.cookie('issysuser', para.issysuser,{ expires: 30, path: '/so' });
+					    	$.cookie('opneid', para.opneid,{ expires: 30, path: '/so' });
+	                	    if(para.issysuser == 'true'){
+					    		location.href='./manager_staff.html';
+					    	}else{
+					    		location.href='./manager.html';
+							}
+	                   }
+	               })
+                }
+			  ,4000);//监控二维码是否被扫描
+            });   
+
+            $(function(){
+        	  	$("#nav").load("./nav.html");
+        		$("#footer").load("./footer.html");
+        		getWebLoginlogo(function (res){
+        			if(res!=null&&res!=''){
+        				$('#weblogologin').attr("src",res);
+        			}
+        		});
+          	});
+            
+    </script>  
+    <!-- 底部结束 -->
+</body>
+</html>

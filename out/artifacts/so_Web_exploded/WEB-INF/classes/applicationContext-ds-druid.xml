@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd"
+	default-lazy-init="true" default-autowire="byName">
+
+	<!-- 阿里Druid数据库连接池 -->
+	  <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+	  
+	  <property name="url" value="jdbc:postgresql://47.112.143.143:5438/scp?application_name=scp中集世倡;serverTimezone=GMT%2B8" />
+	  <property name="connectionProperties" value="password=858DC657026E4A2E0EA0C1AD3DF9E6662BD11539759D5AFC0112949D20B9DDA924086890C94689EB74E03B60630C181911D1F7662240E2F2A25A3826965673E1-ACED0005737200146A6176612E73656375726974792E4B6579526570BDF94FB3889AA5430200044C0009616C676F726974686D7400124C6A6176612F6C616E672F537472696E673B5B0007656E636F6465647400025B424C0006666F726D617471007E00014C00047479706574001B4C6A6176612F73656375726974792F4B657952657024547970653B7870740003525341757200025B42ACF317F8060854E002000078700000015A30820156020100300D06092A864886F70D0101010500048201403082013C02010002410098B28E391C5B5EAD5166902E787E628E4A567FB949B5054B970C5C27FFB9919545B644383D42C589BD4CDBB7E022621C43890455DF4B3ECF471384DA198FA3150203010001024100923E58A66BF93A6906501380DE58352E10165E0768875DC5F2A99CCD9646F51D24BC068C65860F4CBC8F0C8E05B9AB2E07382F5CF88E01CB194353E63AEF7315022100D874EE4ADAA9A4C667B85888B970DD28A7829DA5EFC36F1FD8D08C73E478CE2B022100B497C8B471A0379EC53B662F6A44BF888EB5242A3F98DDD022F71BAE44B1F3BF022065DE6A032A736A4BC1A67D6C2331DDB3735A424D44D08A2CC7C22647A87FBE2F0221009E8059778602C8CE60ED31528C42AA9880281C05B8ABC282DB2D66EE1CFCD2A102210088298F571E948AE0111F7B37C56CAE74AD14442098BF74188F97277EF12C7262740006504B435323387E7200196A6176612E73656375726974792E4B6579526570245479706500000000000000001200007872000E6A6176612E6C616E672E456E756D0000000000000000120000787074000750524956415445" />
+	    
+	  <property name="username" value="admin" />
+	 	<property name="passwordCallback" ref="dbPasswordCallback"/>
+	   	<!-- 配置初始化大小、最小、最大 -->
+	    <property name="initialSize" value="5" />
+	    <property name="minIdle" value="5" /> 
+	    <property name="maxActive" value="5" />
+	
+	    <!-- 配置获取连接等待超时的时间 -->
+	    <property name="maxWait" value="30000" />
+	
+	    <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+	    <property name="timeBetweenEvictionRunsMillis" value="30000" />
+	
+	    <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+	    <property name="minEvictableIdleTimeMillis" value="60000" />
+	
+	    <property name="validationQuery" value="SELECT 'x'" />
+	    <property name="testWhileIdle" value="true" />
+	    <property name="testOnBorrow" value="false" />
+	    <property name="testOnReturn" value="false" />
+	    
+	   
+	
+	    <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+	    <property name="poolPreparedStatements" value="true" />
+	    <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+	
+	 	<!-- 配置监控统计拦截的filters 生成环境默认需要注释掉，会有可能浪费大量内存可能-->
+	    <property name="filters" value="stat"/><!-- value改成wall,stat可以打开sql防火墙 -->
+	    
+	    
+	    <!-- 打开removeAbandoned功能 -->
+		<property name="removeAbandoned" value="true" />
+		<!-- 1800秒，也就是30分钟 -->
+		<property name="removeAbandonedTimeout" value="1800" />
+		<!-- 关闭abanded连接时输出错误日志 -->
+		<property name="logAbandoned" value="true" />
+		
+		<!-- 配置监控统计拦截的filters 生产环境默认需要注释掉，会有可能浪费大量内存可能-->
+		<!-- value改成wall,stat可以打开sql防火墙 -->
+	    <!-- <property name="filters" value="stat"/> -->
+	    
+	    
+	  </bean>
+	  
+	  <!-- druid spring monitor setting -->
+	  <!-- 开启@AspectJ AOP代理
+    <bean id="druid-stat-interceptor" class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor"/>
+    <bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut" scope="prototype">
+        <property name="patterns">
+            <list>
+                <value>com.scp.dao.*</value>
+            </list>
+        </property>
+    </bean>
+    <aop:config proxy-target-class="true">
+        <aop:advisor advice-ref="druid-stat-interceptor" pointcut-ref="druid-stat-pointcut"/>
+    </aop:config>
+	 -->
+</beans>

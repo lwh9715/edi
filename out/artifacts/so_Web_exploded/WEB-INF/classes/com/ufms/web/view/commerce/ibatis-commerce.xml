@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap>
+    <!--查询工作单-->
+    <select id="base.commerce.fina_jobs" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) as jobs
+        FROM (
+                 SELECT fj.*, (SELECT depter FROM sys_user WHERE id = fj.saleid) AS depter
+                 FROM fina_jobs fj,
+                      bus_commerce bc
+                 WHERE fj.id = bc.jobid
+                   AND fj.isdelete = FALSE
+                   AND fj.id = $id$
+             ) json;
+    </select>
+    <!--查询委托单-->
+    <select id="base.commerce.bus_commerce" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) as commerce
+        FROM (
+                 SELECT bc.*,
+                        (SELECT t.code FROM dat_port t where t.code = bc.porcode)        as porname,
+                        (SELECT t.code FROM dat_port t where t.code = bc.polcode)        as polname,
+                        (SELECT t.code FROM dat_port t where t.code = bc.podcode)        as podname,
+                        (SELECT t.code FROM dat_port t where t.code = bc.destcode)       as destname,
+                        (SELECT t.code FROM dat_port t where t.code = bc.deliverytocode) as deliveryto
+                 FROM fina_jobs fj,
+                      bus_commerce bc
+                 WHERE fj.id = bc.jobid
+                   AND fj.isdelete = FALSE
+                   AND fj.id = $id$
+             ) json;
+    </select>
+    <!--查询装箱单-->
+    <select id="base.commerce.bus_packlist" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) as buspacklist
+        FROM (
+                 SELECT bp.*
+                      , (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT
+                         from (select filename as name, url from sys_attachment where linkid = bp.id) json) as filelist
+                      , (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT
+                         FROM (select bccm.*
+                                    , (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT
+                                       from (select filename as name, url from sys_attachment sa where sa.linkid = bccm.id) json) as filelist
+                               from bus_commerce_cargo_mixed bccm
+                               where bccm.ctnsid = bp.id) json
+                 )                                                                                          as buscommercecargomixedlist
+                 FROM bus_packlist bp,
+                      fina_jobs fj
+                 WHERE fj.id = bp.linkid
+                   AND fj.isdelete = FALSE
+                   AND bp.isregister = TRUE
+                   AND fj.id = $id$
+                 order by bp.id
+             ) json;
+    </select>
+    <!--查询电商装箱单轨迹-->
+    <select id="base.commerce.track" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) :: TEXT AS tracklist
+        FROM (SELECT COALESCE((SELECT array_to_json(ARRAY_AGG(row_to_json(json)))
+                               FROM (SELECT 'SZ' as                                                                                 "areaDescription",
+                                            (SELECT destcountrycode FROM bus_commerce bc WHERE bc.jobid = fkid AND isdelete = false LIMIT 1) as "destinationCountry",
+                                    (SELECT nos FROM bus_commerce bc WHERE bc.jobid = fkid AND isdelete = false LIMIT 1) as "shipperCode",
+                                    COALESCE(statuse, '') as "trackDescription",
+                                    statusc as "trackDescriptionCn",
+                                    to_char(inputtime, 'yyyy-MM-dd hh24:MI') as "trackDisplayDate",
+                              '境内揽收' as "trackStatusCnname"
+                              FROM bus_goodstrack
+                              where fkid = fj.id
+                                  AND iscs = true
+                              ORDER BY inputtime desc) json), '[]')                                                                    as "Data",
+                     nos                                                                                                               as "Jobnum",
+                     COALESCE((CASE WHEN fj.jobtype = 'D' THEN (SELECT mblnum FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END), '') as "Mblnum",
+                     (CASE WHEN fj.jobtype = 'D' THEN (SELECT pkgnum FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END) as "Packages",
+             COALESCE((CASE WHEN fj.jobtype = 'D' THEN (SELECT deliverystatus FROM bus_commerce WHERE jobid = fj.id LIMIT 1)
+                      END), 'InTransit') as "Status",
+            'CN' AS "Delivercode",
+            COALESCE ((CASE WHEN fj.jobtype = 'D' THEN (SELECT destcountrycode FROM bus_commerce WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'S' THEN (SELECT pod FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END), '') as "Destcountrycode",
+            true as "IsSuccess",
+            '' as "ErrorException",
+            '' as "Message"
+        FROM fina_jobs fj
+        WHERE fj.nos = $nos$ AND fj.isdelete = FALSE) json;
+    </select>
+    <!--查询电商装箱单轨迹-->
+    <select id="base.commerce.track_ship" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) :: TEXT AS tracklist
+        FROM (SELECT COALESCE((SELECT array_to_json(ARRAY_AGG(row_to_json(json)))
+                               FROM (SELECT 'SZ'                                                                                     as "areaDescription",
+                                            (SELECT bc.pol FROM bus_shipping bc WHERE bc.jobid = fj.id AND isdelete = false LIMIT 1) as "destinationCountry",
+                                    nos                                                                                      as "shipperCode",
+                                    COALESCE(bsct.statuse, '')                                                               as "trackDescription",
+                                    bsct.statuse                                                                             as "trackDescriptionCn",
+                                    to_char(bsct.dealdate, 'yyyy-MM-dd hh24:MI')                                             as "trackDisplayDate",
+                              '境内揽收'                                                                                   as "trackStatusCnname"
+                              FROM bus_ship_booking bsb
+                              LEFT JOIN bus_ship_book_cnt bsbc ON bsb.ID = bsbc.linkid
+                              LEFT JOIN bus_ship_container_track bsct ON bsbc.ID = bsct.linkid AND bsct.statuse IS NOT NULL
+                              inner join bus_ship_container bsc on bsc.isdelete = false and bsc.parentid is null
+                                  and coalesce(bsc.cntno, '') != '' and bsc.jobid = fj.id and bsb.sono = bsc.sono and bsbc.cntno = bsc.cntno
+                       WHERE 1 = 1
+                         and bsct.ID IS NOT NULL
+                       ORDER BY bsct.dealdate desc) json), '[]')                                                        as "Data",
+                     nos                                                                                                              as "Jobnum",
+                     COALESCE((CASE WHEN fj.jobtype = 'S' THEN (SELECT mblno FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END), '') as "Mblnum",
+                     (CASE WHEN fj.jobtype = 'S' THEN (SELECT piece FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END)               as "Packages",
+            'InTransit'                                                                                                      as "Status",
+            'CN'                                                                                                             AS "Delivercode",
+            COALESCE((CASE
+            WHEN fj.jobtype = 'S' THEN (SELECT pol FROM bus_shipping WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'S' THEN (SELECT pod FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END), '')    as "Destcountrycode",
+            true                                                                                                             as "IsSuccess",
+            ''                                                                                                               as "ErrorException",
+            ''                                                                                                               as "Message"
+        FROM fina_jobs fj
+        WHERE fj.nos = $nos$ AND fj.isdelete = FALSE) json;
+    </select>
+    <!--查询装箱单轨迹 拼接欧轩-->
+    <select id="base.commerce.oxtrack" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT row_to_json(json) :: TEXT AS oxtrack
+        FROM (SELECT ponum                                    as "Jobnum",
+                     COALESCE(mblnum,'')                      as "Mblnum",
+                     pkgnum                                   as "Packages",
+                     COALESCE(deliverystatus,'InTransit')     as "Status",
+                     'CN'                                     AS "Delivercode",
+                     COALESCE(destcountrycode,'')             as "Destcountrycode"
+              FROM bus_commerce
+              WHERE ponum = $nos$
+                AND isdelete = FALSE) json;
+    </select>
+
+    <!--查询委托单轨迹-->
+    <select id="base.commerce.tracking" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT AS tracking
+        FROM (select fj.id,
+                     fj.nos,
+                     fj.jobdate,
+                     'CN'                                                                    as pol,
+                     (select bc.destcountrycode from bus_commerce bc where fj.id = bc.jobid) as pod,
+                     (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT
+                      FROM (
+                               SELECT statusc                                  as title,
+                                      to_char(inputtime, 'yyyy-MM-dd hh24:MI') as desc
+                                FROM bus_goodstrack
+                               WHERE fkid = fj.id
+                                 AND iscs = true
+                               ORDER BY inputtime desc) json)                                as tracklist
+              from fina_jobs fj
+              where fj.isdelete = false
+                and fj.nos = $nos$
+              order by fj.jobdate desc) json;
+    </select>
+
+    <!--查询装箱单轨迹-->
+    <select id="base.commerce.applist" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT AS applist
+        FROM (SELECT fj.id,
+                     (CASE WHEN position('TAE' IN fj.nos) = 0 THEN fj.nos ELSE (SELECT ponum FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END) as nos,
+             fj.jobdate,
+             (CASE
+                 WHEN fj.jobtype = 'D' THEN (SELECT etd FROM bus_commerce WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'S' THEN (SELECT etd FROM bus_shipping WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'A' THEN (SELECT singtime FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END)                        as etd,
+             (CASE
+                 WHEN fj.jobtype = 'D' THEN (SELECT eta FROM bus_commerce WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'S' THEN (SELECT eta FROM bus_shipping WHERE jobid = fj.id LIMIT 1)
+            WHEN fj.jobtype = 'A' THEN (SELECT eta FROM bus_shipping WHERE jobid = fj.id LIMIT 1) END)                             as eta,
+             (CASE WHEN fj.jobtype = 'D' THEN (SELECT productname FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END)                    as productname,
+             (CASE WHEN fj.jobtype = 'D' THEN (SELECT deliverynamec FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END)                  as deliverynamec,
+             (CASE WHEN fj.jobtype = 'D' THEN (SELECT destcountrycode FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END)                as destcountrycode,
+             (CASE WHEN fj.jobtype = 'D' THEN (SELECT postcode FROM bus_commerce WHERE jobid = fj.id LIMIT 1) END)                       as postcode
+            FROM fina_jobs fj
+        WHERE fj.isdelete = false
+          AND fj.customerid = $customerid$ ORDER BY fj.jobdate DESC LIMIT 50) json;
+    </select>
+
+    <!--查询装箱单轨迹-->
+    <select id="base.commerce.commercelist" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT AS commercelist
+        FROM (select fj.id,
+                     (CASE WHEN position('TAE' IN fj.nos) = 0 THEN fj.nos ELSE bc.ponum END) as nos,
+                     fj.jobdate,
+                     (select destcountrycode from bus_commerce where fj.id = jobid limit 1) as destcountry,
+             (SELECT array_to_json(ARRAY_AGG(row_to_json(json))) :: TEXT
+              FROM (SELECT statusc                                  as title,
+                           to_char(inputtime, 'yyyy-MM-dd hh24:MI') as desc
+                    FROM bus_goodstrack
+                    where fkid = fj.id
+                      AND iscs = true
+                    ORDER BY inputtime desc) json) as tracklist
+            from fina_jobs fj,bus_commerce bc
+        where fj.id = bc.jobid
+          and fj.isdelete = false
+          and fj.jobtype = 'D'
+          and fj.customerid = $customerid$
+        order by fj.jobdate desc LIMIT 50) json;
+    </select>
+
+</sqlMap>

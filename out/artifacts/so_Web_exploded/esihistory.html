@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	
+	
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/layui/layui.js"></script>
+	
+	<link rel="stylesheet" href="./res/static/css/index.css?t=25">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="./res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="./admin/js/ufms.common.js?t=11" ></script>
+	<link rel="stylesheet" href="/so/res/static/css/bootstrap.min.css">
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+	
+	<style type="text/css">
+		/*设置下拉框的高度和表格单元相同*/
+			.layui-table-box td .layui-form-select{
+				margin-top : -5px;
+				margin-left : -15px;
+				margin-right : -15px;
+			}
+		/**结束*/
+	</style>
+</head>
+<body>
+  <!-- main -->
+  <div class="main-news" style="padding-top: 0px;">
+    <div class="layui-container">
+    
+    	<form id="shippingForm" class="layui-form" action="" lay-filter="esi" style="padding-top: 2%;padding-bottom: 5%;">
+    	
+    		<div class="layui-row padding-bottom-10" style="border-style: ridge;border-width:1px">
+				<div class="layui-col-lg6">
+					<div class="layui-col-lg12">
+						<div>
+							<div><h5 style="color:red">发货人/SHIPPER</h5>
+								<textarea id="cnortitle" name="cnortitle" class="layui-textarea" onchange="this.value = this.value.toUpperCase();" style="height: 100px;" required lay-verify="required"></textarea> 
+							</div>
+							<div><h5>Consignee/收货人 </h5>
+								<textarea id="cneetitle" layui-filter="consignee" name="cneetitle" class="layui-textarea" onchange="this.value = this.value.toUpperCase();" style="height: 100px;"></textarea> 
+							</div>
+							<div><h5>Notify/通知方</h5>
+								<textarea id="notifytitle" layui-filter="notify" name="notifytitle" class="layui-textarea" onchange="this.value = this.value.toUpperCase();" style="height: 100px;"></textarea> 
+							</div>
+						</div>
+					</div>
+					
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>收货地/PLACE OF RECEIPT</h5>
+								<input type="text" id="poa" name="poa"  class="layui-input"></input>
+							</div>
+							<div class="layui-col-lg6">
+								<h5>装货港/PORT OF LOADING</h5>
+								<input type="text" id="pol" name="pol"  class="layui-input"></input>
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>船名/VESSEL</h5>
+								<input type="text" id="vessel" name="vessel"  class="layui-input"></input>
+							</div>
+							<div class="layui-col-lg6">
+								<h5>航次/VOYAGE</h5>
+								<input type="text" id="voyage" name="voyage"  class="layui-input"></input>
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>卸货港/PORT OF DISCHARGE</h5>
+								<input type="text" id="pdd" name="pdd"  class="layui-input"></input> 
+							</div>
+							<div class="layui-col-lg6">
+								<h5>目的港/PLACE OF DELIVERY</h5>
+								<input type="text" id="pod" name="pod"  class="layui-input"></input> 
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="layui-col-lg6">
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>S/O NO.</h5>
+								<input type="text"  id="sono" name="sono" class="layui-input"></input>
+							</div>
+							<div class="layui-col-lg6">
+								<h5>B/L NO.</h5>
+								<input type="text"  id="nos" name="nos" class="layui-input" readonly="readonly"></input>
+							</div>
+						</div>
+					</div>
+					
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>运输条款</h5>
+								<input name="carryitem" lay-verify="required" class="layui-input"></input>
+							</div>
+							<div class="layui-col-lg6">
+								<h5>运费条款</h5>
+								<input name="freightitem" lay-verify="required" class="layui-input"></input>
+							</div>
+						</div>
+					</div>
+					
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<li><h5>HBL代理/FOR DELIVERY OF GOODS PLEASE APPLY TO:</h5>
+								<textarea class="layui-textarea" id="agentitle" name="agentitle" readonly="readonly"></textarea>
+							</li>
+						</div>
+					</div>
+					
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>FINAL DESTINATION</h5>
+								<input type="text" id="destination" name="destination"  class="layui-input"></input> 
+							</div>
+							<div class="layui-col-lg6">
+								<h5>付款地点/FREIGHT PAYABLE AT</h5>
+								<input type="text" id="payplace" name="payplace"  class="layui-input"></input> 
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<div class="layui-col-lg6">
+								<h5>提单类型</h5>
+								<input name="bltype" lay-filter="bltype" class="layui-input">
+							    </input>
+							</div>
+							<div class="layui-col-lg6">
+								
+							</div>
+						</div>
+					</div>
+					<div class="layui-col-lg12">
+						<div class="layui-row">
+							<li><h5>备注</h5>
+								<textarea class="layui-textarea" id="claim_bill" name="claim_bill"></textarea>
+							</li>
+						</div>
+					</div>
+				</div>	
+			</div>
+			
+			<div class="layui-col-lg12">
+				<div class="layui-row">
+					<div class="layui-col-lg4">
+						<h5>标记与号码/MARKS & NO.</h5>
+						<textarea class="layui-textarea"  id="marksno" name="marksno"></textarea>
+					</div>
+					<div class="layui-col-lg4">
+						<h5>货物描述/DESCRIPTIONS</h5>
+						<textarea class="layui-textarea"  id="goodsdesc" name="goodsdesc"></textarea>
+					</div>
+					<div class="layui-col-lg2">
+						<h5>毛重/KGS</h5>
+						<input class="layui-textarea"  id="grswgt" name="grswgt" ></input>
+					</div>
+					<div class="layui-col-lg2">
+						<h5>体积/CBM</h5>
+						<input class="layui-textarea"  id="cbm" name="cbm" ></input>
+					</div>
+				</div>
+			</div>
+			
+			<div class="layui-col-lg12">
+				<div class="layui-row">
+					<div class="layui-col-lg2">
+						<h5>合计箱数或柜数/</h5>
+     					<h5>TOTAL NUMBER OF CONT AINER OR PACKAGES(IN WORDS):</h5>
+					</div>
+					<div class="layui-col-lg10">
+						<input class="layui-textarea" id="totledesc" name="totledesc" readonly="readonly"></input>
+					</div>
+				</div>
+			</div>
+     	
+     	<div class="layui-col-lg6">
+			<div class="layui-row">
+				<div class="layui-col-lg6">
+					<h5>提单份数/NO. OF ORIGINAL B/L(S)</h5>
+					<input name="billcount" lay-verify="required" disabled="disabled"  class="layui-input"></input>
+				</div>
+				<div class="layui-col-lg6">
+					<h5>签单地点/PLACE OF ISSUE</h5>
+					<input name="signplace" lay-verify="required" disabled="disabled"  class="layui-input"></input>
+				</div>
+			</div>
+		</div>
+			
+     	
+     	<table class="layui-table cntdetail" lay-size="sm" id="cntdetail" lay-filter="cntdetail"></table>
+     	
+     	<div class="layui-form-item">
+		    <div class="layui-input-block">
+		      <input type="hidden" name="id" id="shipid"/>
+		      <input type="hidden" name="jobid" id="jobid"/>
+		    </div>
+		</div>
+  
+     </form>
+  </div>
+<!--[if lt IE 9]>
+  <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+  <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<script>
+var action = '/esi';
+var form,table;
+layui.use(['jquery','layer','form','table','tablePlug'], function() {
+	$ = layui.jquery;
+	form = layui.form, tablePlug = layui.tablePlug; //只有执行了这一步，部分表单元素才会自动修饰成功
+	form.render();
+
+	table = layui.table;
+	var cntdetaildata;
+	var parav = getRequest();
+	var getsnapshotsdata = (function(){
+		$.ajax({
+            type: "post",  //提交方式  
+            data:{"id":parav.id},
+            dataType: "json", //收到数据类型 
+            async:false,
+     	    url:getContextPath()+"/esi?method=snapshots",
+     	    success: function (data) { //提交成功的回调函数  
+     	     	if(data.success == false){
+     	     		layer.msg('没有查询到数据',{icon: 7});
+    	  	    }
+    	  	    console.dir(data.data.cntarray);
+    	  	  	cntdetaildata = data.data.cntarray;
+     	     	form.val('esi',data.data);
+     	    },
+     	    error:function(result){
+     	    	layer.msg('请求异常',{icon: 7});
+     	    }
+    	});
+	})();
+	var detail = table.render({
+	    elem: '#cntdetail'
+	    ,cellMinWidth: 80
+	    ,height: 332
+	    ,cols: [[
+		  // {type: 'checkbox', fixed: 'left'}
+	      ,{field:'id', width:80, title: 'ID',hide:true}
+	      ,{field:'isremark', width:80, title: ''}
+	      ,{field:'cntypeiddesc', width:110, title: '箱型'}
+	      ,{field:'cntno', width:140, title: '柜号', edit: 'text'}
+	      ,{field:'sealno', width:120, title: '封条号', edit: 'text'}
+	      ,{field:'goodsnamee', width:120, title: '品名'
+		      ,templet : '<div><textarea value="{{d.goodsnamee}}" class="layui-textarea">{{d.goodsnamee}}</textarea></div>'}
+	      ,{field:'markno', width:120, title: '唛头'
+	    	  ,templet : '<div><textarea value="{{d.markno}}" class="layui-textarea">{{d.markno}}</textarea></div>'}
+	      ,{field:'piece', title: '件数', width: 70, edit: 'text'}
+	      ,{field:'packagee', title: '包装', width: 140, edit: 'text'}
+	      ,{field:'grswgt', title: '毛重', width: 100, edit: 'text'}
+	      ,{field:'cbm', title: '体积', width: 100, edit: 'text'}
+	      ,{field:'hscode', title: '商品编码', width: 110, edit: 'text'}
+	    ]]
+	    ,data:cntdetaildata
+	    ,id: 'dataReload'
+	    , done: function(res, curr, count){
+	    	setTimeout("$('div[lay-id=\"cntdetail\"] .layui-form-select').css({'margin-top':'-10px','margin-left':'-15px','margin-right':'-15px'});",100);
+	    	$("input,textarea,div[lay-id='dataReload'] div[class*='layui-table-cell']").each(function(i){
+    		   if($(this).val().indexOf('旧值')>-1 || $(this).text().indexOf('旧值')>-1){
+    			   $(this).css("color","red");
+        	   }
+    		 });
+		}
+	});
+
+});
+$("td").attr("valign","top");
+$(".layui-col-lg6").css("padding","2px");
+$(".layui-col-lg4").css("padding","2px");
+
+</script>
+
+</body>
+</html>

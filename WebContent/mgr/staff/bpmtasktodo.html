@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+	<meta name="description" content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+	<meta name="author" content="Neo">
+	<meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="icon" type="image/gif" href="favicon.ico" />
+	<title>SO.UFMS </title>
+	<link rel="stylesheet" type="text/css" href="/so/res/static/css/jquery.step.index.css">
+	<link rel="stylesheet" href="/so/res/layui/css/layui.css">
+	<script src="/so/res/layui/layui.js"></script>
+	<link rel="stylesheet" href="/so/res/static/css/index.css?t=26">
+	<link rel="stylesheet" href="../../res/layui/layui-formSelects/formSelects-v4.css">
+	<script src="/so/res/static/js/jquery.min.js"></script>
+	<script src="/so/res/static/js/jquery.cookie.js?t=1"></script>
+	<script src="/so/admin/js/ufms.common.js?t=13" ></script>
+	<script type="text/javascript" src="/so/res/static/js/jquery.toTop.min.js"></script>
+	<script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+</head>
+<body>
+
+  <!-- nav部分 -->
+  <div class="nav" id="nav">
+  </div>
+  
+  <!-- nav二级部分 -->
+  <div class="nav_level2" id="nav_level2">
+  </div>
+
+	<form class="layui-form" lay-filter="formFilter">
+		<div class="layui-form-item">
+		    <div class="layui-inline">
+		      <label class="layui-form-label"> 检索：</label>
+		      <div class="layui-input-inline">
+		        <input name="queryvaluee" autocomplete="off" class="layui-input" placeholder="流水号/参考号/任务名称/流程名称">
+		      </div>
+		    </div>
+		    
+		    <div class="layui-inline">
+		      <button class="layui-btn layui-btn-normal" type="button" lay-submit="" lay-filter="query"><i class="layui-icon layui-icon-search"></i>搜索</button>
+		      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+		    </div>
+		</div>
+		<table id="myTable" ></table>
+	</form>
+ <form class="layui-form" id="businfosform" style="display:none" lay-filter="businfosformfi">
+ 	<div class="layui-form-item">
+ 		<div class="layui-form-item">
+			<label class="layui-form-label">指派人</label>
+			<div class="layui-input-inline" style="width:260px;">
+				<select id="taskuer" name="taskuer" lay-search="" xm-select="checkbox_taskuer" xm-select-search="" xm-select-skin="normal">
+		         	<option value=""><span class="translate">选择指派人</span></option>
+		      	</select>
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">下一环节</label>
+			<div class="layui-input-inline">
+				<select id="taskDefineSelect" name="taskDefine" class="form-control" type="text">
+					<option value=""><span class="translate">选择下一环节</span></option>
+				</select>
+			</div>
+		</div>
+		<div class="layui-inline">
+			<button type="button" class="layui-btn layui-btn-primary" lay-submit lay-filter="bpmGototask"><i class="layui-icon layui-icon-return"></i>打回</button>
+			<button type="button" class="layui-btn layui-btn layui-btn-normal" lay-submit lay-filter="BPMNext"><i class="layui-icon layui-icon-ok"></i>通过</button>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">流程名称</label>
+			<div class="layui-input-inline">
+				<input type="text" name="procname" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">当前环节</label>
+			<div class="layui-input-inline">
+				<input type="text" name="taskname" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline">
+			<label class="layui-form-label">流水号</label>
+			<div class="layui-input-inline">
+				<input type="text" name="pronos" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+		<div class="layui-inline layui-hide">
+			<label class="layui-form-label">taskid</label>
+			<div class="layui-input-inline">
+				<input type="text" name="taskid" autocomplete="off" class="layui-input">
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-item">
+			<label class="layui-form-label">业务信息</label>
+			<div class="layui-input-block" id="businfos">
+			</div>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">批复及意见</label>
+			<div class="layui-input-block">
+				<textarea type="text" name="taskcheckinfo" autocomplete="off" class="layui-textarea"></textarea>
+			</div>
+		</div>
+	</div>
+ </form>
+ 
+   <!-- footer部分 -->
+  <div class="footer" id="footer">
+  </div>
+ 
+<script type="text/html" id="formatLinkTraceTemp">
+	{{# if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {}}
+		<button type="button" value="{{d.processinstanceid}}" class="layui-btn layui-btn-primary layui-btn-xs" lay-submit lay-filter="formatLinkTrace"><i class="layui-icon layui-icon-location"></i>Trace</button>
+	{{#  } else { }}
+		<button type="button" value="{{d.processinstanceid}}" class="layui-btn layui-btn-primary layui-btn-xs" lay-submit lay-filter="formatLinkTracePC"><i class="layui-icon layui-icon-location"></i>Trace</button>
+	{{#}}}
+</script>
+<script type="text/html" id="totaskcommentTemp">
+	{{# if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {}}
+		<button type="button" value="{{d.processinstanceid}}" class="layui-btn layui-btn-primary layui-btn-xs" lay-submit lay-filter="totaskcomments"><i class="layui-icon layui-icon-form"></i>{{d.taskcomments}}</button>
+	{{#  } else { }}
+		<button type="button" value="{{d.processinstanceid}}" class="layui-btn layui-btn-primary layui-btn-xs" lay-submit lay-filter="totaskcommentsPC"><i class="layui-icon layui-icon-form"></i>{{d.taskcomments}}</button>
+	{{#}}}
+</script>
+<script type="text/html" id="bpmtodoapplyapTemp">
+	{{# if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {}}
+		<button type="button" value="{{d.id}}" class="layui-btn layui-btn-normal layui-btn-xs" lay-submit lay-filter="bpmtodoapplyap"><i class="layui-icon layui-icon-survey"></i>{{d.refno}}</button>
+	{{#  } else { }}
+		<button type="button" value="{{d.id}}" class="layui-btn layui-btn-normal layui-btn-xs" lay-submit lay-filter="bpmtodoapplyapPC"><i class="layui-icon layui-icon-survey"></i>{{d.refno}}</button>
+	{{#}}}
+</script>
+
+<script>
+
+$("#nav").load(getContextPath()+"/nav.html");
+$("#nav_level2").load(getContextPath()+"/manager_staffnav.html");
+$("#footer").load(getContextPath()+"/footer.html");　　
+actionGet('index','checkLogin','',function(res){
+	 var data = JSON.parse(res);
+	 if(data.success){//如果登录了就把导航宽度拓展到100%
+		 $('#nav-logo').css({width:"100%"});
+	 }
+})
+
+layui.use(['jquery','layer','form','table','formSelects'], function() {
+	$ = layui.jquery;
+	var form = layui.form,table = layui.table,formSelects = layui.formSelects;
+	table.render({
+		elem: '#myTable'
+        ,limit: 15
+        ,page: {theme: '#1e9fff'}
+        ,url:getContextPath()+"/bpm?method=bpmtasktodolist"+getSid()
+        ,id:'jobtable'
+        ,cols: [[
+            //{type: 'checkbox', title: '##', fixed: 'left' },
+            {field: 'refno', title: '参考号', width: 150 ,templet:"#bpmtodoapplyapTemp"},
+            {field: 'displayname2', title: '流程名称', width: 180},
+            {field: 'tasknamelanguge', title: '任务名称', width: 100},
+            {field: 'instanceremarks', title: '备注', width: 230},
+            {field: 'taskcomments', title: '批复及意见', width: 150,templet:"#totaskcommentTemp"},
+            {field: 'trace', title: '跟踪', width: 100 ,templet:"#formatLinkTraceTemp"},
+            {field: 'nos', title: '流水号', width: 140},
+        ]]
+        ,method: 'post'
+        ,done: function (res, curr, count) {
+		    $('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+	    }
+    });
+	
+	form.on('submit(query)', function(data){
+		var datajsonstring = JSON.stringify(data.field);
+		table.reload('jobtable', {
+	        page: {
+	          curr: 1 //重新从第 1 页开始
+	        }
+	        ,where: {
+	        	queryvaluee:data.field.queryvaluee
+	        }
+	      }, 'data');
+  	}); 
+
+	form.on('submit(formatLinkTrace)',function(data){
+		var para = new Object;
+        para.processinstanceid = this.value
+    	actionPost('/bpm','getbpmtracelurl',JSON.stringify(para),function(res){
+    		var resjson = JSON.parse(res);
+        	if(resjson.success == true){
+        		var src = resjson.url;
+        		parent.layer.open({
+	    	   		title:'<button type="button" lay-filter="closelayer" lay-submit class="layui-btn layui-btn-sm supersmall">返回</button>',
+	    	   		type:2,
+	    	   	 	move: false,
+	    	   	 	fixed: false,
+	    	   		area: ['100%', '100%'], //宽高
+	    	   		content: src
+	    	   	});
+			}else{
+				layer.msg(resjson.msg,{icon: 7});
+			}
+    	})
+	})
+
+	form.on('submit(formatLinkTracePC)',function(data){
+		var para = new Object;
+	    para.processinstanceid = this.value
+		actionPost('/bpm','getbpmtracelurl',JSON.stringify(para),function(res){
+			var resjson = JSON.parse(res);
+	    	if(resjson.success == true){
+	    		var src = resjson.url;
+ 	    		layer.open({
+	    	   		  title:'Trace',
+	    	   		  type:2,
+	    	   		  area: ['800px', '600px'], //宽高
+	    	   		  content: src
+	    	   	});
+			}else{
+				layer.msg(resjson.msg,{icon: 7});
+			}
+		})
+	})
+	
+	form.on('submit(totaskcomments)',function(data){
+		var para = new Object;
+        para.processinstanceid = this.value
+        actionPost('/bpm','gettotaskcommentsurl',JSON.stringify(para),function(res){
+    		var resjson = JSON.parse(res);
+        	if(resjson.success == true){
+        		var src = resjson.url;
+        		parent.layer.open({
+	    	   		title:'<button type="button" lay-filter="closelayer" lay-submit class="layui-btn layui-btn-sm supersmall">返回</button>',
+	    	   		type:2,
+	    	   	 	move: false,
+	    	   	 	fixed: false,
+	    	   		area: ['100%', '100%'], //宽高
+	    	   		content: src
+	    	   	});
+			}else{
+				layer.msg(resjson.msg,{icon: 7});
+			}
+    	})
+	})
+	
+	form.on('submit(totaskcommentsPC)',function(data){
+		var para = new Object;
+	    para.processinstanceid = this.value
+		actionPost('/bpm','gettotaskcommentsurl',JSON.stringify(para),function(res){
+			var resjson = JSON.parse(res);
+	    	if(resjson.success == true){
+	    		var src = resjson.url;
+ 	    		layer.open({
+	    	   		  title:'批复及意见',
+	    	   		  type:2,
+	    	   		  area: ['800px', '600px'], //宽高
+	    	   		  content: src
+	    	   	});
+			}else{
+				layer.msg(resjson.msg,{icon: 7});
+			}
+		})
+	})
+	
+	form.on('submit(bpmtodoapplyap)',function(data){
+		var para = new Object;
+		para.taskId = this.value
+        actionPost('/bpm','getbusinfoform',JSON.stringify(para),function(res){
+    		var resjson = JSON.parse(res);
+        	if(resjson.success == true){
+        		var src = resjson.url;
+        		layer.open({
+	    	   		title:'<button type="button" lay-filter="closelayer" lay-submit class="layui-btn layui-btn-sm supersmall">返回</button>',
+	    	   		type:1,
+	    	   	 	move: false,
+	    	   	 	fixed: false,
+	    	   	 	shade: false,
+	    	   		area: ['100%', '100%'], //宽高
+	    	   		content: $("#businfosform"),
+	    	   	});
+        		form.val("businfosformfi",{
+					"taskname":resjson.jsondata.taskname
+					,"pronos":resjson.jsondata.pronos
+					,"procname":resjson.jsondata.procname
+					,"taskid":resjson.jsondata.id
+					,"taskDefine":""
+		    	});
+		    	$('#businfos').html(resjson.jsondata.businfos);
+		    	setSelects(resjson.jsondata.id);
+			}else{
+				layer.msg(resjson.msg,{icon: 7});
+			}
+    	})
+	})
+	form.on('submit(bpmtodoapplyapPC)',function(data){
+		var para = new Object;
+	    para.taskId = this.value
+	    actionPost('/bpm','getbusinfoform',JSON.stringify(para),function(res){
+	    	var resjson = JSON.parse(res);
+	    	if(resjson.success == true){
+	    		var src = resjson.url;
+	    		layer.open({
+	    	   		  title:'待办',
+	    	   		  type:1,
+	    	   		  offset: '100px',
+	    	   		  area: ['800px', '450px'], //宽高
+	    	    	  content: $("#businfosform"),
+	     		});
+	    		form.val("businfosformfi",{
+					"taskname":resjson.jsondata.taskname
+					,"pronos":resjson.jsondata.pronos
+					,"procname":resjson.jsondata.procname
+					,"taskid":resjson.jsondata.id
+					,"taskDefine":""
+		    	});
+		    	$('#businfos').html(resjson.jsondata.businfos);
+		    	setSelects(resjson.jsondata.id);
+			}else{
+				layer.msg(resjson.msg,{icon: 7});
+			}
+	    });  
+	})
+	
+	function setSelects(taskId){
+		actionGet('/combobox','taskDefine','taskId='+taskId,function(res){
+		    var data = JSON.parse(res);
+		    for(var i=0; i<data.length; i++){
+		    	var option="<option value='"+data[i].val+"'>"+data[i].label+"</option>";
+		    	$("select[name=taskDefine]").append(option);
+		    }
+		    form.render('select','businfosformfi');
+	   });
+	   randerfromselect('/combobox','taskuer','checkbox_taskuer',formSelects,true);
+	}
+	
+	form.on('submit(bpmGototask)', function(data){
+		var datajsonstring = JSON.stringify(data.field);
+		var taskuer = formSelects.value('checkbox_taskuer', 'valStr');
+		var para = new Object;
+		para.taskuer = taskuer;
+		para.taskDefine = data.field.taskDefine;
+		para.taskid = data.field.taskid;
+		para.taskcheckinfo = data.field.taskcheckinfo;
+    	actionPost('/bpm','BPMgoToTask',JSON.stringify(para),function(res){
+    		var resjson = JSON.parse(res);
+        	if(resjson.success == true){
+        		table.reload('jobtable');
+        		closelayer();
+        		layer.msg("OK",{icon: 1});
+        	}else{
+				layer.msg(resjson.msg,{icon: 7});
+			}
+    	})
+  	});
+
+	form.on('submit(BPMNext)', function(data){
+		var datajsonstring = JSON.stringify(data.field);
+		var taskuer = formSelects.value('checkbox_taskuer', 'valStr');
+		var para = new Object;
+		para.taskuer = taskuer;
+		para.taskDefine = data.field.taskDefine;
+		para.taskid = data.field.taskid;
+		para.taskcheckinfo = data.field.taskcheckinfo;
+    	actionPost('/bpm','BPMNext',JSON.stringify(para),function(res){
+    		var resjson = JSON.parse(res);
+        	if(resjson.success == true){
+        		table.reload('jobtable');
+        		closelayer();
+        		layer.msg("OK",{icon: 1});
+        	}else{
+				layer.msg(resjson.msg,{icon: 7});
+			}
+    	})
+  	});
+
+	form.on('submit(showDynamic)',function(data){
+  		parent.layer.open({
+	   		title:'<button type="button" lay-filter="closelayer" lay-submit class="layui-btn layui-btn-sm">返回</button>',
+	   		type:2,
+	   	 	move: false,
+	   	 	fixed: false,
+	   		area: ['100%', '100%'], //宽高
+	   		content: './jobs_info.html?id='+this.value
+	   	});
+	})
+	
+	form.on('submit(closelayer)',function(data){
+		closelayer();
+	})
+
+
+	
+});
+
+</script>
+</body>
+</html>

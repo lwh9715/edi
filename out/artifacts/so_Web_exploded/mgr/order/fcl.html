@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+    <meta name="description"
+          content="UFMS云货代系统，实现业务财务一体化，整合企业网站，微信和内部ERP系统。可量身定制开发。对外平台：涵盖客户网上运价查询，在线订舱、补料、对单，查询库存账单及流程跟踪。内部操作系统：包含海运、空运、拖车、报关、仓储、人事行政，内部OA，财务">
+    <meta name="author" content="Neo">
+    <meta name="keywords" content="UFMS,货代软件,货代系统,财务系统">
+    <link rel="shortcut icon" href="favicon.ico"/>
+    <link rel="icon" type="image/gif" href="favicon.ico"/>
+    <title>SO.UFMS </title>
+    <link rel="stylesheet" type="text/css" href="/so/res/static/css/jquery.step.index.css">
+    <link rel="stylesheet" type="text/css" href="/so/res/static/css/jquery.step.css">
+    <link rel="stylesheet" href="/so/res/layui/css/layui.css">
+    <link rel="stylesheet" href="../../res/layui/layui-formSelects/formSelects-v4.css">
+    <script src="/so/res/layui/layui.js"></script>
+
+    <link rel="stylesheet" href="../../res/static/css/index.css?t=26">
+    <script src="/so/res/static/js/jquery.min.js"></script>
+    <script src="../../res/static/js/jquery.cookie.js?t=1"></script>
+    <script src="../../admin/js/ufms.common.js?t=10"></script>
+    <script type="text/javascript" src="/so/res/static/js/jquery.toTop.min.js"></script>
+    <script src="/so/admin/js/jquery.i18n.properties-min-1.0.9.js"></script>
+
+    <style type="text/css">
+        td .layui-table-cell {
+            height: 25px;
+            font-family: Microsoft Yahei;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .hfont {
+            color: #008cff;
+        }
+
+        .a-text {
+            font-family: Microsoft Yahei;
+            font-size: 12px;
+        }
+
+        .a-text:hover {
+            text-decoration: underline;
+        }
+
+        /*超小屏幕*/
+        @media only screen and (max-width: 479px) {
+            .portList {
+                display: none;
+            }
+        }
+
+        .nav_level2 {
+            height: 200px;
+        }
+
+        body {
+            overflow-x: hidden;
+            overflow-y: auto;
+            font-family: Microsoft Yahei;
+        }
+
+        .layui-layer-content {
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+<!-- nav部分 -->
+<div class="nav" id="nav">
+</div>
+<!-- nav二级部分 -->
+<div class="nav_level2" id="nav_level2">
+</div>
+<!-- main -->
+<div>
+    <form class="layui-form" lay-filter="formFilter">
+        <div style="background-color: #f6f6f6">
+            <span id="setjobstatedesc" class="layui-breadcrumb" lay-separator="|"
+                  style="padding: 5px;line-height: 35px;font-family: Microsoft Yahei"> </span>
+            <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" lay-submit lay-filter="qrycondition">
+                <span class="translate">搜索条件</span>
+                <i id="queryIcon" class="layui-icon layui-icon-down"></i>
+            </button>
+        </div>
+        <div class="layui-form-item layui-anim layui-hide"
+             style="background-color: #f2f8fa;padding: 5px;margin-top: 10px;font-family: Microsoft Yahei">
+            <div class="layui-inline">
+                <label class="layui-form-label">单号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="nos" placeholder="Nos" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">起运港</label>
+                <div class="layui-input-inline" style="width:260px;">
+                    <div id="polxm"></div>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">目的港</label>
+                <div class="layui-input-inline" style="width:260px;">
+                    <div id="podxm"></div>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">船公司</label>
+                <div class="layui-input-inline" style="width:260px;">
+                    <div id="crrierxm"></div>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">下单时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="placeorder" class="layui-input" id="placeorder" placeholder=" - ">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">开船时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="etd" class="layui-input" id="etd" placeholder=" - ">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <button type="button" class="layui-btn layui-btn-normal" lay-submit="" lay-filter="query"><i class="layui-icon layui-icon-search"></i><span
+                        class="translate">查询</span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<div style="text-align: center;">
+    <table class="layui-table" id="datetable" lay-size="sm" style="margin-top: 0px;"></table>
+</div>
+
+<!--[if lt IE 9]>
+<script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+<script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+
+<script type="text/html" id="showEsi">
+    {{# if(d.types=='jobs'){}}
+    <a type="button" value="{{d.id}}" class="layui-btn layui-btn-warm layui-btn-xs" href="../../esi.html?id={{d.id}}" target="_blank"><i
+            class="layui-icon layui-icon-template-1"></i>ESI</a>
+    <button type="button" value="{{d.id}}" class="layui-btn layui-btn-warm layui-btn-xs" lay-submit lay-filter="addsbill"><i
+            class="layui-icon layui-icon-add-1">{{ $.i18n.prop('分单')}}</i></button>
+    {{#}}}
+    {{# if(d.ifdelete==true){}}
+    <button type="button" value="{{d.id}}" class="layui-btn layui-btn layui-btn-danger layui-btn-xs" lay-submit lay-filter="delbill"><i
+            class="layui-icon layui-icon-delete">{{ $.i18n.prop('删除')}}</i></button>
+    {{#}}}
+</script>
+<script type="text/html" id="showBill">
+    {{# if(d.isfinabill==true){}}
+    <button type="button" value="{{d.id}}" class="layui-btn layui-btn-primary layui-btn-xs" lay-submit lay-filter="showbusshipbill"><i
+            class="layui-icon layui-icon-survey"></i> 账单
+    </button>
+    {{#}}}
+</script>
+<script type="text/html" id="showjobstatedesc">
+    <button type="button" value="{{d.id}}" class="layui-btn layui-btn-primary layui-btn-xs" lay-submit lay-filter="gojobstate"><i
+            class="layui-icon layui-icon-location"></i>{{ $.i18n.prop(d.jobstatedesc)}}
+    </button>
+</script>
+<script type="text/html" id="showAttachment">
+    {{# if(d.types=='jobs'){}}
+    <button type="button" value="{{d.id}}" class="layui-btn layui-btn-primary layui-btn-xs" lay-submit lay-filter="showAttachment"><i
+            class="layui-icon layui-icon-survey"></i> {{ $.i18n.prop('附件')}}<span style="color: blue;">{{d.attachmentcount}}</span></button>
+    {{#}}}
+</script>
+<script type="text/html" id="showbooking">
+    {{# if(d.isubmit==false){}}
+    <button type="button" value="{{d.id}}" class="layui-btn layui-btn-primary layui-btn-xs" lay-submit lay-filter="showbookingEdit">
+        <i class="layui-icon layui-icon-survey"></i> {{d.booknos}}
+    </button>
+    {{# }else if(d.isubmit==true){}}
+    <button type="button" value="{{d.id}}" class="layui-btn layui-btn-normal layui-btn-xs" lay-submit lay-filter="showbookingEdit">
+        <i class="layui-icon layui-icon-survey"></i> {{d.booknos}}
+    </button>
+    {{#  } else { }}
+
+    <button type="button" value="{{d.id}}" class="layui-btn layui-btn-primary layui-btn-xs" lay-submit lay-filter="showNos">
+        {{d.booknos}}
+    </button>
+
+    {{#}}}
+</script>
+
+<script>
+
+    $("#nav").load(getContextPath() + "/nav.html");
+    $("#nav_level2").load(getContextPath() + "/managernav.html");
+    actionGet('index', 'checkLogin', '', function (res) {
+        var data = JSON.parse(res);
+        if (data.success) {//如果登录了就把导航宽度拓展到100%
+            $('#nav-logo').css({width: "1350px"});
+        }
+    })
+
+
+    layui.use(['jquery', 'layer', 'form', 'formSelects', 'laydate', 'table', 'element', 'xmSelect', 'i18np'], function () {
+        $ = layui.jquery;
+        var form = layui.form, formSelects = layui.formSelects, laydate = layui.laydate, table = layui.table, element = layui.element;
+        xmSelect = layui.xmSelect, i18np = layui.i18np; //只有执行了这一步，部分表单元素才会自动修饰成功
+        laydate.render({
+            elem: '#placeorder'
+            , range: true
+        });
+        laydate.render({
+            elem: '#etd'
+            , range: true
+        });
+
+        var datetablecols = [[
+            {field: "booknos", title: '单号', align: "center", width: 180, sort: true, templet: '#showbooking'}
+            , {field: 'pold', title: '起运港/目的港', align: "left", width: 180, sort: true}
+            , {field: 'carrierabbr', title: '船公司', align: "left", width: 110, sort: true}
+            , {field: 'cnts', title: '箱型箱量', align: "left", width: 110, sort: true}
+            , {
+                field: 'inputtime',
+                title: '下单时间',
+                align: "left",
+                width: 145,
+                sort: true,
+                templet: '<div>{{ layui.util.toDateString(d.inputtime, "yyyy-MM-dd") }}</div>'
+            }
+            , {
+                field: 'clstime',
+                title: '截关时间',
+                align: "left",
+                width: 145,
+                sort: true,
+                templet: '<div>{{ layui.util.toDateString(d.inputtime, "yyyy-MM-dd") }}</div>'
+            }
+            , {
+                field: 'bargeetd',
+                title: '开船时间',
+                align: "left",
+                width: 145,
+                sort: true,
+                templet: '<div>{{ layui.util.toDateString(d.inputtime, "yyyy-MM-dd") }}</div>'
+            }
+            , {field: 'sono', title: 'SO', align: "left", width: 145, sort: true}
+            , {field: 'cntnoa', title: 'CNTR NO', align: "left", width: 145, sort: true}
+            , {field: 'jobstatedesc', title: '状态', align: "left", width: 100, templet: '#showjobstatedesc'}
+            , {field: 'esi', title: '补料', align: "center", width: 190, templet: '#showEsi'}
+            , {field: 'bill', title: '账单', align: "center", width: 110, templet: '#showBill'}
+            , {field: '', title: '附件', align: "center", templet: '#showAttachment'}
+        ]]
+        var getDatetablecols = (function () {
+            $.ajax({
+                type: "post",  //提交方式
+                data: {"json": ""},
+                dataType: "json", //收到数据类型
+                async: false,
+                url: getContextPath() + "/orderfcl?method=getDatetablecols",
+                success: function (data) { //提交成功的回调函数
+                    if (data.success == false) {
+                        //layer.msg('没有查询到表格格式',{icon: 7});
+                    }
+                    for (var i = 0; i < data.length; i++) {
+                        datetablecols[0][i] = data[i];
+                    }
+                },
+                error: function (result) {
+                    layer.msg('请求异常', {icon: 7});
+                }
+            });
+        })()
+        form.render();
+        i18np.translateOnForm(getLanguage());
+        //randerfromselect('/combobox','fspol','checkbox_pol',formSelects,true);
+        //randerfromselect('/combobox','fspod','checkbox_pod',formSelects,true);
+        //randerfromselect('/combobox','fscarrier','checkbox_carrier',formSelects,true);
+        var configDataSet = new randerXmselect.getConfig();
+        configDataSet.name = 'pol';
+        configDataSet.action = 'fspol';
+        configDataSet.el = '#polxm';
+        var polxm = new randerXmselect.rander(xmSelect, configDataSet);
+        var configDataSetpod = new randerXmselect.getConfig();
+        configDataSetpod.name = 'pod';
+        configDataSetpod.action = 'fspod';
+        configDataSetpod.el = '#podxm';
+        var podxm = new randerXmselect.rander(xmSelect, configDataSetpod);
+        var configDataSetc = new randerXmselect.getConfig();
+        configDataSetc.name = 'crrier';
+        configDataSetc.action = 'fscarrier';
+        configDataSetc.el = '#crrierxm';
+        var crrierxm = new randerXmselect.rander(xmSelect, configDataSetc);
+
+        table.render({
+            elem: '#datetable'
+            , url: getContextPath() + "/orderfcl?method=list" + getSid()
+            , limit: 15
+            , skin: 'nob'
+            , even: true
+            , cols: datetablecols
+            , id: 'dataReload'
+            , title: '我的订单'
+            , page: {theme: '#1e9fff'}
+            , done: function (res, curr, count) {
+                //$('th').css({'background-color': '#7aa9d9', 'color': 'white','line-height': '38px'});
+                $('th').css({'background-color': '#7aa9d9', 'color': 'white', 'line-height': '38px'});
+                i18np.translateOnTanle(getLanguage());
+            }
+        });
+        form.on('submit(query)', function (data) {
+            var datajson = JSON.parse(JSON.stringify(data.field));
+            //console.dir(datajson);
+            //var args = 'pol='+formSelects.value('checkbox_pol', 'nameStr')+'&pod='+formSelects.value('checkbox_pod', 'nameStr')+'&carrier='+formSelects.value('checkbox_carrier', 'nameStr');
+            table.reload('dataReload', {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                , where: {
+                    nos: datajson.nos
+                    , pol: datajson.pol
+                    , pod: datajson.pod
+                    , crrier: datajson.crrier
+                    , placeorder: datajson.placeorder
+                    , etd: datajson.etd
+                    , interest: datajson.interest
+                    , jobstatetype: null
+                }
+            });
+        })
+        form.on('submit(showbusshipbill)', function (data) {
+            var para = new Object;
+            para.id = this.value
+            actionPost('/orderfcl', 'getbusbillurl', JSON.stringify(para), function (res) {
+                var resjson = JSON.parse(res);
+                if (resjson.success == true) {
+                    var src = resjson.url;
+                    layer.open({
+                        title: '账单',
+                        type: 1,
+                        //skin: 'layui-layer-rim', //加上边框
+                        area: ['800px', '600px'], //宽高
+                        content: '<iframe src="' + src + '" id = "busshipbilliframe" style="width: 100%;height: 100%;min-height: 920px;frameborder:no;border:0;marginwidth:0;marginheight:0;scrolling:no"></iframe>'
+                    });
+                } else {
+                    layer.msg(resjson.msg, {icon: 7});
+                }
+            })
+        });
+        form.on('submit(delbill)', function (data) {
+            actionGet('/orderfcl', 'delbill', 'id=' + this.value, function (data) {
+                data = JSON.parse(data);
+                console.log(data);
+                if (data.success == true) {
+                    layer.msg("OK", {icon: 1});
+                    table.reload('dataReload');
+                } else {
+                    layer.msg(data.msg, {icon: 7});
+                }
+            })
+        })
+        form.on('submit(gojobstate)', function (data) {
+            actionGet('/tracking', 'track', 'id=' + this.value, function (data) {
+                if (data == null || data == "") return;
+                if (typeof (data) === "string") {
+                    data = JSON.parse(data);
+                }
+                if (data) {
+                    index = 1;
+                    lastActive = 1;
+                    commentuserlast = "";
+                    var html = '';
+                    var cssActive = "";
+                    var height = 88;
+                    for (var i = 0; i < data.length; i++) {
+                        html += addHtml(data[i].statusdesc, data[i]);
+                    }
+                    layer.open({
+                        title: 'Tracking',
+                        type: 1,
+                        area: ['800px', '600px'], //宽高
+                        content: '<div id = "dates">' + html + '</div>'
+                    });
+                    $('#dates > div').last().addClass("intro-list-last");
+                    $(".intro-list").fadeIn(1000);
+                    shake($(".shake" + (lastActive + 1)));
+                }
+            })
+        });
+        form.on('submit(addsbill)', function (data) {
+            var para = new Object;
+            para.jobid = this.value;
+            actionPost('/orderfcl', 'getbilllist', JSON.stringify(para), function (res) {
+                var resjson = JSON.parse(res);
+                if (resjson.success == true) {
+                    var listjson = JSON.parse(resjson.billlist);
+                    if (listjson.count > 0) {
+                        layer.open({
+                            title: '提单分单列表',
+                            type: 1,
+                            area: ['350px', '350px'], //宽高
+                            content: '<div style="text-align: center;">'
+                                + '  		<div class="layui-inline">'
+                                + '		<table class="layui-table" id="billlisttable" lay-size="sm"></table>'
+                                + '	</div>'
+                                + '</div>'
+                        });
+                        console.log(listjson.data);
+                        table.render({
+                            elem: '#billlisttable'
+                            , height: 500
+                            , limit: 10000
+                            , data: listjson.data
+                            , cols: [[
+                                {field: 'hblno', title: 'HBL单号', align: "left", width: 120}
+                                , {field: 'mblno', title: 'MBL单号', align: "left", width: 120}
+                                , {
+                                    field: '',
+                                    title: '',
+                                    width: 80,
+                                    templet: '<div><a type="button" value="{{d.id}}" class="layui-btn layui-btn-warm layui-btn-xs" href = "../../esibill.html?id={{d.id}}" target = "_blank"><i class="layui-icon layui-icon-template-1"></i>ESI</a></div>'
+                                },
+                            ]]
+                            , id: 'billlisttable'
+                            , title: '分单列表'
+                            , page: {theme: '#1e9fff'}
+                            , done: function (res, curr, count) {
+                                $('th').css({'background-color': '#7aa9d9', 'color': 'white', 'line-height': '38px'});
+                            }
+                        });
+                        return;
+                    }
+                    layer.open({
+                        title: '生成分单',
+                        type: 1,
+                        area: ['350px', '160px'], //宽高
+                        content: '<form class="layui-form" lay-filter="addsbillform" style="">'
+                            + '<div class="layui-form-item">'
+                            + '	<div class="layui-inline">'
+                            + '		<label class="layui-form-label">BILL数</label>'
+                            + '		<div class="layui-input-inline">'
+                            + '				<input type="text" name="jobid" autocomplete="off" class="layui-input layui-hide">'
+                            + '	        	<input type="text" name="billnumber" id="billnumber" autocomplete="off" class="layui-input" type="text" lay-verify="number">'
+                            + '	        	<button type="button" class="layui-btn layui-btn-normal" lay-submit lay-filter="addsbillconfirm" type="submit"><i class="layui-icon layui-icon-add-1">生成分单</i></button>'
+                            + '		</div>'
+                            + '	</div>'
+                            + '</div>'
+                            + '</form>'
+                    });
+                    form.val("addsbillform", {"jobid": para.jobid});
+                } else {
+                    layer.msg(resjson.msg, {icon: 7});
+                }
+            })
+
+        });
+        form.on('submit(addsbillconfirm)', function (data) {
+            actionPost('/orderfcl', 'addsbill', JSON.stringify(data.field), function (res) {
+                var resjson = JSON.parse(res);
+                if (resjson.success == true) {
+                    layer.msg(resjson.msg, {icon: 1});
+                    table.reload('dataReload');
+                } else {
+                    layer.msg(resjson.msg, {icon: 7});
+                }
+            })
+        });
+
+        function shake(ele) {
+            t = setInterval(function () {
+                if (ele.css('visibility') == "visible") {
+                    ele.css('visibility', "hidden");
+                } else {
+                    ele.css('visibility', "visible");
+                }
+            }, 800);
+        };
+
+        function addHtml(title, data) {
+            var html = '';
+            var cssActive = "";
+            if (index % 2 == 0) {
+                cssActive = "intro-list-active";
+            } else {
+                cssActive = "";
+            }
+            var processer = data.updater;
+            var processdate = data.dealdate;
+            if (processer == null) {
+                processer = '';
+            } else {
+                lastActive = index;
+            }
+            if (processdate == null) processdate = '';
+            html += '<div class="intro-list ' + cssActive + '" style="display:none;">';
+            html += '		<div class="intro-list-left" style="width:30%"><span class="shake' + index + '">' + title + '</span></div>';
+            html += '		<div class="intro-list-right" style="width:70%;padding-right: 15px;">';
+            html += '			<span class="shake' + index + '">' + index + '</span>';
+            html += '			<div class="intro-list-content">';
+            html += '				<div class=""><span class="translate" style="font-weight:bold">处理人</span>:' + processer + '</div>';
+            html += '				<div class=""><span class="translate" style="font-weight:bold">处理时间</span>:' + processdate + '</div>';
+            html += '			</div>';
+            html += '		</div>';
+            html += '</div>';
+            index++;
+            commentuserlast = data.commentuser;
+            return html;
+        }
+
+        actionGet('/orderfcl', 'getjobstatedesc', '', function (res) {
+            var data = JSON.parse(res);
+            if (data.success != false) {
+                var html =
+                    '<a id="isubmit" href="javascript:">' + $.i18n.prop("未提交") + '<span style="color: blue">' + data.isubmit + '</span>' + $.i18n.prop("条") + '</a>'
+                    + '<span lay-separator="">|</span><a id="notshould" href="javascript:">' + $.i18n.prop("未受理") + '<span style="color: blue">' + data.notshould + '</span>' + $.i18n.prop("条") + '</a>'
+                    + '<span lay-separator="">|</span><a id="isshould" href="javascript:">' + $.i18n.prop("已受理") + '<span style="color: blue">' + data.isshould + '</span>' + $.i18n.prop("条") + '</a>'
+                    + '<span lay-separator="">|</span><a id="booking" href="javascript:">' + $.i18n.prop("订舱中") + '<span style="color: blue">' + data.booking + '</span>' + $.i18n.prop("条") + '</a>'
+                    + '<span lay-separator="">|</span><a id="iscabin" href="javascript:">' + $.i18n.prop("已放舱") + '<span style="color: blue">' + data.iscabin + '</span>' + $.i18n.prop("条") + '</a>'
+                    + '<span lay-separator="">|</span><a id="iscancel" href="javascript:">' + $.i18n.prop("已取消") + '<span style="color: blue">' + data.iscancel + '</span>' + $.i18n.prop("条") + '</a>'
+                ;
+                $('#setjobstatedesc').append(html);
+                form.render();
+            }
+        });
+        $(document).on('click', '#setjobstatedesc a', function () {
+            var jobstatetype = 0;
+            if ($(this).attr('id') == 'notshould') {
+                jobstatetype = 1;
+            } else if ($(this).attr('id') == 'isshould') {
+                jobstatetype = 2;
+            } else if ($(this).attr('id') == 'booking') {
+                jobstatetype = 3;
+            } else if ($(this).attr('id') == 'iscabin') {
+                jobstatetype = 4;
+            } else if ($(this).attr('id') == 'iscancel') {
+                jobstatetype = 5;
+            }
+            table.reload('dataReload', {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                , where: {
+                    jobstatetype: jobstatetype
+                }
+            });
+        });
+        form.on('submit(showAttachment)', function (data) {
+            var arraval = ['800px', '100%'];
+            if (isMove() == true) {
+                arraval = ['100%', '100%'];
+            }
+            layer.open({
+                title: '附件',
+                type: 1,
+                area: arraval, //宽高
+                content: '<iframe src="../attachment.html?id=' + this.value + '" id = "attachmentiframe" style="width:98%;height:100%;frameborder:0; scrolling:no;top:0;left:0"></iframe>'
+            });
+        });
+
+        form.on('submit(showNos)', function (data) {
+            var arraval = ['90%', '92%'];
+            var titleval = '';
+            if (isMove() == true) {
+                arraval = ['100%', '100%'];
+            }
+            layer.open({
+                title: '工作单详情',
+                type: 1,
+                area: arraval, //宽高
+                content: '<iframe src="../../commerceOrder.html?id=' + this.value + '" style="width:100%;height:99%;border:0;top:0;left:0"></iframe>'
+            });
+        })
+
+        form.on('submit(showbookingEdit)', function (data) {
+            console.log('123')
+            var arraval = ['800px', '95%'];
+            var titleval = '';
+            if (isMove() == true) {
+                arraval = ['100%', '100%'];
+                titleval = '<button type="button" lay-filter="closelayer" lay-submit class="layui-btn layui-btn-sm supersmall">返回</button>';
+            }
+            parent.layer.open({
+                title: titleval,
+                type: 2,
+                move: false,
+                fixed: false,
+                area: arraval, //宽高
+                content: '/so/mgr/order/csbook_edit.html?id=' + this.value
+            });
+        })
+
+        form.on('submit(qrycondition)', function (data) {
+            //$('button[lay-filter="polother"]').addClass('layui-hide');
+            //$('button[lay-filter="polup"]').removeClass('layui-hide');
+            if ($('i[id=queryIcon]').attr('class').search("layui-icon-down") > 0) {
+                $('i[id=queryIcon]').removeClass('layui-icon-down');
+                $('i[id=queryIcon]').addClass('layui-icon-up');
+                $('div[class*="layui-anim"]').removeClass('layui-hide');
+            } else {
+                $('i[id=queryIcon]').addClass('layui-icon-down');
+                $('i[id=queryIcon]').removeClass('layui-icon-up');
+                $('div[class*="layui-anim"]').addClass('layui-hide');
+            }
+        });
+    });
+
+
+</script>
+
+
+</body>
+</html>

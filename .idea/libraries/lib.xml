@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/servlet-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/emma.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/elite-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/junit-4.8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/emma_ant.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/yuicompressor-2.4.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/com.jcraft.jsch_0.1.41.v201101211617.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
