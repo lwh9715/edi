@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap>
+    <!--查询工作单-->
+    <select id="base.edi.jobinfo" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT x.jobid,
+        x.jobno,
+        to_char(x.jobdate, 'DD-Mon-YYYY') as jobdate,
+        (SELECT array_to_string(array(SELECT t2.cntno FROM containers t2 WHERE t2.jobid = x.jobid), ',')) as cntno,
+        (SELECT blnom FROM jobshipping jp WHERE x.jobid = jp.jobid) as blnom,
+        (SELECT vessel FROM jobshipping jp WHERE x.jobid = jp.jobid) as vessel,
+        (SELECT voyage FROM jobshipping jp WHERE x.jobid = jp.jobid) as voyage
+        FROM jobs x
+        WHERE 1 = 1
+          AND $nos$
+        ORDER BY x.jobno DESC LIMIT 50;
+    </select>
+
+</sqlMap>

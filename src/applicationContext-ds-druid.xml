@@ -16,7 +16,7 @@
 	  <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
 	  
 	  <property name="url" value="jdbc:postgresql://fn.yuehaitong.com:5432/fms2?application_name=scp中集世倡;serverTimezone=GMT%2B8" />
-	  <property name="connectionProperties" value="password=110" />
+	  <property name="connectionProperties" value="password=dK2iA2mL" />
 	    
 	  <property name="username" value="ediuser" />
 	 	<property name="passwordCallback" ref="dbPasswordCallback"/>
