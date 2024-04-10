@@ -5,16 +5,118 @@
     <!--查询工作单-->
     <select id="base.edi.jobinfo" parameterClass="java.util.Map" resultClass="java.util.HashMap">
         SELECT x.jobid,
-        x.jobno,
-        to_char(x.jobdate, 'DD-Mon-YYYY') as jobdate,
-        (SELECT array_to_string(array(SELECT t2.cntno FROM containers t2 WHERE t2.jobid = x.jobid), ',')) as cntno,
-        (SELECT blnom FROM jobshipping jp WHERE x.jobid = jp.jobid) as blnom,
-        (SELECT vessel FROM jobshipping jp WHERE x.jobid = jp.jobid) as vessel,
-        (SELECT voyage FROM jobshipping jp WHERE x.jobid = jp.jobid) as voyage
+               x.jobno,
+               to_char(x.jobdate, 'DD-Mon-YYYY')                                                                 as jobdate,
+               (SELECT array_to_string(array(SELECT t2.cntno FROM containers t2 WHERE t2.jobid = x.jobid), ',')) as cntno,
+               (SELECT blnom FROM jobshipping jp WHERE x.jobid = jp.jobid)                                       as blnom,
+               (SELECT vessel FROM jobshipping jp WHERE x.jobid = jp.jobid)                                      as vessel,
+               (SELECT voyage FROM jobshipping jp WHERE x.jobid = jp.jobid)                                      as voyage
         FROM jobs x
-        WHERE 1 = 1
-          AND $nos$
+        WHERE 1 = 1 $filter$
         ORDER BY x.jobno DESC LIMIT 50;
+    </select>
+
+    <select id="base.edi.bolinfo" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT y.jobid                                                                                  as jobid,
+               y.lineid                                                                                 as lineid,
+               y.shpnid                                                                                 as shpnid,
+               COALESCE(y.vessel, '')                                                                   as vessel,
+               COALESCE(y.voyage, '')                                                                   as voyage,
+               to_char(y.eta, 'DD-Mon-YYYY')                                                            as eta,
+               COALESCE(x.jobno, '')                                                                    as jobno,
+               COALESCE(y.sono, '')                                                                     as sono,
+               COALESCE(y.blnom, x.jobno)                                                               as blnom,
+               COALESCE((SELECT portcode FROM port xx WHERE xx.portid = y.polid LIMIT 1), '')           as pol,
+               COALESCE((SELECT portcode FROM port xx WHERE xx.portid = y.podid LIMIT 1), '')           as pod,
+               COALESCE((SELECT portcode FROM port xx WHERE xx.portname_e = y.destination LIMIT 1), '') as destination,
+               to_char(y.loaddate, 'DD-Mon-YYYY')                                                       as loaddate,
+               (CASE WHEN x.impexp = 'E' THEN 'I' ELSE 'T' END)                                         as impexp,
+               COALESCE(y.cneetitle, '')                                                                as cneetitle,
+               COALESCE(y.cneename, '')                                                                 as cneename,
+               SUBSTRING(x.ldtype from 1 for 1)                                                         as cargocode,
+               'F'                                                                                      as consgoods,
+               (CASE WHEN x.ldtype = 'FCL' THEN 'FCL/FCL' ELSE 'LCL/LCL' END)                           as ldtype,
+               COALESCE(y.cneetitle, '')                                                                as cneename1,
+               COALESCE(y.cneename, '')                                                                 as cneename2,
+               COALESCE(y.cnorname, '')                                                                 as cnorname,
+               COALESCE(y.cnortitle, '')                                                                as cnortitle3,
+               COALESCE(y.cneeaccountno, '')                                                            as cneeaccountno,
+               COALESCE(y.cneetitle, '')                                                                as cneetitle3,
+               y.notifyparty                                                                            as notifyname,
+               (select sr.shprcode from shipper sr where sr.shprid = y.notifyid                            LIMIT 1)               as notifycode,
+               (select sr.shpradd from shipper sr where sr.shprid = y.notifyid  LIMIT 1)                                 as notifyadd,
+               COALESCE(y.markno, '')                                                                                    as markno,
+               COALESCE(y.goodsname, '')                                                                                 as goodscode,
+               y.commdesc                                                                                                as goodsname,
+               y.pieces                                                                                                  as pieces,
+               (CASE WHEN y.packing = 'CTN' THEN 'CARTONS'
+                WHEN y.packing = 'CARTON(S)' THEN 'CARTONS'
+                WHEN y.packing = 'CASES' THEN 'CASES'
+                WHEN y.packing = 'BAGS' THEN 'BAGS'
+                WHEN y.packing = 'PLYWOOD BOX' THEN 'PLYWOOD BOX'
+                WHEN y.packing = 'PALLETS' THEN 'PALLET'
+                WHEN y.packing = 'PACKAGES' THEN 'PACKAGES'
+                WHEN y.packing = 'PLT' THEN 'PALLET'
+                ELSE '' END)                                                                                             as packtype,
+               (CASE WHEN y.packing = 'CARTON(S)' THEN 'CTN'
+                WHEN y.packing = 'CASES' THEN 'CSE'
+                WHEN y.packing = 'BAGS' THEN 'BAG'
+                WHEN y.packing = 'PALLETS' THEN 'PLT'
+                ELSE COALESCE(y.packing,'') END)                                                                         as packcode,
+               (select cntno from containers where jobid = x.jobid AND y.isdeleted = 'N' AND cntno IS NOT NULL LIMIT 1)  as cntno,
+               (SELECT count(cntqty) FROM containers WHERE jobid = y.jobid AND y.isdeleted = 'N')                        as containersnum,
+               (SELECT count(cntqty) FROM containers WHERE jobid = y.jobid AND y.isdeleted = 'N')                        as quantity,
+               COALESCE(y.grswgt::numeric(18,3), 0)                                                                      as tare,
+               COALESCE(y.grswgt::numeric(18,3), 0)                                                                      as weight,
+               COALESCE(y.grswgt::numeric(18,3), 0)                                                                      as grswgt,
+               COALESCE(y.gdscbm::numeric(18,4), 0)                                                                      as cbm,
+               COALESCE(y.ft, 0)                                                                                         as ft,
+               y.freightcharges                                                                                          as freightcharges,
+               y.remarks_s                                                                                               as remarks
+        FROM jobs x,
+            jobshipping y
+        WHERE x.jobid = y.jobid
+          AND y.isdeleted = 'N' $filter$
+        ORDER BY x.jobno DESC LIMIT 1
+    </select>
+
+    <select id="base.edi.coninfo" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+        SELECT y.jobid                                as                                          jobid,
+               COALESCE(y.markno, '')                 as                                          marks,
+               COALESCE(y.commdesc, '')               as                                          cargodesc,
+               'N'                                    as                                          indicat,
+               COALESCE(y.goodsname, '')              as                                          commoditycode,
+               z.pieces                               as                                          pieces,
+               (CASE
+                    WHEN y.packing = 'CTN' THEN 'CARTONS'
+                    WHEN y.packing = 'CARTON(S)' THEN 'CARTONS'
+                    WHEN y.packing = 'CASES' THEN 'CASES'
+                    WHEN y.packing = 'BAGS' THEN 'BAGS'
+                    WHEN y.packing = 'PLYWOOD BOX' THEN 'PLYWOOD BOX'
+                    WHEN y.packing = 'PALLETS' THEN 'PALLET'
+                    WHEN y.packing = 'PACKAGES' THEN 'PACKAGES'
+                    WHEN y.packing = 'PLT' THEN 'PALLET'
+                    ELSE '' END)                      as                                          packtype,
+               (CASE
+                    WHEN y.packing = 'CARTON(S)' THEN 'CTN'
+                    WHEN y.packing = 'CASES' THEN 'CSE'
+                    WHEN y.packing = 'BAGS' THEN 'BAG'
+                    WHEN y.packing = 'PALLETS' THEN 'PLT'
+                    ELSE COALESCE(y.packing, '') END) as                                          packcode,
+               COALESCE(z.grswgt::numeric (18, 3), 0) as                                          grswgt,
+               COALESCE(z.gdscbm::numeric (18, 4), 0) as                                          cbm,
+               COALESCE(z.cntno, '')                  as                                          cntno,
+               (SELECT (cntwgt / 1000) ::numeric(18,1) FROM cnttype xx WHERE xx.ctcode = z.ctcode LIMIT 1)               as cntgw,
+               COALESCE(z.sealno, '')                                                           as sealno,
+               (z.grswgt / 1000) ::numeric(18,3)                        as grswgt1
+        FROM jobs x,
+            jobshipping y,
+            containers z
+        WHERE x.jobid = y.jobid
+          AND y.jobid = z.jobid
+          AND y.isdeleted = 'N'
+          AND z.isdeleted = 'N' $filter$
+        ORDER BY x.jobno DESC
     </select>
 
 </sqlMap>
