@@ -62,6 +62,7 @@
                 WHEN y.packing = 'CASES' THEN 'CSE'
                 WHEN y.packing = 'BAGS' THEN 'BAG'
                 WHEN y.packing = 'PALLETS' THEN 'PLT'
+                WHEN y.packing = 'PACKAGES' THEN 'PKG'
                 ELSE COALESCE(y.packing,'') END)                                                                         as packcode,
                (select cntno from containers where jobid = x.jobid AND y.isdeleted = 'N' AND cntno IS NOT NULL LIMIT 1)  as cntno,
                (SELECT count(cntqty) FROM containers WHERE jobid = y.jobid AND y.isdeleted = 'N')                        as containersnum,
@@ -102,6 +103,7 @@
                     WHEN y.packing = 'CASES' THEN 'CSE'
                     WHEN y.packing = 'BAGS' THEN 'BAG'
                     WHEN y.packing = 'PALLETS' THEN 'PLT'
+                    WHEN y.packing = 'PACKAGES' THEN 'PKG'
                     ELSE COALESCE(y.packing, '') END) as                                          packcode,
                COALESCE(z.grswgt::numeric (18, 3), 0) as                                          grswgt,
                COALESCE(z.gdscbm::numeric (18, 4), 0) as                                          cbm,
