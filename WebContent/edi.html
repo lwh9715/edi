@@ -83,7 +83,7 @@
             //搜索单号
             searchNos() {
                 this.isshowdownload = false;
-                let url = "http://localhost:8080/edi/api?method=searchJob&nos=" + this.query.val + "&type=" + this.query.type;
+                let url = "http://39.108.229.3:81/edi/api?method=searchJob&nos=" + this.query.val + "&type=" + this.query.type;
                 this.$http.get(url).then(function (res) {
                     if (res.data.jobs != null) {
                         this.jobList = res.data.jobs;
@@ -102,7 +102,7 @@
                         resultString += ',' + e.jobno;
                     }
                 });
-                window.location.href = "http://localhost:8080/edi/api?method=findAllJob&nos=" + resultString;
+                window.location.href = "http://39.108.229.3:81/edi/api?method=findAllJob&nos=" + resultString;
             }
         },
         created() {

@@ -138,6 +138,9 @@ public class BusEdiBean extends BaseServlet {
                             + isNullToString(bollist.get(0).get("eta")) + "\",\"" + "Rotation 待补充" + "\",\"" + "MFI" + "\",\"" + "1" + "\",\"" + "1\"" + "\n";
                 }
 
+                //发货人截取
+                String cnorname = (String) bollist.get(0).get("cnorname");
+
                 ediStr += "\"BOL" + "\",\""
                         + isNullToString(bollist.get(0).get("jobno")) + "\",\"" //BILL OF LADING NO
                         + "\",\"" //PARTNERING LINE CODE
@@ -164,7 +167,7 @@ public class BusEdiBean extends BaseServlet {
                         + "\",\"" //ORIGINAL BOL NUMBER 原始BOL数字
                         + "\",\"" //ORIGINAL SHIPPER NAME 原发货人名
                         + "\",\"" //ORIGINAL SHIPPER ADDRESS 原发货人地址
-                        + isNullToString(strIntercept((String) bollist.get(0).get("cnorname"), 30)) + "\",\"" //SHIPPER NAME 发货人名
+                        + isNullToString(cnorname.substring(0, cnorname.indexOf("\r\n"))) + "\",\"" //SHIPPER NAME 发货人名
                         + "CHINA" + "\",\"" //SHIPPER ADDRESS
                         + "\",\"" //SHIPPER COUNTRY CODE
                         + (isNullToString(bollist.get(0).get("impexp")) == "T" ? "T9999" : "") + "\",\"" //CONSIGNEE CODE 收货人代码
